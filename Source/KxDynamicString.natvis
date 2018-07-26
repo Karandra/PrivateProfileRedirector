@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="KxBasicDynamicString&lt;wchar_t,*&gt;">
+		<DisplayString Condition="m_IsUsingHeap == false">{m_StaticString._Elems,su}</DisplayString>
+		<DisplayString Condition="m_IsUsingHeap == true">{m_HeapString}</DisplayString>
+		<Expand>
+			<Item Name="[StaticString]">m_StaticString._Elems,su</Item>
+			<Item Name="[StaticStringLength]">m_StaticLength</Item>
+			<Item Name="[HeapString]">m_HeapString</Item>
+			<Item Name="[HeapStringLength]">m_HeapString._Mypair._Myval2._Mysize</Item>
+		</Expand>
+	</Type>
+</AutoVisualizer>
