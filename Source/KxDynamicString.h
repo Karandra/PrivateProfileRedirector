@@ -258,7 +258,7 @@ class KxBasicDynamicString
 
 		void erase(size_t nOffset, size_t nCount)
 		{
-			if (nOffset < length())
+			if (nOffset < length() && nCount != 0)
 			{
 				auto sv = view(nOffset + std::min(nCount, capacity()));
 				if (using_static())
@@ -464,8 +464,13 @@ class KxDynamicString: public KxBasicDynamicString<wchar_t>
 {
 	public:
 		static KxDynamicString Format(const CharT* sFormatString, ...);
-		static KxDynamicString to_utf16(const char* sText);
-		static std::string to_utf8(const WCHAR* sText);
+		
+		static KxDynamicString to_utf16(const char* text, int length = -1, int codePage = CP_ACP);
+		static std::string to_codepage(const WCHAR* text, int length = -1, int codePage = CP_ACP);
+		static std::string to_utf8(const WCHAR* text, int length = -1)
+		{
+			return to_codepage(text, length, CP_UTF8);
+		}
 
 	public:
 		KxDynamicString() {}

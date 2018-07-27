@@ -19,25 +19,28 @@ KxDynamicString KxDynamicString::Format(const CharT* sFormatString, ...)
 	va_end(argptr);
 	return sBuffer;
 }
-KxDynamicString KxDynamicString::to_utf16(const char* sText)
+
+KxDynamicString KxDynamicString::to_utf16(const char* text, int length, int codePage)
 {
-	KxDynamicString sOut;
-	int iReqLength = MultiByteToWideChar(CP_UTF8, 0, sText, -1, NULL, 0);
-	if (iReqLength != 0)
+	KxDynamicString converted;
+	int lengthRequired = MultiByteToWideChar(codePage, 0, text, length, NULL, 0);
+	if (lengthRequired != 0)
 	{
-		sOut.resize((size_t)iReqLength);
-		MultiByteToWideChar(CP_UTF8, 0, sText, -1, sOut.data(), iReqLength);
+		converted.resize(static_cast<size_t>(lengthRequired + 1));
+		MultiByteToWideChar(codePage, 0, text, length, converted.data(), lengthRequired);
+		converted.resize(static_cast<size_t>(lengthRequired - 1));
 	}
-	return sOut;
+	return converted;
 }
-std::string KxDynamicString::to_utf8(const WCHAR* sText)
+std::string KxDynamicString::to_codepage(const WCHAR* text, int length, int codePage)
 {
-	std::string sOut;
-	int iReqLength = WideCharToMultiByte(CP_UTF8, 0, sText, -1, NULL, 0, NULL, NULL);
-	if (iReqLength != 0)
+	std::string converted;
+	int lengthRequired = WideCharToMultiByte(codePage, 0, text, length, NULL, 0, NULL, NULL);
+	if (lengthRequired != 0)
 	{
-		sOut.resize((size_t)iReqLength);
-		WideCharToMultiByte(CP_UTF8, 0, sText, -1, sOut.data(), iReqLength, NULL, NULL);
+		converted.resize(static_cast<size_t>(lengthRequired + 1));
+		WideCharToMultiByte(codePage, 0, text, length, converted.data(), lengthRequired, NULL, NULL);
+		converted.resize(static_cast<size_t>(lengthRequired - 1));
 	}
-	return sOut;
+	return converted;
 }
