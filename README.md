@@ -33,7 +33,7 @@ Plugin can be configures in its own INI file, each parameter is described inside
 
 **Q:** Will this work with MO/NMM/Vortex/Kortex (yeah, I had to mention it) or any other mod manager?
 
-**A:** It was tested with MO and Kortex and no problems was found. I can't say anything about compatibility with other mod managers.
+**A:** It was tested with MO2 and Kortex and no problems was found. Vortex and NMM have not been tested yet but are expected to work just fine. I can't say anything about compatibility with other mod managers.
 
 **Q:** I installed it and game crashes at startup.
 
