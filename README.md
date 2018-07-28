@@ -27,15 +27,13 @@ GetPrivateProfileIntW
 Plugin can be configures in its own INI file, each parameter is described inside this file.
 
 # Q&A
-**Q:** Do I really need this?
-
+**Q:** Do I really need this?  
 **A:** It depends. If your game starts from shortcut to main menu in split second then no. If it takes longer, this plugin can help. How much time you will save depends on your setup.
 
-**Q:** Will this work with MO/NMM/Vortex/Kortex (yeah, I had to mention it) or any other mod manager?
+**Q:** Will this work with MO/NMM/Vortex/Kortex (yeah, I had to mention it) or any other mod manager?  
+**A:** It was tested with MO2 and Kortex and no problems was found. Vortex and NMM have not been tested yet but are expected to work just fine. I can't say anything about compatibility with other mod managers.  
 
-**A:** It was tested with MO2 and Kortex and no problems was found. Vortex and NMM have not been tested yet but are expected to work just fine. I can't say anything about compatibility with other mod managers.
 MO1 is Not compatible, Mo1 uses those same functions this plugin hooks to inject the BSA list into the INI settings and a bunch of other stuff. This plugin interferes with that making Mo1 not work correctly. MO1 already has some optimizations in place for this problem so this mod is not really needed that much for MO1 users. 
 
-**Q:** I installed it and game crashes at startup.
-
+**Q:** I installed it and game crashes at startup.  
 **A:** Enable log in config file and reproduce your crash. Go to Data\SKSE\Plugins, look for file PrivateProfileRedirector.log, zip it, upload it somewhere and post a link to it in your issue report. Log file can be more that 100 MB, so don't upload it as is, be sure to compress it.
