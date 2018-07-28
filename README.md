@@ -34,6 +34,7 @@ Plugin can be configures in its own INI file, each parameter is described inside
 **Q:** Will this work with MO/NMM/Vortex/Kortex (yeah, I had to mention it) or any other mod manager?
 
 **A:** It was tested with MO2 and Kortex and no problems was found. Vortex and NMM have not been tested yet but are expected to work just fine. I can't say anything about compatibility with other mod managers.
+MO1 is Not compatible, Mo1 uses those same functions this plugin hooks to inject the BSA list into the INI settings and a bunch of other stuff. This plugin interferes with that making Mo1 not work correctly. MO1 already has some optimizations in place for this problem so this mod is not really needed that much for MO1 users. 
 
 **Q:** I installed it and game crashes at startup.
 
