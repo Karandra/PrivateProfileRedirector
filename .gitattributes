@@ -1,13 +1,13 @@
 #sources
-*.c text
-*.cc text
-*.cxx text
-*.cpp text
-*.c++ text
-*.hpp text
-*.h text
-*.h++ text
-*.hh text
+*.c text diff
+*.cc text diff
+*.cxx text diff
+*.cpp text diff
+*.c++ text diff
+*.hpp text diff
+*.h text diff
+*.h++ text diff
+*.hh text diff
 
 # Compiled Object files
 *.slo binary
