@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "SimpleINI.h"
+#include "RtlDefines.h"
 #include "KxDynamicString.h"
 #include "KxCriticalSection.h"
 
@@ -18,7 +19,8 @@ class INIObject
 
 	private:
 		bool LoadFile();
-		bool SaveFile(bool fromOnWrite = false);
+		bool SaveFile();
+		void ProcessInlineComments();
 
 	public:
 		INIObject(const KxDynamicString& path);
@@ -99,6 +101,9 @@ class PrivateProfileRedirector
 		UINT(WINAPI* m_GetPrivateProfileIntA)(LPCSTR, LPCSTR, INT, LPCSTR) = NULL;
 		UINT(WINAPI* m_GetPrivateProfileIntW)(LPCWSTR, LPCWSTR, INT, LPCWSTR) = NULL;
 
+		NTSTATUS(WINAPI* m_RtlInitUnicodeString)(PCUNICODE_STRING, PCWSTR) = NULL;
+		NTSTATUS(WINAPI* m_RtlUnicodeStringToInteger)(PCUNICODE_STRING, ULONG, PULONG) = NULL;
+
 	private:
 		struct FunctionInfo
 		{
@@ -117,11 +122,17 @@ class PrivateProfileRedirector
 		};
 
 		const DWORD m_ThreadID = 0;
+		HMODULE m_NtDLL = NULL;
+
 		INIFile m_Config;
+		bool m_WriteProtected = false;
 		bool m_NativeWrite = false;
-		bool m_ShouldSaveOnWrite = false;
+		bool m_ShouldSaveOnWrite = true;
 		bool m_ShouldSaveOnThreadDetach = false;
-		bool m_TrimKeyNamesA = false;
+		bool m_TrimKeyNamesA = true;
+		bool m_TrimValueQuotes = true;
+		bool m_ProcessInlineComments = true;
+		bool m_DisableCCUnsafeA = false;
 		int m_ANSICodePage = CP_ACP;
 
 		std::unordered_map<KxDynamicString, std::unique_ptr<INIObject>> m_INIMap;
@@ -129,6 +140,13 @@ class PrivateProfileRedirector
 		FILE* m_Log = NULL;
 
 	private:
+		void LogBase(const wchar_t* string) const
+		{
+			fputws(string, m_Log);
+			fputws(L"\r\n", m_Log);
+			fflush(m_Log);
+		}
+		
 		template<class T> LONG AttachFunction(T* original, T override, const FunctionInfo& info)
 		{
 			LONG status = DetourAttach(reinterpret_cast<void**>(original), reinterpret_cast<void*>(override));
@@ -169,6 +187,10 @@ class PrivateProfileRedirector
 		{
 			return m_Log != NULL;
 		}
+		bool IsWriteProtected() const
+		{
+			return m_WriteProtected;
+		}
 		bool IsNativeWrite() const
 		{
 			return m_NativeWrite;
@@ -189,6 +211,18 @@ class PrivateProfileRedirector
 		{
 			return m_TrimKeyNamesA;
 		}
+		bool ShouldTrimValueQuotes() const
+		{
+			return m_TrimValueQuotes;
+		}
+		bool ShouldProcessInlineComments() const
+		{
+			return m_ProcessInlineComments;
+		}
+		bool ShouldDisableCCUnsafeA() const
+		{
+			return m_DisableCCUnsafeA;
+		}
 
 		INIObject& GetOrLoadFile(const KxDynamicString& path);
 		void SaveChnagedFiles(const wchar_t* message) const;
@@ -202,15 +236,30 @@ class PrivateProfileRedirector
 		{
 			return KxDynamicString::to_codepage(string, length, m_ANSICodePage);
 		}
-		KxDynamicString& TrimSpaceCharsLR(KxDynamicString& keyName) const;
+		
+		static KxDynamicString& TrimCharsL(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2);
+		static KxDynamicString& TrimCharsR(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2);
+		static KxDynamicString& TrimCharsLR(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2)
+		{
+			TrimCharsL(value, c1, c2);
+			TrimCharsR(value, c1, c2);
+			return value;
+		}
+		static KxDynamicString& TrimSpaceCharsLR(KxDynamicString& value)
+		{
+			return TrimCharsLR(value, L' ', L'\t');
+		}
+		static KxDynamicString& TrimQuoteCharsLR(KxDynamicString& value)
+		{
+			return TrimCharsLR(value, L'\"', L'\'');
+		}
+		
 		template<class ...Args> void Log(const wchar_t* format, Args... args) const
 		{
 			if (m_Log)
 			{
 				KxDynamicString string = KxDynamicString::Format(format, std::forward<Args>(args)...);
-				fputws(string.data(), m_Log);
-				fputws(L"\r\n", m_Log);
-				fflush(m_Log);
+				LogBase(string.data());
 			}
 		}
 };

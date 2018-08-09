@@ -1,37 +1,34 @@
 #pragma once
 #include "stdafx.h"
+#include "ScriptExtenderDefines.h"
 
-#define SEAPI(retType) extern "C" __declspec(dllexport) retType __cdecl
-
-struct PluginInfo;
-struct SKSEInterface;
-struct SKSEScaleformInterface;
-class TESObjectREFR;
-class GFxMovieView;
-class GFxValue;
-
-#if defined _WIN64
-struct ObScriptCommand;
-#else
-struct CommandInfo;
-#endif
-
-SEAPI(bool) SKSEPlugin_Query(const SKSEInterface* skse, PluginInfo* info);
-SEAPI(bool) SKSEPlugin_Load(const SKSEInterface* skse);
+xSE_API(bool) xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info);
+xSE_API(bool) xSE_LOADFUNCTION(const xSE_Interface* xSE);
 
 //////////////////////////////////////////////////////////////////////////
 class RedirectorSEInterface
 {
 	using PluginHandle = uint32_t;
 	using ConsoleCommandHandler = bool(*)(void*, void*, TESObjectREFR*, void*, void*, void*, double*, void*);
-	#if defined _WIN64
-	using ConsoleCommandInfo = ObScriptCommand;
-	#else
-	using ConsoleCommandInfo = CommandInfo;
-	#endif
 
-	friend bool SKSEPlugin_Query(const SKSEInterface*, PluginInfo*);
-	friend bool SKSEPlugin_Load(const SKSEInterface*);
+	friend bool xSE_QUERYFUNCTION(const xSE_Interface*, PluginInfo*);
+	friend bool xSE_LOADFUNCTION(const xSE_Interface*);
+
+	private:
+		template<class T> static void RegisterScaleformFunctionChar(GFxMovieView* view, GFxValue* root, const char* name)
+		{
+			#if xSE_HAS_SCALEFORM_INTERFACE
+
+			#if xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR || xSE_PLATFORM_F4SE
+			::RegisterScaleformFunction<T>(root, view, name);
+			#elif xSE_PLATFORM_SKSE
+			::RegisterFunction<T>(root, view, name);
+			#endif
+
+			#else
+			static_assert(false, "Unsupported xSE platform");
+			#endif
+		}
 
 	public:
 		static RedirectorSEInterface& GetInstance();
@@ -39,33 +36,26 @@ class RedirectorSEInterface
 		static bool RegisterScaleform(GFxMovieView* view, GFxValue* root);
 		template<class T> static void RegisterScaleformFunction(GFxMovieView* view, GFxValue* root, const char* name)
 		{
-			#if defined _WIN64
-			::RegisterScaleformFunction<T>(root, view, name);
-			#else
-			::RegisterFunction<T>(root, view, name);
-			#endif
+			RegisterScaleformFunctionChar<T>(root, view, name);
 		}
 		template<class T> static void RegisterScaleformFunction(GFxMovieView* view, GFxValue* root, const std::string& name)
 		{
-			#if defined _WIN64
-			::RegisterScaleformFunction<T>(root, view, name.c_str());
-			#else
-			::RegisterFunction<T>(root, view, name);
-			#endif
+			RegisterScaleformFunctionChar<T>(root, view, name.c_str());
 		}
 
 	public:
 		PluginHandle m_PluginHandle;
-		SKSEScaleformInterface* m_Scaleform = NULL;
+		const xSE_Interface* m_XSE = NULL;
+		xSE_ScaleformInterface* m_Scaleform = NULL;
 
-		ConsoleCommandInfo* m_RefreshINICommand = NULL;
+		xSE_ConsoleCommandInfo* m_RefreshINICommand = NULL;
 		ConsoleCommandHandler m_OriginalRefreshINIHandler = NULL;
 
 	private:
-		bool OnQuery(PluginHandle pluginHandle, SKSEScaleformInterface* scaleforem);
+		bool OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleforem);
 		bool OnLoad();
 
-		ConsoleCommandInfo* FindScriptCommand(const std::string_view& fullName) const;
+		xSE_ConsoleCommandInfo* FindConsoleCommand(const std::string_view& fullName) const;
 		void OverrideRefreshINI();
 
 	private:
@@ -73,16 +63,26 @@ class RedirectorSEInterface
 		~RedirectorSEInterface();
 
 	public:
+		bool CanUseSEFunctions() const;
 		PluginHandle GetPluginHandle() const
 		{
 			return m_PluginHandle;
 		}
 		
+		bool HasSEInterface() const
+		{
+			return m_XSE != NULL;
+		}
+		const xSE_Interface* GetSEInterface() const
+		{
+			return m_XSE;
+		}
+
 		bool HasScaleform() const
 		{
 			return m_Scaleform != NULL;
 		}
-		SKSEScaleformInterface* GetScaleform() const
+		xSE_ScaleformInterface* GetScaleform() const
 		{
 			return m_Scaleform;
 		}

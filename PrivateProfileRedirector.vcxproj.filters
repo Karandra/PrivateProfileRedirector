@@ -34,6 +34,21 @@
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ScriptExtenderDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ScriptExtenderInterfaceNVSE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ScriptExtenderInterfaceIncludes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ScriptExtenderDefinesBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RtlDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\PrivateProfileRedirector.cpp">
@@ -54,6 +69,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Build\PrivateProfileRedirector.ini">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

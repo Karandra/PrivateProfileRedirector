@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PrivateProfileRedirector.h"
+#include "ScriptExtenderDefines.h"
 #include <strsafe.h>
 #include <detours.h>
 #include <detver.h>
@@ -9,6 +10,8 @@
 #define InitFunctionN(name)		m_##name = &::name;
 #define AttachFunctionN(name)	AttachFunction(&m_##name, &On_##name, L#name)
 #define DetachFunctionN(name)	DetachFunction(&m_##name, &On_##name, L#name)
+
+#define InitNtDLLFunctionN(name)	m_##name = reinterpret_cast<decltype(m_##name)>(GetProcAddress(m_NtDLL, #name));
 
 //////////////////////////////////////////////////////////////////////////
 bool INIObject::LoadFile()
@@ -21,15 +24,23 @@ bool INIObject::LoadFile()
 
 		m_INI.LoadFile(file);
 		fclose(file);
+
+		if (PrivateProfileRedirector::GetInstance().ShouldProcessInlineComments())
+		{
+			ProcessInlineComments();
+		}
 		return true;
 	}
 	return false;
 }
-bool INIObject::SaveFile(bool fromOnWrite)
+bool INIObject::SaveFile()
 {
-	if (fromOnWrite)
+	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
+	if (instance.IsWriteProtected())
 	{
-		PrivateProfileRedirector::GetInstance().Log(L"Saving file on write: '%s, Is empty: %d'", m_Path.data(), (int)m_INI.IsEmpty());
+		PrivateProfileRedirector::GetInstance().Log(L"[WriteProtected] Attempt to write data to '%s", m_Path.data());
+		m_IsChanged = false;
+		return false;
 	}
 
 	if (!m_INI.IsEmpty() && m_INI.SaveFile(m_Path, false) == SI_OK)
@@ -39,6 +50,40 @@ bool INIObject::SaveFile(bool fromOnWrite)
 		return true;
 	}
 	return false;
+}
+void INIObject::ProcessInlineComments()
+{
+	auto FindCommentStart = [](const std::wstring_view& value) -> size_t
+	{
+		for (size_t i = 0; i < value.size(); i++)
+		{
+			const wchar_t c = value[i];
+			if (c == L';' || c == L'#')
+			{
+				return i;
+			}
+		}
+		return std::wstring_view::npos;
+	};
+
+	INIFile::TNamesDepend sectionList;
+	m_INI.GetAllSections(sectionList);
+	for (const auto& section: sectionList)
+	{
+		INIFile::TNamesDepend keyList;
+		m_INI.GetAllKeys(section.pItem, keyList);
+		for (const auto& key: keyList)
+		{
+			std::wstring_view value = m_INI.GetValue(section.pItem, key.pItem);
+			size_t anchor = FindCommentStart(value);
+			if (anchor != std::wstring_view::npos)
+			{
+				KxDynamicString newValue = value.substr(0, anchor);
+				PrivateProfileRedirector::TrimSpaceCharsLR(newValue);
+				m_INI.SetValue(section.pItem, key.pItem, newValue.data(), NULL, true);
+			}
+		}
+	}
 }
 
 INIObject::INIObject(const KxDynamicString& path)
@@ -50,16 +95,19 @@ INIObject::INIObject(const KxDynamicString& path)
 void INIObject::OnWrite()
 {
 	m_IsChanged = true;
-	if (PrivateProfileRedirector::GetInstance().ShouldSaveOnWrite())
+	
+	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
+	if (instance.ShouldSaveOnWrite())
 	{
-		SaveFile(true);
+		PrivateProfileRedirector::GetInstance().Log(L"Saving file on write: '%s, Is empty: %d'", m_Path.data(), (int)m_INI.IsEmpty());
+		SaveFile();
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////
 PrivateProfileRedirector* PrivateProfileRedirector::ms_Instance = NULL;
 const int PrivateProfileRedirector::ms_VersionMajor = 0;
-const int PrivateProfileRedirector::ms_VersionMinor = 2;
+const int PrivateProfileRedirector::ms_VersionMinor = 3;
 const int PrivateProfileRedirector::ms_VersionPatch = 0;
 
 PrivateProfileRedirector& PrivateProfileRedirector::CreateInstance()
@@ -112,6 +160,9 @@ int PrivateProfileRedirector::GetLibraryVersionInt()
 //////////////////////////////////////////////////////////////////////////
 void PrivateProfileRedirector::InitFunctions()
 {
+	InitNtDLLFunctionN(RtlInitUnicodeString);
+	InitNtDLLFunctionN(RtlUnicodeStringToInteger);
+
 	InitFunctionN(GetPrivateProfileStringA);
 	InitFunctionN(GetPrivateProfileStringW);
 
@@ -232,22 +283,30 @@ int PrivateProfileRedirector::GetConfigOptionInt(const wchar_t* section, const w
 PrivateProfileRedirector::PrivateProfileRedirector()
 	:m_ThreadID(GetCurrentThreadId()), m_Config(false, false, false, false)
 {
+	m_NtDLL = LoadLibraryW(L"NtDLL.dll");
+
 	// Load config
-	m_Config.LoadFile(L"Data\\SKSE\\Plugins\\PrivateProfileRedirector.ini");
+	m_Config.LoadFile(L"Data\\" xSE_FOLDER_NAME_W "\\Plugins\\PrivateProfileRedirector.ini");
 
 	// Open log
 	if (GetConfigOptionBool(L"General", L"EnableLog", false))
 	{
-		m_Log = fopen("Data\\SKSE\\Plugins\\PrivateProfileRedirector.log", "wb+");
+		_wfopen_s(&m_Log, L"Data\\" xSE_FOLDER_NAME_W L"\\Plugins\\PrivateProfileRedirector.log", L"wb+");
 	}
 	Log(L"Log opened");
+	Log(L"Version: %s", GetLibraryVersionW());
+	Log(L"Script Extender platform: %s", xSE_NAME_W);
 
 	// Load options
-	m_NativeWrite = GetConfigOptionBool(L"General", L"NativeWrite", false);
-	m_ShouldSaveOnWrite = !m_NativeWrite && GetConfigOptionBool(L"General", L"SaveOnWrite", true);
-	m_ShouldSaveOnThreadDetach = !m_NativeWrite && GetConfigOptionBool(L"General", L"SaveOnThreadDetach", false);
-	m_TrimKeyNamesA = GetConfigOptionBool(L"General", L"TrimKeyNamesA", true);
-	m_ANSICodePage = GetConfigOptionInt(L"General", L"ANSICodePage", CP_ACP);
+	m_WriteProtected = GetConfigOptionBool(L"General", L"WriteProtected", m_WriteProtected);
+	m_NativeWrite = !m_WriteProtected && GetConfigOptionBool(L"General", L"NativeWrite", m_NativeWrite);
+	m_ShouldSaveOnWrite = !m_NativeWrite && GetConfigOptionBool(L"General", L"SaveOnWrite", m_ShouldSaveOnWrite);
+	m_ShouldSaveOnThreadDetach =!m_NativeWrite && GetConfigOptionBool(L"General", L"SaveOnThreadDetach", m_ShouldSaveOnThreadDetach);
+	m_TrimKeyNamesA = GetConfigOptionBool(L"General", L"TrimKeyNamesA", m_TrimKeyNamesA);
+	m_TrimValueQuotes = GetConfigOptionBool(L"General", L"TrimValueQuotes", m_TrimValueQuotes);
+	m_ProcessInlineComments = GetConfigOptionBool(L"General", L"ProcessInlineComments", m_ProcessInlineComments);
+	m_DisableCCUnsafeA = GetConfigOptionBool(L"General", L"DisableCCUnsafeA", m_DisableCCUnsafeA);
+	m_ANSICodePage = GetConfigOptionInt(L"General", L"ANSICodePage", m_ANSICodePage);
 
 	// Print options
 	Log(L"Loaded options:");
@@ -256,6 +315,9 @@ PrivateProfileRedirector::PrivateProfileRedirector()
 	Log(L"General/SaveOnWrite -> '%d'", (int)m_ShouldSaveOnWrite);
 	Log(L"General/SaveOnThreadDetach -> '%d'", (int)m_ShouldSaveOnThreadDetach);
 	Log(L"General/TrimKeyNamesA -> '%d'", (int)m_TrimKeyNamesA);
+	Log(L"General/TrimValueQuotes -> '%d'", (int)m_TrimValueQuotes);
+	Log(L"General/ProcessInlineComments -> '%d'", (int)m_ProcessInlineComments);
+	Log(L"General/WriteProtected -> '%d'", (int)m_WriteProtected);
 	Log(L"General/ANSICodePage -> '%d'", (int)m_ANSICodePage);
 
 	// Save function pointers
@@ -281,6 +343,11 @@ PrivateProfileRedirector::~PrivateProfileRedirector()
 	if (m_Log)
 	{
 		fclose(m_Log);
+	}
+
+	if (m_NtDLL)
+	{
+		FreeLibrary(m_NtDLL);
 	}
 }
 
@@ -341,17 +408,14 @@ size_t PrivateProfileRedirector::RefreshINI()
 	return m_INIMap.size();
 }
 
-KxDynamicString& PrivateProfileRedirector::TrimSpaceCharsLR(KxDynamicString& keyName) const
+KxDynamicString& PrivateProfileRedirector::TrimCharsL(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2)
 {
-	if (!keyName.empty())
+	if (!value.empty())
 	{
-		const KxDynamicString::CharT spaceChar = 0x20;
-		const KxDynamicString::CharT tabChar = 0x9;
-
 		size_t trimLeft = 0;
-		for (size_t i = 0; i < keyName.size(); i++)
+		for (size_t i = 0; i < value.size(); i++)
 		{
-			if (keyName[i] == spaceChar || keyName[i] == tabChar)
+			if (value[i] == c1 || value[i] == c2)
 			{
 				trimLeft++;
 			}
@@ -360,11 +424,18 @@ KxDynamicString& PrivateProfileRedirector::TrimSpaceCharsLR(KxDynamicString& key
 				break;
 			}
 		}
-
+		value.erase(0, trimLeft);
+	}
+	return value;
+}
+KxDynamicString& PrivateProfileRedirector::TrimCharsR(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2)
+{
+	if (!value.empty())
+	{
 		size_t trimRight = 0;
-		for (size_t i = keyName.size() - 1; i != 0; i--)
+		for (size_t i = value.size() - 1; i != 0; i--)
 		{
-			if (keyName[i] == spaceChar || keyName[i] == tabChar)
+			if (value[i] == c1 || value[i] == c2)
 			{
 				trimRight++;
 			}
@@ -373,11 +444,9 @@ KxDynamicString& PrivateProfileRedirector::TrimSpaceCharsLR(KxDynamicString& key
 				break;
 			}
 		}
-
-		keyName.erase(0, trimLeft);
-		keyName.erase(keyName.size() - trimRight, trimRight);
+		value.erase(value.size() - trimRight, trimRight);
 	}
-	return keyName;
+	return value;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -428,14 +497,14 @@ PPR_API(DWORD) On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCST
 	auto defaultValueW = instance.ConvertToUTF16(defaultValue);
 	auto lpFileNameW = instance.ConvertToUTF16(lpFileName);
 
-	instance.Log(L"[GetPrivateProfileStringA]: Redirecting to 'GetPrivateProfileStringW'");
+	instance.Log(L"[GetPrivateProfileStringA] Redirecting to 'GetPrivateProfileStringW'");
 	
 	KxDynamicString lpReturnedStringW;
 	lpReturnedStringW.resize(nSize + 1);
 
 	if (instance.ShouldTrimKeyNamesA())
 	{
-		instance.TrimSpaceCharsLR(keyNameW);
+		PrivateProfileRedirector::TrimSpaceCharsLR(keyNameW);
 	}
 	DWORD length = On_GetPrivateProfileStringW(appNameW, keyNameW, defaultValueW, lpReturnedStringW.data(), nSize, lpFileNameW);
 	if (length != 0)
@@ -443,11 +512,19 @@ PPR_API(DWORD) On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCST
 		std::string result = instance.ConvertToCodePage(lpReturnedStringW.data());
 		StringCchCopyNA(lpReturnedString, nSize, result.data(), result.length());
 	}
+	else
+	{
+		if (!instance.ShouldDisableCCUnsafeA())
+		{
+			StringCchCopyNA(lpReturnedString, nSize, "", 1);
+		}
+	}
 	return length;
 }
 PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR defaultValue, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
 {
-	PrivateProfileRedirector::GetInstance().Log(L"[GetPrivateProfileStringW]: Section: '%s', Key: '%s', Default: '%s', Path: '%s'", appName, keyName, defaultValue, lpFileName);
+	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
+	instance.Log(L"[GetPrivateProfileStringW] Section: '%s', Key: '%s', Default: '%s', Buffer size: '%u', Path: '%s'", appName, keyName, defaultValue, nSize, lpFileName);
 
 	if (lpFileName)
 	{
@@ -460,13 +537,13 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 		KxDynamicString pathL(lpFileName);
 		pathL.make_lower();
 
-		const INIObject& iniObject = PrivateProfileRedirector::GetInstance().GetOrLoadFile(pathL);
+		const INIObject& iniObject = instance.GetOrLoadFile(pathL);
 		const INIFile& iniFile = iniObject.GetFile();
 
 		// Enum all sections
 		if (appName == NULL)
 		{
-			PrivateProfileRedirector::GetInstance().Log(L"[GetPrivateProfileStringW]: Enum all sections of '%s'", lpFileName);
+			instance.Log(L"[GetPrivateProfileStringW] Enum all sections of '%s'", lpFileName);
 
 			KxDynamicString sectionsList;
 			INIFile::TNamesDepend sections;
@@ -481,7 +558,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 		// Enum all keys in section
 		if (keyName == NULL)
 		{
-			PrivateProfileRedirector::GetInstance().Log(L"[GetPrivateProfileStringW]: Enum all keys is '%s' section of '%s'", appName, lpFileName);
+			instance.Log(L"[GetPrivateProfileStringW] Enum all keys is '%s' section of '%s'", appName, lpFileName);
 
 			KxDynamicString keysList;
 			INIFile::TNamesDepend keys;
@@ -498,17 +575,28 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 			LPCWSTR value = iniFile.GetValue(appName, keyName, defaultValue);
 			if (value)
 			{
-				PrivateProfileRedirector::GetInstance().Log(L"[GetPrivateProfileStringW]: Value: '%s'", value);
+				instance.Log(L"[GetPrivateProfileStringW] Value: '%s'", value);
 
-				StringCchCopyNW(lpReturnedString, nSize, value, nSize);
-				
-				size_t length = 0;
-				StringCchLengthW(value, nSize, &length);
-				return static_cast<DWORD>(length);
+				if (instance.ShouldTrimValueQuotes())
+				{
+					KxDynamicString value2(value);
+					PrivateProfileRedirector::TrimQuoteCharsLR(value2);
+					StringCchCopyNW(lpReturnedString, nSize, value2.data(), value2.length());
+
+					instance.Log(L"[GetPrivateProfileStringW] Trimmed value: '%s'", value2.data());
+					return static_cast<DWORD>(value2.length());
+				}
+				else
+				{
+					size_t length = 0;
+					StringCchLengthW(value, nSize, &length);
+					StringCchCopyNW(lpReturnedString, nSize, value, length);
+					return static_cast<DWORD>(length);
+				}
 			}
 			else
 			{
-				PrivateProfileRedirector::GetInstance().Log(L"[GetPrivateProfileStringW]: Value: '<null>'");
+				instance.Log(L"[GetPrivateProfileStringW] Value: '<null>'");
 
 				StringCchCopyNW(lpReturnedString, nSize, L"", 1);
 				return 0;
@@ -523,7 +611,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 PPR_API(UINT) On_GetPrivateProfileIntA(LPCSTR appName, LPCSTR keyName, INT defaultValue, LPCSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
-	instance.Log(L"[GetPrivateProfileIntA]: Redirecting to 'GetPrivateProfileIntW'");
+	instance.Log(L"[GetPrivateProfileIntA] Redirecting to 'GetPrivateProfileIntW'");
 
 	auto appNameW = instance.ConvertToUTF16(appName);
 	auto keyNameW = instance.ConvertToUTF16(keyName);
@@ -531,31 +619,35 @@ PPR_API(UINT) On_GetPrivateProfileIntA(LPCSTR appName, LPCSTR keyName, INT defau
 
 	if (instance.ShouldTrimKeyNamesA())
 	{
-		instance.TrimSpaceCharsLR(keyNameW);
+		PrivateProfileRedirector::TrimSpaceCharsLR(keyNameW);
 	}
 	return On_GetPrivateProfileIntW(appNameW, keyNameW, defaultValue, lpFileNameW);
 }
 PPR_API(UINT) On_GetPrivateProfileIntW(LPCWSTR appName, LPCWSTR keyName, INT defaultValue, LPCWSTR lpFileName)
 {
-	PrivateProfileRedirector::GetInstance().Log(L"[GetPrivateProfileIntW]: Section: '%s', Key: '%s', Default: '%d', Path: '%s'", appName, keyName, defaultValue, lpFileName);
+	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
+	instance.Log(L"[GetPrivateProfileIntW]: Section: '%s', Key: '%s', Default: '%d', Path: '%s'", appName, keyName, defaultValue, lpFileName);
 	
 	if (lpFileName && appName && keyName)
 	{
 		KxDynamicString pathL(lpFileName);
 		pathL.make_lower();
 
-		INIObject& ini = PrivateProfileRedirector::GetInstance().GetOrLoadFile(pathL);
+		INIObject& ini = instance.GetOrLoadFile(pathL);
 		LPCWSTR value = ini.GetFile().GetValue(appName, keyName);
 		if (value)
 		{
-			INT intValue = defaultValue;
-			swscanf(value, L"%d", &intValue);
+			UNICODE_STRING string = {0};
+			instance.m_RtlInitUnicodeString(&string, value);
 
-			PrivateProfileRedirector::GetInstance().Log(L"[GetPrivateProfileIntW]: ValueString: '%s', ValueInt: '%d'", value, intValue);
+			ULONG intValue = defaultValue;
+			instance.m_RtlUnicodeStringToInteger(&string, 0, &intValue);
+
+			instance.Log(L"[GetPrivateProfileIntW] ValueString: '%s', ValueInt: '%d'", value, intValue);
 			return intValue;
 		}
 
-		PrivateProfileRedirector::GetInstance().Log(L"[GetPrivateProfileIntW]: ValueString: '<null>', ValueInt: '%d'", defaultValue);
+		instance.Log(L"[GetPrivateProfileIntW] ValueString: '<null>', ValueInt: '%d'", defaultValue);
 		return defaultValue;
 	}
 
@@ -566,8 +658,8 @@ PPR_API(UINT) On_GetPrivateProfileIntW(LPCWSTR appName, LPCWSTR keyName, INT def
 PPR_API(BOOL) On_WritePrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCSTR lpString, LPCSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
-	instance.Log(L"[WritePrivateProfileStringA]: Redirecting to 'WritePrivateProfileStringW'");
-
+	instance.Log(L"[WritePrivateProfileStringA] Redirecting to 'WritePrivateProfileStringW'");
+	
 	auto appNameW = instance.ConvertToUTF16(appName);
 	auto keyNameW = instance.ConvertToUTF16(keyName);
 	auto lpStringW = instance.ConvertToUTF16(lpString);
@@ -575,14 +667,14 @@ PPR_API(BOOL) On_WritePrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCS
 
 	if (instance.ShouldTrimKeyNamesA())
 	{
-		instance.TrimSpaceCharsLR(keyNameW);
+		PrivateProfileRedirector::TrimSpaceCharsLR(keyNameW);
 	}
 	return On_WritePrivateProfileStringW(appNameW, keyNameW, lpStringW, lpFileNameW);
 }
 PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
-	instance.Log(L"[WritePrivateProfileStringW]: Section: '%s', Key: '%s', Value: '%s', Path: '%s'", appName, keyName, lpString, lpFileName);
+	instance.Log(L"[WritePrivateProfileStringW] Section: '%s', Key: '%s', Value: '%s', Path: '%s'", appName, keyName, lpString, lpFileName);
 	
 	auto CustomWrite = [](LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName) -> BOOL
 	{
@@ -598,15 +690,23 @@ PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LP
 			// Delete section
 			if (keyName == NULL)
 			{
-				iniObject.OnWrite();
-				return ini.Delete(appName, NULL, true);
+				if (ini.Delete(appName, NULL, true))
+				{
+					iniObject.OnWrite();
+					return TRUE;
+				}
+				return FALSE;
 			}
 
 			// Delete value
 			if (lpString == NULL)
 			{
-				iniObject.OnWrite();
-				return ini.DeleteValue(appName, keyName, NULL, true);
+				if (ini.DeleteValue(appName, keyName, NULL, true))
+				{
+					iniObject.OnWrite();
+					return TRUE;
+				}
+				return FALSE;
 			}
 
 			// Set value
@@ -621,7 +721,7 @@ PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LP
 	};
 
 	// This will write value into in-memory file.
-	// When 'NativeWrite' is enabled, it will not flush updated file to disk.
+	// When 'NativeWrite' or 'WriteProtected' is enabled, it will not flush updated file to disk.
 	BOOL customWriteRet = CustomWrite(appName, keyName, lpString, lpFileName);
 
 	// Call native function or proceed with own implementation
