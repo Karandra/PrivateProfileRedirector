@@ -5,6 +5,7 @@
 - Added option `ProcessInlineComments` to discard inline comments, otherwise comments will be read as part of value.
 - Added option `TrimValueQuotes` to correctly retrieve value like `sNegativeDir="enbseries\LUTs\Negative Stock"`.
 - Fiexd possible crash in `GetPrivateProfileString` when requested value is not found or its length is 0. Fixing this allows Creation Clud to work which can be undesired. Option `DisableCCUnsafeA` were added to revert to old behavior.
+- Function `GetPrivateProfileInt` can now parse integers in binary, octal and hex representations.
 
 # Version 0.2.0, 28.07.2018
 - Added option "NativeWrite" that allows use of native "WritePrivateProfileString" function. Use it, if you experience write issues, like some files being written incorrectly.
