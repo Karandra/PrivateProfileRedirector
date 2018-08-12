@@ -101,6 +101,12 @@ class PrivateProfileRedirector
 		UINT(WINAPI* m_GetPrivateProfileIntA)(LPCSTR, LPCSTR, INT, LPCSTR) = NULL;
 		UINT(WINAPI* m_GetPrivateProfileIntW)(LPCWSTR, LPCWSTR, INT, LPCWSTR) = NULL;
 
+		DWORD(WINAPI* m_GetPrivateProfileSectionNamesA)(LPSTR, DWORD, LPCSTR) = NULL;
+		DWORD(WINAPI* m_GetPrivateProfileSectionNamesW)(LPWSTR, DWORD, LPCWSTR) = NULL;
+
+		DWORD(WINAPI* m_GetPrivateProfileSectionA)(LPCSTR, LPSTR, DWORD, LPCSTR) = NULL;
+		DWORD(WINAPI* m_GetPrivateProfileSectionW)(LPCWSTR, LPWSTR, DWORD, LPCWSTR) = NULL;
+
 		NTSTATUS(WINAPI* m_RtlInitUnicodeString)(PCUNICODE_STRING, PCWSTR) = NULL;
 		NTSTATUS(WINAPI* m_RtlUnicodeStringToInteger)(PCUNICODE_STRING, ULONG, PULONG) = NULL;
 
@@ -272,6 +278,12 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 
 PPR_API(UINT) On_GetPrivateProfileIntA(LPCSTR appName, LPCSTR keyName, INT defaultValue, LPCSTR lpFileName);
 PPR_API(UINT) On_GetPrivateProfileIntW(LPCWSTR appName, LPCWSTR keyName, INT defaultValue, LPCWSTR lpFileName);
+
+PPR_API(DWORD) On_GetPrivateProfileSectionNamesA(LPSTR lpszReturnBuffer, DWORD nSize, LPCSTR lpFileName);
+PPR_API(DWORD) On_GetPrivateProfileSectionNamesW(LPWSTR lpszReturnBuffer, DWORD nSize, LPCWSTR lpFileName);
+
+PPR_API(DWORD) On_GetPrivateProfileSectionA(LPCSTR appName, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName);
+PPR_API(DWORD) On_GetPrivateProfileSectionW(LPCWSTR appName, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
 
 PPR_API(BOOL) On_WritePrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCSTR lpString, LPCSTR lpFileName);
 PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName);

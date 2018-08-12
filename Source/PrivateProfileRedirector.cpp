@@ -6,6 +6,8 @@
 #include <detver.h>
 #pragma comment(lib, "detours.lib")
 
+#pragma warning(disable: 4267) // conversion from 'x' to 'y', possible loss of data
+
 #define LibraryName	"PrivateProfileRedirector"
 #define InitFunctionN(name)		m_##name = &::name;
 #define AttachFunctionN(name)	AttachFunction(&m_##name, &On_##name, L#name)
@@ -108,7 +110,7 @@ void INIObject::OnWrite()
 PrivateProfileRedirector* PrivateProfileRedirector::ms_Instance = NULL;
 const int PrivateProfileRedirector::ms_VersionMajor = 0;
 const int PrivateProfileRedirector::ms_VersionMinor = 3;
-const int PrivateProfileRedirector::ms_VersionPatch = 0;
+const int PrivateProfileRedirector::ms_VersionPatch = 1;
 
 PrivateProfileRedirector& PrivateProfileRedirector::CreateInstance()
 {
@@ -168,6 +170,12 @@ void PrivateProfileRedirector::InitFunctions()
 
 	InitFunctionN(GetPrivateProfileIntA);
 	InitFunctionN(GetPrivateProfileIntW);
+
+	InitFunctionN(GetPrivateProfileSectionNamesA);
+	InitFunctionN(GetPrivateProfileSectionNamesW);
+
+	InitFunctionN(GetPrivateProfileSectionA);
+	InitFunctionN(GetPrivateProfileSectionW);
 
 	InitFunctionN(WritePrivateProfileStringA);
 	InitFunctionN(WritePrivateProfileStringW);
@@ -233,6 +241,20 @@ void PrivateProfileRedirector::OverrideFunctions()
 		AttachFunctionN(WritePrivateProfileStringA);
 		AttachFunctionN(WritePrivateProfileStringW);
 
+		AttachFunctionN(GetPrivateProfileSectionNamesA);
+		AttachFunctionN(GetPrivateProfileSectionNamesW);
+
+		DetourTransactionCommit();
+	}
+
+	// 3
+	{
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+
+		AttachFunctionN(GetPrivateProfileSectionA);
+		AttachFunctionN(GetPrivateProfileSectionW);
+
 		DetourTransactionCommit();
 	}
 }
@@ -259,6 +281,20 @@ void PrivateProfileRedirector::RestoreFunctions()
 
 		DetachFunctionN(WritePrivateProfileStringA);
 		DetachFunctionN(WritePrivateProfileStringW);
+
+		DetachFunctionN(GetPrivateProfileSectionNamesA);
+		DetachFunctionN(GetPrivateProfileSectionNamesW);
+
+		DetourTransactionCommit();
+	}
+
+	// 3
+	{
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+
+		DetachFunctionN(GetPrivateProfileSectionA);
+		DetachFunctionN(GetPrivateProfileSectionW);
 
 		DetourTransactionCommit();
 	}
@@ -456,25 +492,25 @@ KxDynamicString& PrivateProfileRedirector::TrimCharsR(KxDynamicString& value, Kx
 namespace
 {
 	// Zero Separated STRing Zero Zero
-	size_t KeysSectionsToZSSTRZZ(const INIFile::TNamesDepend& valuesList, KxDynamicString& zsstrzz, size_t maxSize)
+	size_t KeysSectionsToZSSTRZZ(const INIFile::TNamesDepend& valuesList, std::wstring& zsstrzz, size_t maxSize)
 	{
 		if (!valuesList.empty())
 		{
 			for (const auto& v: valuesList)
 			{
 				zsstrzz.append(v.pItem);
+				zsstrzz.append(1, L'\000');
 			}
-			zsstrzz.append(L'\000');
+			zsstrzz.append(1, L'\000');
 		}
 		else
 		{
 			zsstrzz.append(2, L'\000');
 		}
 
-		size_t length = zsstrzz.size();
-		zsstrzz.resize(maxSize);
-		if (length >= maxSize)
+		if (zsstrzz.length() >= maxSize)
 		{
+			zsstrzz.resize(maxSize);
 			if (zsstrzz.size() >= 2)
 			{
 				zsstrzz[zsstrzz.size() - 2] = L'\000';
@@ -485,6 +521,20 @@ namespace
 			}
 		}
 		return zsstrzz.length();
+	}
+
+	template<class T, class CharT> size_t CopyToBufferT(CharT* buffer, const T& data)
+	{
+		std::memcpy(buffer, data.data(), data.size() * sizeof(CharT));
+		return data.size();
+	}
+	template<class T> size_t CopyToBuffer(wchar_t* buffer, const T& data)
+	{
+		return CopyToBufferT(buffer, data);
+	}
+	template<class T> size_t CopyToBuffer(char* buffer, const T& data)
+	{
+		return CopyToBufferT(buffer, data);
 	}
 }
 
@@ -545,7 +595,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 		{
 			instance.Log(L"[GetPrivateProfileStringW] Enum all sections of '%s'", lpFileName);
 
-			KxDynamicString sectionsList;
+			std::wstring sectionsList;
 			INIFile::TNamesDepend sections;
 			iniFile.GetAllSections(sections);
 			sections.sort(INIFile::Entry::LoadOrder());
@@ -560,7 +610,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 		{
 			instance.Log(L"[GetPrivateProfileStringW] Enum all keys is '%s' section of '%s'", appName, lpFileName);
 
-			KxDynamicString keysList;
+			std::wstring keysList;
 			INIFile::TNamesDepend keys;
 			iniFile.GetAllKeys(appName, keys);
 			keys.sort(INIFile::Entry::LoadOrder());
@@ -653,6 +703,188 @@ PPR_API(UINT) On_GetPrivateProfileIntW(LPCWSTR appName, LPCWSTR keyName, INT def
 
 	SetLastError(ERROR_FILE_NOT_FOUND);
 	return defaultValue;
+}
+
+PPR_API(DWORD) On_GetPrivateProfileSectionNamesA(LPSTR lpszReturnBuffer, DWORD nSize, LPCSTR lpFileName)
+{
+	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
+	instance.Log(L"[GetPrivateProfileSectionNamesA] Redirecting to 'GetPrivateProfileSectionNamesW'");
+
+	if (lpszReturnBuffer == NULL || nSize == 0)
+	{
+		return 0;
+	}
+	if (nSize == 1)
+	{
+		*lpszReturnBuffer = '\000';
+		return 0;
+	}
+
+	KxDynamicString lpFileNameW = instance.ConvertToUTF16(lpFileName);
+	KxDynamicString lpszReturnBufferW;
+	lpszReturnBufferW.resize(nSize);
+
+	DWORD length = On_GetPrivateProfileSectionNamesW(lpszReturnBufferW.data(), nSize, lpFileNameW);
+	if (length <= nSize)
+	{
+		std::string result = instance.ConvertToCodePage(lpszReturnBufferW.data(), lpszReturnBufferW.length());
+		CopyToBuffer(lpszReturnBuffer, result);
+	}
+	else
+	{
+		StringCchCopyNA(lpszReturnBuffer, nSize, "", 1);
+	}
+	return length;
+}
+PPR_API(DWORD) On_GetPrivateProfileSectionNamesW(LPWSTR lpszReturnBuffer, DWORD nSize, LPCWSTR lpFileName)
+{
+	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
+	instance.Log(L"[GetPrivateProfileSectionNamesW]: Buffer size: '%u', Path: '%s'", nSize, lpFileName);
+
+	if (lpszReturnBuffer == NULL || nSize == 0)
+	{
+		return 0;
+	}
+	if (nSize == 1)
+	{
+		*lpszReturnBuffer = L'\000';
+		return 0;
+	}
+
+	KxDynamicString pathL(lpFileName);
+	pathL.make_lower();
+
+	const INIObject& iniObject = instance.GetOrLoadFile(pathL);
+	const INIFile& iniFile = iniObject.GetFile();
+
+	INIFile::TNamesDepend sectionList;
+	iniFile.GetAllSections(sectionList);
+	if (!sectionList.empty())
+	{
+		sectionList.sort(INIFile::Entry::LoadOrder());
+		std::wstring sectionNames;
+
+		size_t length = KeysSectionsToZSSTRZZ(sectionList, sectionNames, nSize);
+		if (length <= nSize)
+		{
+			if (instance.IsLogEnabled())
+			{
+				instance.Log(L"Sections:");
+				for (const auto& v: sectionList)
+				{
+					instance.Log(L"%s", v.pItem);
+				}
+			}
+
+			return CopyToBuffer(lpszReturnBuffer, sectionNames) - 1;
+		}
+		else
+		{
+			instance.Log(L"[GetPrivateProfileSectionNamesW]: Buffer is not large enough to contain all section names, '%zu' required, only '%u' available.", length, nSize);
+			return nSize - 2;
+		}
+	}
+	else
+	{
+		*lpszReturnBuffer = L'\000';
+		return 0;
+	}
+}
+
+PPR_API(DWORD) On_GetPrivateProfileSectionA(LPCSTR appName, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
+{
+	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
+	instance.Log(L"[GetPrivateProfileSectionA] Redirecting to 'GetPrivateProfileSectionW'");
+
+	if (lpReturnedString == NULL || nSize == 0)
+	{
+		return 0;
+	}
+	if (nSize == 1)
+	{
+		*lpReturnedString = '\000';
+		return 0;
+	}
+
+	auto appNameW = instance.ConvertToUTF16(appName);
+	auto lpFileNameW = instance.ConvertToUTF16(lpFileName);
+	
+	KxDynamicString lpReturnedStringW;
+	lpReturnedStringW.resize(nSize);
+
+	DWORD length = On_GetPrivateProfileSectionW(appNameW, lpReturnedStringW.data(), nSize, lpFileNameW);
+	if (length <= nSize)
+	{
+		std::string result = instance.ConvertToCodePage(lpReturnedStringW.data(), lpReturnedStringW.length());
+		CopyToBuffer(lpReturnedString, result);
+	}
+	else
+	{
+		StringCchCopyNA(lpReturnedString, nSize, "", 1);
+	}
+	return length;
+}
+PPR_API(DWORD) On_GetPrivateProfileSectionW(LPCWSTR appName, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
+{
+	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
+	instance.Log(L"[GetPrivateProfileSectionW] Section: '%s', Buffer size: '%u', Path: '%s'", appName, nSize, lpFileName);
+
+	if (lpReturnedString == NULL || nSize == 0)
+	{
+		return 0;
+	}
+	if (nSize == 1)
+	{
+		*lpReturnedString = L'\000';
+		return 0;
+	}
+
+	KxDynamicString pathL(lpFileName);
+	pathL.make_lower();
+
+	const INIObject& iniObject = instance.GetOrLoadFile(pathL);
+	const INIFile& iniFile = iniObject.GetFile();
+
+	INIFile::TNamesDepend keyList;
+	iniFile.GetAllKeys(appName, keyList);
+	if (!keyList.empty())
+	{
+		keyList.sort(INIFile::Entry::LoadOrder());
+		std::wstring result;
+
+		for (const auto& key: keyList)
+		{
+			result.append(key.pItem);
+			result.append(1, L'=');
+			result.append(iniFile.GetValue(appName, key.pItem));
+			result.append(1, L'\000');
+		}
+		result.append(1, L'\000');
+
+		if (result.length() <= nSize)
+		{
+			if (instance.IsLogEnabled())
+			{
+				instance.Log(L"Key-value pairs for section '%s':", appName);
+				for (const auto& key: keyList)
+				{
+					instance.Log(L"%s=%s", key.pItem, iniFile.GetValue(appName, key.pItem));
+				}
+			}
+
+			return CopyToBuffer(lpReturnedString, result) - 1;
+		}
+		else
+		{
+			instance.Log(L"[GetPrivateProfileSectionW]: Buffer is not large enough to contain all key-value pairs, '%zu' required, only '%u' available.", result.length(), nSize);
+			return nSize - 2;
+		}
+	}
+	else
+	{
+		*lpReturnedString = L'\000';
+		return 0;
+	}
 }
 
 PPR_API(BOOL) On_WritePrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCSTR lpString, LPCSTR lpFileName)
