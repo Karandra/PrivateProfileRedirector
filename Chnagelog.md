@@ -1,5 +1,8 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.3.1, 12.08.2018
+- Overrided new functions: `GetPrivateProfileSectionNamesA/W` and `GetPrivateProfileSectionA/W`.
+
 # Version 0.3.0, 09.08.2018
 - Added Fallout 4 version. Console command `RefreshINI` will work in Fallout 4.
 - Added option `ProcessInlineComments` to discard inline comments, otherwise comments will be read as part of value.
