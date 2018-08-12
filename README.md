@@ -14,14 +14,16 @@ When the game, ENB or something else calls `GetPrivateProfileString` first time 
 SKSE/SKSE64, [SKSE Plugin Preloader](https://www.nexusmods.com/skyrim/mods/75795) for LE/[SSE Engine Fixes](https://www.nexusmods.com/skyrimspecialedition/mods/17230) for SE.
 
 # Covered functions
-```
-GetPrivateProfileStringA
-GetPrivateProfileStringW
-WritePrivateProfileStringA
-WritePrivateProfileStringW
-GetPrivateProfileIntA
-GetPrivateProfileIntW
-```
+- GetPrivateProfileStringA
+- GetPrivateProfileStringW
+- WritePrivateProfileStringA
+- WritePrivateProfileStringW
+- GetPrivateProfileIntA
+- GetPrivateProfileIntW
+- GetPrivateProfileSectionNamesA
+- GetPrivateProfileSectionNamesW
+- GetPrivateProfileSectionA
+- GetPrivateProfileSectionW
 
 # Configuration
 Plugin can be configures in its own INI file, each parameter is described inside this file.
