@@ -11,7 +11,14 @@ When the game, ENB or something else calls `GetPrivateProfileString` first time 
 
 
 # Requirements
-SKSE/SKSE64, [SKSE Plugin Preloader](https://www.nexusmods.com/skyrim/mods/75795) for LE/[SSE Engine Fixes](https://www.nexusmods.com/skyrimspecialedition/mods/17230) for SE.
+- Skyrim LE: SKSE, [SKSE Plugin Preloader](https://www.nexusmods.com/skyrim/mods/75795).
+- Skyrim SE: SKSE64, [SSE Engine Fixes](https://www.nexusmods.com/skyrimspecialedition/mods/17230).
+- Fallout 4: F4SE, [xSE PluginPreloader](https://github.com/KerberX/xSE-PluginPreloader).
+
+# Download page
+- [Skyrim LE](https://www.nexusmods.com/skyrim/mods/92725)
+- [Skyrim SE](https://www.nexusmods.com/skyrimspecialedition/mods/18860)
+- [Fallout 4](https://www.nexusmods.com/fallout4/mods/33947)
 
 # Covered functions
 - GetPrivateProfileStringA
