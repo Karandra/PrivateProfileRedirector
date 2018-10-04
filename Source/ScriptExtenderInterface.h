@@ -19,9 +19,7 @@ class RedirectorSEInterface
 		{
 			#if xSE_HAS_SCALEFORM_INTERFACE
 
-			#if xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR || xSE_PLATFORM_F4SE
-			::RegisterScaleformFunction<T>(root, view, name);
-			#elif xSE_PLATFORM_SKSE
+			#if xSE_PLATFORM_SKSE || xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR || xSE_PLATFORM_F4SE
 			::RegisterFunction<T>(root, view, name);
 			#endif
 

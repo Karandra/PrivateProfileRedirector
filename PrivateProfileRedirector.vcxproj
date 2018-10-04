@@ -477,22 +477,23 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Source\KxDynamicString.h" />
-    <ClInclude Include="Source\KxCriticalSection.h" />
     <ClInclude Include="Source\PrivateProfileRedirector.h" />
-    <ClInclude Include="Source\RtlDefines.h" />
     <ClInclude Include="Source\ScriptExtenderDefines.h" />
     <ClInclude Include="Source\ScriptExtenderDefinesBase.h" />
     <ClInclude Include="Source\ScriptExtenderInterface.h" />
     <ClInclude Include="Source\ScriptExtenderInterfaceIncludes.h" />
     <ClInclude Include="Source\ScriptExtenderInterfaceNVSE.h" />
-    <ClInclude Include="Source\SimpleINI.h" />
+    <ClInclude Include="Source\Utility\KxBasicDynamicString.h" />
+    <ClInclude Include="Source\Utility\KxCriticalSection.h" />
+    <ClInclude Include="Source\Utility\KxDynamicString.h" />
+    <ClInclude Include="Source\Utility\RtlDefines.h" />
+    <ClInclude Include="Source\Utility\SimpleINI.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\KxDynamicString.cpp" />
     <ClCompile Include="Source\PrivateProfileRedirector.cpp" />
     <ClCompile Include="Source\ScriptExtenderInterface.cpp" />
+    <ClCompile Include="Source\Utility\KxDynamicString.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='SKSE|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NVSE|Win32'">Create</PrecompiledHeader>
@@ -507,14 +508,14 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="Source\KxDynamicString.natvis" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Build\PrivateProfileRedirector.ini" />
     <None Include="Exports.def" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PrivateProfileRedirector.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Source\Utility\KxBasicDynamicString.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

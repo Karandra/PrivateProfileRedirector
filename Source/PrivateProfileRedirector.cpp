@@ -80,7 +80,7 @@ void INIObject::ProcessInlineComments()
 			size_t anchor = FindCommentStart(value);
 			if (anchor != std::wstring_view::npos)
 			{
-				KxDynamicString newValue = value.substr(0, anchor);
+				KxDynamicStringW newValue = value.substr(0, anchor);
 				PrivateProfileRedirector::TrimSpaceCharsLR(newValue);
 				m_INI.SetValue(section.pItem, key.pItem, newValue.data(), NULL, true);
 			}
@@ -88,7 +88,7 @@ void INIObject::ProcessInlineComments()
 	}
 }
 
-INIObject::INIObject(const KxDynamicString& path)
+INIObject::INIObject(const KxDynamicStringW& path)
 	:m_INI(false, false, true, true), m_Path(path)
 {
 	m_INI.SetSpaces(false);
@@ -110,7 +110,7 @@ void INIObject::OnWrite()
 PrivateProfileRedirector* PrivateProfileRedirector::ms_Instance = NULL;
 const int PrivateProfileRedirector::ms_VersionMajor = 0;
 const int PrivateProfileRedirector::ms_VersionMinor = 3;
-const int PrivateProfileRedirector::ms_VersionPatch = 1;
+const int PrivateProfileRedirector::ms_VersionPatch = 2;
 
 PrivateProfileRedirector& PrivateProfileRedirector::CreateInstance()
 {
@@ -179,6 +179,15 @@ void PrivateProfileRedirector::InitFunctions()
 
 	InitFunctionN(WritePrivateProfileStringA);
 	InitFunctionN(WritePrivateProfileStringW);
+}
+
+LONG PrivateProfileRedirector::DetourAttachFunction(void** originalFunc, void* overrideFunc)
+{
+	return ::DetourAttach(originalFunc, overrideFunc);
+}
+LONG PrivateProfileRedirector::DetourDetachFunction(void** originalFunc, void* overrideFunc)
+{
+	return ::DetourDetach(originalFunc, overrideFunc);
 }
 void PrivateProfileRedirector::LogAttachDetachStatus(LONG status, const wchar_t* operation, const FunctionInfo& info)
 {
@@ -387,7 +396,7 @@ PrivateProfileRedirector::~PrivateProfileRedirector()
 	}
 }
 
-INIObject& PrivateProfileRedirector::GetOrLoadFile(const KxDynamicString& path)
+INIObject& PrivateProfileRedirector::GetOrLoadFile(const KxDynamicStringW& path)
 {
 	auto it = m_INIMap.find(path);
 	if (it != m_INIMap.end())
@@ -444,7 +453,7 @@ size_t PrivateProfileRedirector::RefreshINI()
 	return m_INIMap.size();
 }
 
-KxDynamicString& PrivateProfileRedirector::TrimCharsL(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2)
+KxDynamicStringW& PrivateProfileRedirector::TrimCharsL(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2)
 {
 	if (!value.empty())
 	{
@@ -464,7 +473,7 @@ KxDynamicString& PrivateProfileRedirector::TrimCharsL(KxDynamicString& value, Kx
 	}
 	return value;
 }
-KxDynamicString& PrivateProfileRedirector::TrimCharsR(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2)
+KxDynamicStringW& PrivateProfileRedirector::TrimCharsR(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2)
 {
 	if (!value.empty())
 	{
@@ -549,7 +558,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCST
 
 	instance.Log(L"[GetPrivateProfileStringA] Redirecting to 'GetPrivateProfileStringW'");
 	
-	KxDynamicString lpReturnedStringW;
+	KxDynamicStringW lpReturnedStringW;
 	lpReturnedStringW.resize(nSize + 1);
 
 	if (instance.ShouldTrimKeyNamesA())
@@ -559,7 +568,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCST
 	DWORD length = On_GetPrivateProfileStringW(appNameW, keyNameW, defaultValueW, lpReturnedStringW.data(), nSize, lpFileNameW);
 	if (length != 0)
 	{
-		std::string result = instance.ConvertToCodePage(lpReturnedStringW.data());
+		KxDynamicStringA result = instance.ConvertToCodePage(lpReturnedStringW.data());
 		StringCchCopyNA(lpReturnedString, nSize, result.data(), result.length());
 	}
 	else
@@ -584,7 +593,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 			return 0;
 		}
 
-		KxDynamicString pathL(lpFileName);
+		KxDynamicStringW pathL(lpFileName);
 		pathL.make_lower();
 
 		const INIObject& iniObject = instance.GetOrLoadFile(pathL);
@@ -629,12 +638,12 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 
 				if (instance.ShouldTrimValueQuotes())
 				{
-					KxDynamicString value2(value);
-					PrivateProfileRedirector::TrimQuoteCharsLR(value2);
-					StringCchCopyNW(lpReturnedString, nSize, value2.data(), value2.length());
+					KxDynamicStringW valueTrimmed(value);
+					PrivateProfileRedirector::TrimQuoteCharsLR(valueTrimmed);
+					StringCchCopyNW(lpReturnedString, nSize, valueTrimmed.data(), valueTrimmed.length());
 
-					instance.Log(L"[GetPrivateProfileStringW] Trimmed value: '%s'", value2.data());
-					return static_cast<DWORD>(value2.length());
+					instance.Log(L"[GetPrivateProfileStringW] Trimmed value: '%s'", valueTrimmed.data());
+					return static_cast<DWORD>(valueTrimmed.length());
 				}
 				else
 				{
@@ -680,7 +689,7 @@ PPR_API(UINT) On_GetPrivateProfileIntW(LPCWSTR appName, LPCWSTR keyName, INT def
 	
 	if (lpFileName && appName && keyName)
 	{
-		KxDynamicString pathL(lpFileName);
+		KxDynamicStringW pathL(lpFileName);
 		pathL.make_lower();
 
 		INIObject& ini = instance.GetOrLoadFile(pathL);
@@ -720,14 +729,14 @@ PPR_API(DWORD) On_GetPrivateProfileSectionNamesA(LPSTR lpszReturnBuffer, DWORD n
 		return 0;
 	}
 
-	KxDynamicString lpFileNameW = instance.ConvertToUTF16(lpFileName);
-	KxDynamicString lpszReturnBufferW;
+	KxDynamicStringW lpFileNameW = instance.ConvertToUTF16(lpFileName);
+	KxDynamicStringW lpszReturnBufferW;
 	lpszReturnBufferW.resize(nSize);
 
 	DWORD length = On_GetPrivateProfileSectionNamesW(lpszReturnBufferW.data(), nSize, lpFileNameW);
 	if (length <= nSize)
 	{
-		std::string result = instance.ConvertToCodePage(lpszReturnBufferW.data(), lpszReturnBufferW.length());
+		KxDynamicStringA result = instance.ConvertToCodePage(lpszReturnBufferW.data(), lpszReturnBufferW.length());
 		CopyToBuffer(lpszReturnBuffer, result);
 	}
 	else
@@ -751,7 +760,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionNamesW(LPWSTR lpszReturnBuffer, DWORD 
 		return 0;
 	}
 
-	KxDynamicString pathL(lpFileName);
+	KxDynamicStringW pathL(lpFileName);
 	pathL.make_lower();
 
 	const INIObject& iniObject = instance.GetOrLoadFile(pathL);
@@ -809,13 +818,13 @@ PPR_API(DWORD) On_GetPrivateProfileSectionA(LPCSTR appName, LPSTR lpReturnedStri
 	auto appNameW = instance.ConvertToUTF16(appName);
 	auto lpFileNameW = instance.ConvertToUTF16(lpFileName);
 	
-	KxDynamicString lpReturnedStringW;
+	KxDynamicStringW lpReturnedStringW;
 	lpReturnedStringW.resize(nSize);
 
 	DWORD length = On_GetPrivateProfileSectionW(appNameW, lpReturnedStringW.data(), nSize, lpFileNameW);
 	if (length <= nSize)
 	{
-		std::string result = instance.ConvertToCodePage(lpReturnedStringW.data(), lpReturnedStringW.length());
+		KxDynamicStringA result = instance.ConvertToCodePage(lpReturnedStringW.data(), lpReturnedStringW.length());
 		CopyToBuffer(lpReturnedString, result);
 	}
 	else
@@ -839,7 +848,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionW(LPCWSTR appName, LPWSTR lpReturnedSt
 		return 0;
 	}
 
-	KxDynamicString pathL(lpFileName);
+	KxDynamicStringW pathL(lpFileName);
 	pathL.make_lower();
 
 	const INIObject& iniObject = instance.GetOrLoadFile(pathL);
@@ -912,7 +921,7 @@ PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LP
 	{
 		if (appName)
 		{
-			KxDynamicString pathL(lpFileName);
+			KxDynamicStringW pathL(lpFileName);
 			pathL.make_lower();
 
 			INIObject& iniObject = PrivateProfileRedirector::GetInstance().GetOrLoadFile(pathL);

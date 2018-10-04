@@ -134,21 +134,9 @@ void RedirectorSEInterface::OverrideRefreshINI()
 			return ret;
 		};
 
-		#if 0
 		xSE_ConsoleCommandInfo newCommand = *m_RefreshINICommand;
 		newCommand.helpText = "[PrivateProfileRedirector] Reloads INIs content from disk and calls original 'RefreshINI' after it";
 		newCommand.execute = OnCall;
-		#endif
-		#if 1
-		xSE_ConsoleCommandInfo newCommand = *m_RefreshINICommand;
-		newCommand.helpText = "[PrivateProfileRedirector] Reloads INIs content from disk and calls original 'RefreshINI' after it";
-		newCommand.needsParent = 0;
-		newCommand.numParams = 0;
-		newCommand.params = NULL;
-		newCommand.execute = OnCall;
-		newCommand.eval = NULL;
-		newCommand.flags = 0;
-		#endif
 
 		SafeWriteBuf(reinterpret_cast<uintptr_t>(m_RefreshINICommand), &newCommand, sizeof(newCommand));
 		xSE_LOG("Command 'RefreshINI' is overridden");

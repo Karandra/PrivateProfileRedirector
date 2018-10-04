@@ -1,9 +1,9 @@
 #pragma once
 #include "stdafx.h"
-#include "SimpleINI.h"
-#include "RtlDefines.h"
-#include "KxDynamicString.h"
-#include "KxCriticalSection.h"
+#include "Utility\SimpleINI.h"
+#include "Utility\RtlDefines.h"
+#include "Utility\KxDynamicString.h"
+#include "Utility\KxCriticalSection.h"
 
 using INIFile = CSimpleIniW;
 class INIObject
@@ -12,7 +12,7 @@ class INIObject
 
 	private:
 		INIFile m_INI;
-		KxDynamicString m_Path;
+		KxDynamicStringW m_Path;
 		KxCriticalSection m_CS;
 		bool m_IsChanged = false;
 		bool m_ExistOnDisk = false;
@@ -23,7 +23,7 @@ class INIObject
 		void ProcessInlineComments();
 
 	public:
-		INIObject(const KxDynamicString& path);
+		INIObject(const KxDynamicStringW& path);
 
 	public:
 		const INIFile& GetFile() const
@@ -34,7 +34,7 @@ class INIObject
 		{
 			return m_INI;
 		}
-		KxDynamicString GetFilePath() const
+		KxDynamicStringW GetFilePath() const
 		{
 			return m_Path;
 		}
@@ -141,7 +141,7 @@ class PrivateProfileRedirector
 		bool m_DisableCCUnsafeA = false;
 		int m_ANSICodePage = CP_ACP;
 
-		std::unordered_map<KxDynamicString, std::unique_ptr<INIObject>> m_INIMap;
+		std::unordered_map<KxDynamicStringW, std::unique_ptr<INIObject>> m_INIMap;
 		KxCriticalSection m_INIMapCS;
 		FILE* m_Log = NULL;
 
@@ -153,15 +153,18 @@ class PrivateProfileRedirector
 			fflush(m_Log);
 		}
 		
-		template<class T> LONG AttachFunction(T* original, T override, const FunctionInfo& info)
+		static LONG DetourAttachFunction(void** originalFunc, void* overrideFunc);
+		static LONG DetourDetachFunction(void** originalFunc, void* overrideFunc);
+
+		template<class T> LONG AttachFunction(T* originalFunc, T overrideFunc, const FunctionInfo& info)
 		{
-			LONG status = DetourAttach(reinterpret_cast<void**>(original), reinterpret_cast<void*>(override));
+			LONG status = DetourAttachFunction(reinterpret_cast<void**>(originalFunc), reinterpret_cast<void*>(overrideFunc));
 			LogAttachDetachStatus(status, L"AttachFunction", info);
 			return status;
 		}
-		template<class T> LONG DetachFunction(T* original, T override, const FunctionInfo& info)
+		template<class T> LONG DetachFunction(T* originalFunc, T overrideFunc, const FunctionInfo& info)
 		{
-			LONG status = DetourDetach(reinterpret_cast<void**>(original), reinterpret_cast<void*>(override));
+			LONG status = DetourDetachFunction(reinterpret_cast<void**>(originalFunc), reinterpret_cast<void*>(overrideFunc));
 			LogAttachDetachStatus(status, L"DetachFunction", info);
 			return status;
 		}
@@ -230,32 +233,32 @@ class PrivateProfileRedirector
 			return m_DisableCCUnsafeA;
 		}
 
-		INIObject& GetOrLoadFile(const KxDynamicString& path);
+		INIObject& GetOrLoadFile(const KxDynamicStringW& path);
 		void SaveChnagedFiles(const wchar_t* message) const;
 		size_t RefreshINI();
 		
-		KxDynamicString ConvertToUTF16(const char* string, int length = -1) const
+		KxDynamicStringW ConvertToUTF16(const char* string, int length = -1) const
 		{
-			return KxDynamicString::to_utf16(string, length, m_ANSICodePage);
+			return KxDynamicStringW::to_utf16(string, length, m_ANSICodePage);
 		}
-		std::string ConvertToCodePage(const wchar_t* string, int length = -1) const
+		KxDynamicStringA ConvertToCodePage(const wchar_t* string, int length = -1) const
 		{
-			return KxDynamicString::to_codepage(string, length, m_ANSICodePage);
+			return KxDynamicStringW::to_codepage(string, length, m_ANSICodePage);
 		}
 		
-		static KxDynamicString& TrimCharsL(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2);
-		static KxDynamicString& TrimCharsR(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2);
-		static KxDynamicString& TrimCharsLR(KxDynamicString& value, KxDynamicString::CharT c1, KxDynamicString::CharT c2)
+		static KxDynamicStringW& TrimCharsL(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2);
+		static KxDynamicStringW& TrimCharsR(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2);
+		static KxDynamicStringW& TrimCharsLR(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2)
 		{
 			TrimCharsL(value, c1, c2);
 			TrimCharsR(value, c1, c2);
 			return value;
 		}
-		static KxDynamicString& TrimSpaceCharsLR(KxDynamicString& value)
+		static KxDynamicStringW& TrimSpaceCharsLR(KxDynamicStringW& value)
 		{
 			return TrimCharsLR(value, L' ', L'\t');
 		}
-		static KxDynamicString& TrimQuoteCharsLR(KxDynamicString& value)
+		static KxDynamicStringW& TrimQuoteCharsLR(KxDynamicStringW& value)
 		{
 			return TrimCharsLR(value, L'\"', L'\'');
 		}
@@ -264,7 +267,7 @@ class PrivateProfileRedirector
 		{
 			if (m_Log)
 			{
-				KxDynamicString string = KxDynamicString::Format(format, std::forward<Args>(args)...);
+				KxDynamicStringW string = KxDynamicStringW::Format(format, std::forward<Args>(args)...);
 				LogBase(string.data());
 			}
 		}

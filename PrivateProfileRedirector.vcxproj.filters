@@ -13,21 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{a9e37386-ea6a-47ee-b5bc-6e6d6c4cc2af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utility">
+      <UniqueIdentifier>{57f912be-12f4-44b9-bd34-6ba680dda8ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\SimpleINI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\PrivateProfileRedirector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Source\KxDynamicString.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\KxCriticalSection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ScriptExtenderInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -46,8 +43,20 @@
     <ClInclude Include="Source\ScriptExtenderDefinesBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RtlDefines.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Source\Utility\KxDynamicString.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\RtlDefines.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\SimpleINI.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\KxCriticalSection.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\KxBasicDynamicString.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -55,11 +64,11 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Source\KxDynamicString.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ScriptExtenderInterface.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\KxDynamicString.cpp">
+      <Filter>Source Files\Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,8 +85,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="Source\KxDynamicString.natvis">
-      <Filter>Resource Files</Filter>
+    <Natvis Include="Source\Utility\KxBasicDynamicString.natvis">
+      <Filter>Header Files\Utility</Filter>
     </Natvis>
   </ItemGroup>
 </Project>
