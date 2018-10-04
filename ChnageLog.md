@@ -1,7 +1,7 @@
 *Dates in DD.MM.YYYY*
 
 # Version 0.3.2, 04.10.2018
-- Fixed possible crash when `TrimValueQuotes` option si enabled.
+- Fixed possible crash when `TrimValueQuotes` option is enabled.
 - KxDynamicString class is rewritten.
 
 # Version 0.3.1, 12.08.2018
