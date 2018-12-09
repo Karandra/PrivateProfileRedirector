@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+Build/*.exp
+Build/*.iobj
+Build/*.ipdb
+Build/*.pdb
