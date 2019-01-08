@@ -2,7 +2,7 @@
 #include "KxDynamicString.h"
 
 const KxDynamicStringA KxNullDynamicStringA;
-const KxDynamicStringA::TStringView KxNullDynamicStringRefA;
+const KxDynamicStringRefA KxNullDynamicStringRefA;
 
 const KxDynamicStringW KxNullDynamicStringW;
-const KxDynamicStringW::TStringView KxNullDynamicStringRefW;
+const KxDynamicStringRefW KxNullDynamicStringRefW;

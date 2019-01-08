@@ -195,7 +195,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\Skyrim;$(ProjectDir)ScriptExtender\Skyrim\skse;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Skyrim;$(ProjectDir)ScriptExtender\Skyrim\skse;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -224,7 +224,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\FalloutNV;$(ProjectDir)ScriptExtender\FalloutNV\nvse;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\FalloutNV;$(ProjectDir)ScriptExtender\FalloutNV\nvse;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -253,7 +253,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\SkyrimSE;$(ProjectDir)ScriptExtender\SkyrimSE\skse64;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimSE;$(ProjectDir)ScriptExtender\SkyrimSE\skse64;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -282,7 +282,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\Fallout4;$(ProjectDir)ScriptExtender\Fallout4\f4se;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Fallout4;$(ProjectDir)ScriptExtender\Fallout4\f4se;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -311,7 +311,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\SkyrimVR;$(ProjectDir)ScriptExtender\SkyrimVR\skseVR;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimVR;$(ProjectDir)ScriptExtender\SkyrimVR\skseVR;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -340,7 +340,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\Skyrim;$(ProjectDir)ScriptExtender\Skyrim\skse;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Skyrim;$(ProjectDir)ScriptExtender\Skyrim\skse;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -369,7 +369,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\FalloutNV;$(ProjectDir)ScriptExtender\FalloutNV\nvse;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\FalloutNV;$(ProjectDir)ScriptExtender\FalloutNV\nvse;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -398,7 +398,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\SkyrimSE;$(ProjectDir)ScriptExtender\SkyrimSE\skse64;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimSE;$(ProjectDir)ScriptExtender\SkyrimSE\skse64;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -427,7 +427,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\Fallout4;$(ProjectDir)ScriptExtender\Fallout4\f4se;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Fallout4;$(ProjectDir)ScriptExtender\Fallout4\f4se;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -456,7 +456,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ScriptExtender\SkyrimVR;$(ProjectDir)ScriptExtender\SkyrimVR\skseVR;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimVR;$(ProjectDir)ScriptExtender\SkyrimVR\skseVR;C:\Users\Kerber\Documents\Visual Studio 2017\Projects\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -488,12 +488,14 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="Source\Utility\KxDynamicString.h" />
     <ClInclude Include="Source\Utility\RtlDefines.h" />
     <ClInclude Include="Source\Utility\SimpleINI.h" />
+    <ClInclude Include="Source\Utility\String.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\PrivateProfileRedirector.cpp" />
     <ClCompile Include="Source\ScriptExtenderInterface.cpp" />
     <ClCompile Include="Source\Utility\KxDynamicString.cpp" />
+    <ClCompile Include="Source\Utility\String.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='SKSE|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NVSE|Win32'">Create</PrecompiledHeader>

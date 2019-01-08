@@ -4,6 +4,7 @@
 #include "Utility\RtlDefines.h"
 #include "Utility\KxDynamicString.h"
 #include "Utility\KxCriticalSection.h"
+#include "Utility\String.h"
 
 using INIFile = CSimpleIniW;
 class INIObject
