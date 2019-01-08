@@ -20,7 +20,7 @@
     @section features FEATURES
 
     - MIT Licence allows free use in all software (including GPL and commercial)
-    - multi-platform (Windows 95/98/ME/NT/2K/XP/2003, Windows CE, Linux, Unix)
+    - multi-platform (Windows CE/9x/NT..10/etc, Linux, MacOSX, Unix)
     - loading and saving of INI-style configuration files
     - configuration files can have any newline format on all platforms
     - liberal acceptance of file format
@@ -328,7 +328,7 @@ public:
 #endif
 
         /** Strict less ordering by name of key only */
-        struct KeyOrder : std::function<bool (Entry, Entry)> {
+        struct KeyOrder {
             bool operator()(const Entry & lhs, const Entry & rhs) const {
                 const static SI_STRLESS isLess = SI_STRLESS();
                 return isLess(lhs.pItem, rhs.pItem);
@@ -336,7 +336,7 @@ public:
         };
 
         /** Strict less ordering by order, and then name of key */
-        struct LoadOrder : std::function<bool (Entry, Entry)> {
+        struct LoadOrder {
             bool operator()(const Entry & lhs, const Entry & rhs) const {
                 if (lhs.nOrder != rhs.nOrder) {
                     return lhs.nOrder < rhs.nOrder;
@@ -447,16 +447,14 @@ public:
 
     /** Default constructor.
 
-        @param a_bIsUtf8            See the method SetUnicode() for details.
-        @param a_bMultiKey          See the method SetMultiKey() for details.
-        @param a_bMultiLine         See the method SetMultiLine() for details.
-        @param a_bAllowEmptyValues  See the method SetAllowEmptyValues() for details.
+        @param a_bIsUtf8     See the method SetUnicode() for details.
+        @param a_bMultiKey   See the method SetMultiKey() for details.
+        @param a_bMultiLine  See the method SetMultiLine() for details.
      */
     CSimpleIniTempl(
-        bool a_bIsUtf8           = false,
-        bool a_bMultiKey         = false,
-        bool a_bMultiLine        = false,
-        bool a_bAllowEmptyValues = false
+        bool a_bIsUtf8    = false,
+        bool a_bMultiKey  = false,
+        bool a_bMultiLine = false
         );
 
     /** Destructor */
@@ -518,32 +516,18 @@ public:
     bool IsMultiKey() const { return m_bAllowMultiKey; }
 
     /** Should data values be permitted to span multiple lines in the file. If
-    set to false then the multi-line construct <<<TAG as a value will be
-    returned as is instead of loading the data. This value may be changed
-    at any time.
+        set to false then the multi-line construct <<<TAG as a value will be
+        returned as is instead of loading the data. This value may be changed
+        at any time.
 
-    \param a_bAllowMultiLine     Allow multi-line values in the source?
-    */
+        \param a_bAllowMultiLine     Allow multi-line values in the source?
+     */
     void SetMultiLine(bool a_bAllowMultiLine = true) {
         m_bAllowMultiLine = a_bAllowMultiLine;
     }
 
     /** Query the status of multi-line data */
     bool IsMultiLine() const { return m_bAllowMultiLine; }
-
-    /** Should data values be permitted to span multiple lines in the file. If
-    set to false then the multi-line construct <<<TAG as a value will be
-    returned as is instead of loading the data. This value may be changed
-    at any time.
-
-    \param a_bAllowEmptyValues  Allow keys with no value
-    */
-    void SetAllowEmptyValues(bool a_bAllowEmptyValues = true) {
-        m_bAllowEmptyValues = a_bAllowEmptyValues;
-    }
-
-    /** Query whether empty keys are allowed */
-    bool AllowingEmpty() const { return m_bAllowEmptyValues; }
 
     /** Should spaces be added around the equals sign when writing key/value
         pairs out. When true, the result will be "key = value". When false, 
@@ -1279,9 +1263,6 @@ private:
     /** Are data values permitted to span multiple lines? */
     bool m_bAllowMultiLine;
 
-    /** Are keys permitted to have no value? */
-    bool m_bAllowEmptyValues;
-
     /** Should spaces be written out surrounding the equals sign? */
     bool m_bSpaces;
     
@@ -1299,8 +1280,7 @@ template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
 CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::CSimpleIniTempl(
     bool a_bIsUtf8,
     bool a_bAllowMultiKey,
-    bool a_bAllowMultiLine,
-    bool a_bAllowEmptyValues
+    bool a_bAllowMultiLine
     )
   : m_pData(0)
   , m_uDataLen(0)
@@ -1308,7 +1288,6 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::CSimpleIniTempl(
   , m_bStoreIsUtf8(a_bIsUtf8)
   , m_bAllowMultiKey(a_bAllowMultiKey)
   , m_bAllowMultiLine(a_bAllowMultiLine)
-  , m_bAllowEmptyValues(a_bAllowEmptyValues)
   , m_bSpaces(true)
   , m_nOrder(0)
 { }
@@ -1435,14 +1414,18 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::LoadData(
     size_t          a_uDataLen
     )
 {
-    SI_CONVERTER converter(m_bStoreIsUtf8);
-
-    // consume the UTF-8 BOM if it exists
-    if (m_bStoreIsUtf8 && a_uDataLen >= 3) {
-        if (memcmp(a_pData, SI_UTF8_SIGNATURE, 3) == 0) {
-            a_pData    += 3;
-            a_uDataLen -= 3;
-        }
+    if (!a_pData) {
+        return SI_OK;
+    }
+    
+    // if the UTF-8 BOM exists, consume it and set mode to unicode, if we have
+    // already loaded data and try to change mode half-way through then this will
+    // be ignored and we will assert in debug versions
+    if (a_uDataLen >= 3 && memcmp(a_pData, SI_UTF8_SIGNATURE, 3) == 0) {
+        a_pData    += 3;
+        a_uDataLen -= 3;
+        SI_ASSERT(m_bStoreIsUtf8 || !m_pData); // we don't expect mixed mode data
+        SetUnicode();
     }
 
     if (a_uDataLen == 0) {
@@ -1450,6 +1433,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::LoadData(
     }
 
     // determine the length of the converted data
+    SI_CONVERTER converter(m_bStoreIsUtf8);
     size_t uLen = converter.SizeFromStore(a_pData, a_uDataLen);
     if (uLen == (size_t)(-1)) {
         return SI_FAIL;
@@ -1562,9 +1546,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::FindEntry(
     a_pComment = NULL;
 
     SI_CHAR * pTrail = NULL;
-    bool bEmptyValue = false;
     while (*a_pData) {
-
         // skip spaces and empty lines
         while (*a_pData && IsSpace(*a_pData)) {
             ++a_pData;
@@ -1626,9 +1608,8 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::FindEntry(
             ++a_pData;
         }
 
-        bEmptyValue = (*a_pData != '=');
-
-        if (bEmptyValue && !m_bAllowEmptyValues) {
+        // if it's an invalid line, just skip it
+        if (*a_pData != '=') {
             continue;
         }
 
@@ -1645,40 +1626,31 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::FindEntry(
         while (pTrail >= a_pKey && IsSpace(*pTrail)) {
             --pTrail;
         }
-		++pTrail;
+        ++pTrail;
+        *pTrail = 0;
 
-		if (!bEmptyValue) {
-			*pTrail = 0;
-
-            // skip leading whitespace on the value
-            ++a_pData;  // safe as checked that it == '=' above
-            while (*a_pData && !IsNewLineChar(*a_pData) && IsSpace(*a_pData)) {
-                ++a_pData;
-            }
-
-            // find the end of the value which is the end of this line
-            a_pVal = a_pData;
-            while (*a_pData && !IsNewLineChar(*a_pData)) {
-                ++a_pData;
-            }
-
-            // remove trailing spaces from the value
-            pTrail = a_pData - 1;
-            if (*a_pData) { // prepare for the next round
-                SkipNewLine(a_pData);
-            }
-            while (pTrail >= a_pVal && IsSpace(*pTrail)) {
-                --pTrail;
-            }
-            ++pTrail;
-            *pTrail = 0;
-        } else {
-			if (*a_pData) { // prepare for the next round
-				SkipNewLine(a_pData);
-			}
-			a_pVal = pTrail;
-			*pTrail = 0;
+        // skip leading whitespace on the value
+        ++a_pData;  // safe as checked that it == '=' above
+        while (*a_pData && !IsNewLineChar(*a_pData) && IsSpace(*a_pData)) {
+            ++a_pData;
         }
+
+        // find the end of the value which is the end of this line
+        a_pVal = a_pData;
+        while (*a_pData && !IsNewLineChar(*a_pData)) {
+            ++a_pData;
+        }
+
+        // remove trailing spaces from the value
+        pTrail = a_pData - 1;
+        if (*a_pData) { // prepare for the next round
+            SkipNewLine(a_pData);
+        }
+        while (pTrail >= a_pVal && IsSpace(*pTrail)) {
+            --pTrail;
+        }
+        ++pTrail;
+        *pTrail = 0;
 
         // check for multi-line entries
         if (m_bAllowMultiLine && IsMultiLineTag(a_pVal)) {
@@ -2070,7 +2042,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::GetLongValue(
     long nValue = a_nDefault;
     char * pszSuffix = szValue;
     if (szValue[0] == '0' && (szValue[1] == 'x' || szValue[1] == 'X')) {
-       if (!szValue[2]) return a_nDefault;
+    	if (!szValue[2]) return a_nDefault;
         nValue = strtol(&szValue[2], &pszSuffix, 16);
     }
     else {
@@ -2151,32 +2123,32 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::GetDoubleValue(
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
 SI_Error 
 CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SetDoubleValue(
-    const SI_CHAR * a_pSection,
-    const SI_CHAR * a_pKey,
-    double          a_nValue,
-    const SI_CHAR * a_pComment,
-    bool            a_bForceReplace
-    )
+	const SI_CHAR * a_pSection,
+	const SI_CHAR * a_pKey,
+	double          a_nValue,
+	const SI_CHAR * a_pComment,
+	bool            a_bForceReplace
+	)
 {
-    // use SetValue to create sections
-    if (!a_pSection || !a_pKey) return SI_FAIL;
+	// use SetValue to create sections
+	if (!a_pSection || !a_pKey) return SI_FAIL;
 
-    // convert to an ASCII string
-    char szInput[64];
+	// convert to an ASCII string
+	char szInput[64];
 #if __STDC_WANT_SECURE_LIB__ && !_WIN32_WCE
-    sprintf_s(szInput, "%f", a_nValue);
+	sprintf_s(szInput, "%f", a_nValue);
 #else // !__STDC_WANT_SECURE_LIB__
-    sprintf(szInput, "%f", a_nValue);
+	sprintf(szInput, "%f", a_nValue);
 #endif // __STDC_WANT_SECURE_LIB__
 
-    // convert to output text
-    SI_CHAR szOutput[64];
-    SI_CONVERTER c(m_bStoreIsUtf8);
-    c.ConvertFromStore(szInput, strlen(szInput) + 1, 
-        szOutput, sizeof(szOutput) / sizeof(SI_CHAR));
+	// convert to output text
+	SI_CHAR szOutput[64];
+	SI_CONVERTER c(m_bStoreIsUtf8);
+	c.ConvertFromStore(szInput, strlen(szInput) + 1, 
+		szOutput, sizeof(szOutput) / sizeof(SI_CHAR));
 
-    // actually add it
-    return AddEntry(a_pSection, a_pKey, szOutput, a_pComment, a_bForceReplace, true);
+	// actually add it
+	return AddEntry(a_pSection, a_pKey, szOutput, a_pComment, a_bForceReplace, true);
 }
 
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
@@ -2457,7 +2429,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::Save(
         if (!OutputMultiLineText(a_oOutput, convert, m_pFileComment)) {
             return SI_FAIL;
         }
-        //bNeedNewLine = true;
+        bNeedNewLine = true;
     }
 
     // iterate through our sections and output the data
@@ -2467,7 +2439,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::Save(
         if (iSection->pComment) {
             if (bNeedNewLine) {
                 a_oOutput.Write(SI_NEWLINE_A);
-                //a_oOutput.Write(SI_NEWLINE_A);
+                a_oOutput.Write(SI_NEWLINE_A);
             }
             if (!OutputMultiLineText(a_oOutput, convert, iSection->pComment)) {
                 return SI_FAIL;
@@ -2477,7 +2449,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::Save(
 
         if (bNeedNewLine) {
             a_oOutput.Write(SI_NEWLINE_A);
-            //a_oOutput.Write(SI_NEWLINE_A);
+            a_oOutput.Write(SI_NEWLINE_A);
             bNeedNewLine = false;
         }
 
@@ -2514,7 +2486,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::Save(
             for ( ; iValue != oValues.end(); ++iValue) {
                 // write out the comment if there is one
                 if (iValue->pComment) {
-                    //a_oOutput.Write(SI_NEWLINE_A); // Diable new line before comment
+                    a_oOutput.Write(SI_NEWLINE_A);
                     if (!OutputMultiLineText(a_oOutput, convert, iValue->pComment)) {
                         return SI_FAIL;
                     }
