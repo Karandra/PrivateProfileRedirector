@@ -33,7 +33,7 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
 	}
 
 	// Get the scale form interface and query its version.
-	xSE_ScaleformInterface* scaleform = NULL;
+	xSE_ScaleformInterface* scaleform = nullptr;
 	#if xSE_HAS_SCALEFORM_INTERFACE
 	if (pluginHandle != kPluginHandle_Invalid)
 	{
@@ -51,7 +51,7 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
 		}
 	}
 	#endif
-	return RedirectorSEInterface::GetInstance().OnQuery(pluginHandle, pluginHandle != kPluginHandle_Invalid ? xSE : NULL, scaleform);
+	return RedirectorSEInterface::GetInstance().OnQuery(pluginHandle, pluginHandle != kPluginHandle_Invalid ? xSE : nullptr, scaleform);
 }
 bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 {
@@ -117,7 +117,7 @@ xSE_ConsoleCommandInfo* RedirectorSEInterface::FindConsoleCommand(const std::str
 		}
 	}
 	#endif
-	return NULL;
+	return nullptr;
 }
 void RedirectorSEInterface::OverrideRefreshINI()
 {

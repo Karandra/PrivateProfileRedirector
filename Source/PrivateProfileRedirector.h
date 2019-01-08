@@ -71,7 +71,7 @@ class PrivateProfileRedirector
 	public:
 		static bool HasInstance()
 		{
-			return ms_Instance != NULL;
+			return ms_Instance != nullptr;
 		}
 		static PrivateProfileRedirector& GetInstance()
 		{
@@ -92,30 +92,30 @@ class PrivateProfileRedirector
 		static int GetLibraryVersionInt();
 
 	public:
-		DWORD(WINAPI* m_GetPrivateProfileStringA)(LPCSTR, LPCSTR, LPCSTR, LPSTR, DWORD, LPCSTR) = NULL;
-		DWORD(WINAPI* m_GetPrivateProfileStringW)(LPCWSTR, LPCWSTR, LPCWSTR, LPWSTR, DWORD, LPCWSTR) = NULL;
+		DWORD(WINAPI* m_GetPrivateProfileStringA)(LPCSTR, LPCSTR, LPCSTR, LPSTR, DWORD, LPCSTR) = nullptr;
+		DWORD(WINAPI* m_GetPrivateProfileStringW)(LPCWSTR, LPCWSTR, LPCWSTR, LPWSTR, DWORD, LPCWSTR) = nullptr;
 
-		BOOL(WINAPI* m_WritePrivateProfileStringA)(LPCSTR, LPCSTR, LPCSTR, LPCSTR) = NULL;
-		BOOL(WINAPI* m_WritePrivateProfileStringW)(LPCWSTR, LPCWSTR, LPCWSTR, LPCWSTR) = NULL;
+		BOOL(WINAPI* m_WritePrivateProfileStringA)(LPCSTR, LPCSTR, LPCSTR, LPCSTR) = nullptr;
+		BOOL(WINAPI* m_WritePrivateProfileStringW)(LPCWSTR, LPCWSTR, LPCWSTR, LPCWSTR) = nullptr;
 
-		UINT(WINAPI* m_GetPrivateProfileIntA)(LPCSTR, LPCSTR, INT, LPCSTR) = NULL;
-		UINT(WINAPI* m_GetPrivateProfileIntW)(LPCWSTR, LPCWSTR, INT, LPCWSTR) = NULL;
+		UINT(WINAPI* m_GetPrivateProfileIntA)(LPCSTR, LPCSTR, INT, LPCSTR) = nullptr;
+		UINT(WINAPI* m_GetPrivateProfileIntW)(LPCWSTR, LPCWSTR, INT, LPCWSTR) = nullptr;
 
-		DWORD(WINAPI* m_GetPrivateProfileSectionNamesA)(LPSTR, DWORD, LPCSTR) = NULL;
-		DWORD(WINAPI* m_GetPrivateProfileSectionNamesW)(LPWSTR, DWORD, LPCWSTR) = NULL;
+		DWORD(WINAPI* m_GetPrivateProfileSectionNamesA)(LPSTR, DWORD, LPCSTR) = nullptr;
+		DWORD(WINAPI* m_GetPrivateProfileSectionNamesW)(LPWSTR, DWORD, LPCWSTR) = nullptr;
 
-		DWORD(WINAPI* m_GetPrivateProfileSectionA)(LPCSTR, LPSTR, DWORD, LPCSTR) = NULL;
-		DWORD(WINAPI* m_GetPrivateProfileSectionW)(LPCWSTR, LPWSTR, DWORD, LPCWSTR) = NULL;
+		DWORD(WINAPI* m_GetPrivateProfileSectionA)(LPCSTR, LPSTR, DWORD, LPCSTR) = nullptr;
+		DWORD(WINAPI* m_GetPrivateProfileSectionW)(LPCWSTR, LPWSTR, DWORD, LPCWSTR) = nullptr;
 
-		NTSTATUS(WINAPI* m_RtlInitUnicodeString)(PCUNICODE_STRING, PCWSTR) = NULL;
-		NTSTATUS(WINAPI* m_RtlUnicodeStringToInteger)(PCUNICODE_STRING, ULONG, PULONG) = NULL;
+		NTSTATUS(WINAPI* m_RtlInitUnicodeString)(PCUNICODE_STRING, PCWSTR) = nullptr;
+		NTSTATUS(WINAPI* m_RtlUnicodeStringToInteger)(PCUNICODE_STRING, ULONG, PULONG) = nullptr;
 
 	private:
 		struct FunctionInfo
 		{
-			const wchar_t* Name = NULL;
-			void** Original = NULL;
-			void* Override = NULL;
+			const wchar_t* Name = nullptr;
+			void** Original = nullptr;
+			void* Override = nullptr;
 
 			FunctionInfo(void** original, void* override, const wchar_t* name)
 				:Original(original), Override(override), Name(name)
@@ -128,7 +128,7 @@ class PrivateProfileRedirector
 		};
 
 		const DWORD m_ThreadID = 0;
-		HMODULE m_NtDLL = NULL;
+		HMODULE m_NtDLL = nullptr;
 
 		INIFile m_Config;
 		bool m_AllowSEVersionMismatch = false;
@@ -144,7 +144,7 @@ class PrivateProfileRedirector
 
 		std::unordered_map<KxDynamicStringW, std::unique_ptr<INIObject>> m_INIMap;
 		KxCriticalSection m_INIMapCS;
-		FILE* m_Log = NULL;
+		FILE* m_Log = nullptr;
 
 	private:
 		void LogBase(const wchar_t* string) const
@@ -176,7 +176,7 @@ class PrivateProfileRedirector
 		void RestoreFunctions();
 
 	private:
-		const wchar_t* GetConfigOption(const wchar_t* section, const wchar_t* key, const wchar_t* defaultValue = NULL) const;
+		const wchar_t* GetConfigOption(const wchar_t* section, const wchar_t* key, const wchar_t* defaultValue = nullptr) const;
 		int GetConfigOptionInt(const wchar_t* section, const wchar_t* key, int defaultValue = 0) const;
 		bool GetConfigOptionBool(const wchar_t* section, const wchar_t* key, bool defaultValue = false)
 		{
@@ -195,7 +195,7 @@ class PrivateProfileRedirector
 		
 		bool IsLogEnabled() const
 		{
-			return m_Log != NULL;
+			return m_Log != nullptr;
 		}
 		bool IsSEVersionMismatchAllowed() const
 		{

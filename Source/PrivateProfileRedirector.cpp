@@ -82,14 +82,14 @@ void INIObject::ProcessInlineComments()
 			{
 				KxDynamicStringW newValue = value.substr(0, anchor);
 				PrivateProfileRedirector::TrimSpaceCharsLR(newValue);
-				m_INI.SetValue(section.pItem, key.pItem, newValue.data(), NULL, true);
+				m_INI.SetValue(section.pItem, key.pItem, newValue.data(), nullptr, true);
 			}
 		}
 	}
 }
 
 INIObject::INIObject(const KxDynamicStringW& path)
-	:m_INI(false, false, true, true), m_Path(path)
+	:m_INI(false, false, true), m_Path(path)
 {
 	m_INI.SetSpaces(false);
 }
@@ -107,7 +107,7 @@ void INIObject::OnWrite()
 }
 
 //////////////////////////////////////////////////////////////////////////
-PrivateProfileRedirector* PrivateProfileRedirector::ms_Instance = NULL;
+PrivateProfileRedirector* PrivateProfileRedirector::ms_Instance = nullptr;
 const int PrivateProfileRedirector::ms_VersionMajor = 0;
 const int PrivateProfileRedirector::ms_VersionMinor = 3;
 const int PrivateProfileRedirector::ms_VersionPatch = 2;
@@ -122,7 +122,7 @@ PrivateProfileRedirector& PrivateProfileRedirector::CreateInstance()
 void PrivateProfileRedirector::DestroyInstance()
 {
 	delete ms_Instance;
-	ms_Instance = NULL;
+	ms_Instance = nullptr;
 }
 
 const wchar_t* PrivateProfileRedirector::GetLibraryNameW()
@@ -315,7 +315,7 @@ const wchar_t* PrivateProfileRedirector::GetConfigOption(const wchar_t* section,
 }
 int PrivateProfileRedirector::GetConfigOptionInt(const wchar_t* section, const wchar_t* key, int defaultValue) const
 {
-	const wchar_t* value = GetConfigOption(section, key, NULL);
+	const wchar_t* value = GetConfigOption(section, key, nullptr);
 	if (value)
 	{
 		int valueInt = defaultValue;
@@ -326,7 +326,7 @@ int PrivateProfileRedirector::GetConfigOptionInt(const wchar_t* section, const w
 }
 
 PrivateProfileRedirector::PrivateProfileRedirector()
-	:m_ThreadID(GetCurrentThreadId()), m_Config(false, false, false, false)
+	:m_ThreadID(GetCurrentThreadId()), m_Config(false, false, false)
 {
 	m_NtDLL = ::LoadLibraryW(L"NtDLL.dll");
 
@@ -356,7 +356,7 @@ PrivateProfileRedirector::PrivateProfileRedirector()
 
 	// Print options
 	Log(L"Loaded options:");
-	Log(L"General/EnableLog -> '%d'", (int)(m_Log != NULL));
+	Log(L"General/EnableLog -> '%d'", (int)(m_Log != nullptr));
 	Log(L"General/NativeWrite -> '%d'", (int)m_NativeWrite);
 	Log(L"General/SaveOnWrite -> '%d'", (int)m_ShouldSaveOnWrite);
 	Log(L"General/SaveOnThreadDetach -> '%d'", (int)m_ShouldSaveOnThreadDetach);
@@ -588,7 +588,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 
 	if (lpFileName)
 	{
-		if (lpReturnedString == NULL || nSize == 0)
+		if (lpReturnedString == nullptr || nSize == 0)
 		{
 			SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			return 0;
@@ -601,7 +601,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 		const INIFile& iniFile = iniObject.GetFile();
 
 		// Enum all sections
-		if (appName == NULL)
+		if (appName == nullptr)
 		{
 			instance.Log(L"[GetPrivateProfileStringW] Enum all sections of '%s'", lpFileName);
 
@@ -616,7 +616,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 		}
 
 		// Enum all keys in section
-		if (keyName == NULL)
+		if (keyName == nullptr)
 		{
 			instance.Log(L"[GetPrivateProfileStringW] Enum all keys is '%s' section of '%s'", appName, lpFileName);
 
@@ -720,7 +720,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionNamesA(LPSTR lpszReturnBuffer, DWORD n
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileSectionNamesA] Redirecting to 'GetPrivateProfileSectionNamesW'");
 
-	if (lpszReturnBuffer == NULL || nSize == 0)
+	if (lpszReturnBuffer == nullptr || nSize == 0)
 	{
 		return 0;
 	}
@@ -751,7 +751,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionNamesW(LPWSTR lpszReturnBuffer, DWORD 
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileSectionNamesW]: Buffer size: '%u', Path: '%s'", nSize, lpFileName);
 
-	if (lpszReturnBuffer == NULL || nSize == 0)
+	if (lpszReturnBuffer == nullptr || nSize == 0)
 	{
 		return 0;
 	}
@@ -806,7 +806,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionA(LPCSTR appName, LPSTR lpReturnedStri
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileSectionA] Redirecting to 'GetPrivateProfileSectionW'");
 
-	if (lpReturnedString == NULL || nSize == 0)
+	if (lpReturnedString == nullptr || nSize == 0)
 	{
 		return 0;
 	}
@@ -839,7 +839,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionW(LPCWSTR appName, LPWSTR lpReturnedSt
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileSectionW] Section: '%s', Buffer size: '%u', Path: '%s'", appName, nSize, lpFileName);
 
-	if (lpReturnedString == NULL || nSize == 0)
+	if (lpReturnedString == nullptr || nSize == 0)
 	{
 		return 0;
 	}
@@ -930,9 +930,9 @@ PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LP
 			INIFile& ini = iniObject.GetFile();
 
 			// Delete section
-			if (keyName == NULL)
+			if (keyName == nullptr)
 			{
-				if (ini.Delete(appName, NULL, true))
+				if (ini.Delete(appName, nullptr, true))
 				{
 					iniObject.OnWrite();
 					return TRUE;
@@ -941,9 +941,9 @@ PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LP
 			}
 
 			// Delete value
-			if (lpString == NULL)
+			if (lpString == nullptr)
 			{
-				if (ini.DeleteValue(appName, keyName, NULL, true))
+				if (ini.DeleteValue(appName, keyName, nullptr, true))
 				{
 					iniObject.OnWrite();
 					return TRUE;
@@ -952,7 +952,7 @@ PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LP
 			}
 
 			// Set value
-			SI_Error ret = ini.SetValue(appName, keyName, lpString, NULL, true);
+			SI_Error ret = ini.SetValue(appName, keyName, lpString, nullptr, true);
 			if (ret == SI_INSERTED || ret == SI_UPDATED)
 			{
 				iniObject.OnWrite();

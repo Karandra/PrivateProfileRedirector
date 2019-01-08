@@ -43,12 +43,12 @@ class RedirectorSEInterface
 
 	public:
 		PluginHandle m_PluginHandle;
-		const xSE_Interface* m_XSE = NULL;
-		xSE_ScaleformInterface* m_Scaleform = NULL;
+		const xSE_Interface* m_XSE = nullptr;
+		xSE_ScaleformInterface* m_Scaleform = nullptr;
 		bool m_CanUseSEFunctions = false;
 
-		xSE_ConsoleCommandInfo* m_RefreshINICommand = NULL;
-		ConsoleCommandHandler m_OriginalRefreshINIHandler = NULL;
+		xSE_ConsoleCommandInfo* m_RefreshINICommand = nullptr;
+		ConsoleCommandHandler m_OriginalRefreshINIHandler = nullptr;
 
 	private:
 		bool OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleforem);
@@ -71,7 +71,7 @@ class RedirectorSEInterface
 		
 		bool HasSEInterface() const
 		{
-			return m_XSE != NULL;
+			return m_XSE != nullptr;
 		}
 		const xSE_Interface* GetSEInterface() const
 		{
@@ -80,7 +80,7 @@ class RedirectorSEInterface
 
 		bool HasScaleform() const
 		{
-			return m_Scaleform != NULL;
+			return m_Scaleform != nullptr;
 		}
 		xSE_ScaleformInterface* GetScaleform() const
 		{
