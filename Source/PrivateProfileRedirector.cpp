@@ -328,7 +328,7 @@ int PrivateProfileRedirector::GetConfigOptionInt(const wchar_t* section, const w
 PrivateProfileRedirector::PrivateProfileRedirector()
 	:m_ThreadID(GetCurrentThreadId()), m_Config(false, false, false, false)
 {
-	m_NtDLL = LoadLibraryW(L"NtDLL.dll");
+	m_NtDLL = ::LoadLibraryW(L"NtDLL.dll");
 
 	// Load config
 	m_Config.LoadFile(L"Data\\" xSE_FOLDER_NAME_W "\\Plugins\\PrivateProfileRedirector.ini");
@@ -343,6 +343,7 @@ PrivateProfileRedirector::PrivateProfileRedirector()
 	Log(L"Script Extender platform: %s", xSE_NAME_W);
 
 	// Load options
+	m_AllowSEVersionMismatch = GetConfigOptionBool(L"General", L"AllowSEVersionMismatch", m_AllowSEVersionMismatch);
 	m_WriteProtected = GetConfigOptionBool(L"General", L"WriteProtected", m_WriteProtected);
 	m_NativeWrite = !m_WriteProtected && GetConfigOptionBool(L"General", L"NativeWrite", m_NativeWrite);
 	m_ShouldSaveOnWrite = !m_NativeWrite && GetConfigOptionBool(L"General", L"SaveOnWrite", m_ShouldSaveOnWrite);
@@ -392,7 +393,7 @@ PrivateProfileRedirector::~PrivateProfileRedirector()
 
 	if (m_NtDLL)
 	{
-		FreeLibrary(m_NtDLL);
+		::FreeLibrary(m_NtDLL);
 	}
 }
 

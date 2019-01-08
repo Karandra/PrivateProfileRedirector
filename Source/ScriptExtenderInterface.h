@@ -45,12 +45,14 @@ class RedirectorSEInterface
 		PluginHandle m_PluginHandle;
 		const xSE_Interface* m_XSE = NULL;
 		xSE_ScaleformInterface* m_Scaleform = NULL;
+		bool m_CanUseSEFunctions = false;
 
 		xSE_ConsoleCommandInfo* m_RefreshINICommand = NULL;
 		ConsoleCommandHandler m_OriginalRefreshINIHandler = NULL;
 
 	private:
 		bool OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleforem);
+		bool OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion);
 		bool OnLoad();
 
 		xSE_ConsoleCommandInfo* FindConsoleCommand(const std::string_view& fullName) const;

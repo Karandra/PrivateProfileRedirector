@@ -131,6 +131,7 @@ class PrivateProfileRedirector
 		HMODULE m_NtDLL = NULL;
 
 		INIFile m_Config;
+		bool m_AllowSEVersionMismatch = false;
 		bool m_WriteProtected = false;
 		bool m_NativeWrite = false;
 		bool m_ShouldSaveOnWrite = true;
@@ -195,6 +196,10 @@ class PrivateProfileRedirector
 		bool IsLogEnabled() const
 		{
 			return m_Log != NULL;
+		}
+		bool IsSEVersionMismatchAllowed() const
+		{
+			return m_AllowSEVersionMismatch;
 		}
 		bool IsWriteProtected() const
 		{

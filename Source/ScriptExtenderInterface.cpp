@@ -21,10 +21,12 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
 	PluginHandle pluginHandle = xSE->GetPluginHandle();
 
 	// Check SE version
-	if (xSE_INTERFACE_VERSION(xSE) != xSE_PACKED_VERSION)
+	const auto interfaceVersion = xSE_INTERFACE_VERSION(xSE);
+	constexpr auto compiledVersion = xSE_PACKED_VERSION;
+	if (!RedirectorSEInterface::GetInstance().OnCheckVersion(interfaceVersion, compiledVersion))
 	{
-		xSE_LOG("This plugin is not compatible with this version of " xSE_NAME_A);
-		xSE_LOG("Script extender interface version '%d', expected '%d'", (int)xSE_INTERFACE_VERSION(xSE), (int)xSE_PACKED_VERSION);
+		xSE_LOG("This plugin might be incompatible with this version of " xSE_NAME_A);
+		xSE_LOG("Script extender interface version '%u', expected '%u'", (uint32_t)interfaceVersion, (uint32_t)compiledVersion);
 		xSE_LOG("Script extender functions will be disabled");
 
 		pluginHandle = kPluginHandle_Invalid;
@@ -89,6 +91,11 @@ bool RedirectorSEInterface::OnQuery(PluginHandle pluginHandle, const xSE_Interfa
 	m_Scaleform = scaleforem;
 
 	return true;
+}
+bool RedirectorSEInterface::OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion)
+{
+	m_CanUseSEFunctions = interfaceVersion == compiledVersion || PrivateProfileRedirector::GetInstance().IsSEVersionMismatchAllowed();
+	return m_CanUseSEFunctions;
 }
 bool RedirectorSEInterface::OnLoad()
 {
@@ -158,5 +165,5 @@ RedirectorSEInterface::~RedirectorSEInterface()
 
 bool RedirectorSEInterface::CanUseSEFunctions() const
 {
-	return m_PluginHandle != kPluginHandle_Invalid;
+	return m_CanUseSEFunctions;
 }
