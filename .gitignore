@@ -31,7 +31,17 @@
 *.out
 *.app
 
-Build/*.exp
-Build/*.iobj
-Build/*.ipdb
-Build/*.pdb
+# Visual Studio files
+.vs/*
+*.vcxproj.user
+
+# Build files
+Bin/*
+Junk/*
+ScriptExtender/*
+
+Build/F4SE/*
+Build/NVSE/*
+Build/SKSE/*
+Build/SKSE64/*
+Build/SKSEVR/*
