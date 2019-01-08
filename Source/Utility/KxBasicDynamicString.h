@@ -8,25 +8,31 @@
 #include <cstdio>
 #include <cwchar>
 
-template<class t_CharType, size_t t_StaticStorageLength>
+template<class t_Char, size_t t_StaticStorageLength>
 class KxBasicDynamicStringStore
 {
-	using StdStringViewT = std::basic_string_view<t_CharType, std::char_traits<t_CharType>>;
+	public:
+		using TChar = typename t_Char;
+		using TStringView = typename std::basic_string_view<TChar, std::char_traits<TChar>>;
 
 	private:
-		std::array<t_CharType, t_StaticStorageLength> m_Buffer;
+		std::array<TChar, t_StaticStorageLength> m_Buffer;
 		size_t m_Size = 0;
 
 	public:
-		const t_CharType* data() const noexcept
+		const TChar* data() const noexcept
 		{
 			return m_Buffer.data();
 		}
-		t_CharType* data() noexcept
+		TChar* data() noexcept
 		{
 			return m_Buffer.data();
 		}
 
+		constexpr size_t capacity() const noexcept
+		{
+			return t_StaticStorageLength;
+		}
 		constexpr size_t max_size() const noexcept
 		{
 			return t_StaticStorageLength;
@@ -42,7 +48,7 @@ class KxBasicDynamicStringStore
 		}
 		void set_eos()
 		{
-			m_Buffer[m_Size] = t_CharType();
+			m_Buffer[m_Size] = TChar();
 		}
 		void set_size_eos(size_t size)
 		{
@@ -50,34 +56,35 @@ class KxBasicDynamicStringStore
 			set_eos();
 		}
 
-		void assign(const t_CharType* data, size_t size, size_t startAt = 0)
+		void assign(const TChar* data, size_t size, size_t startAt = 0)
 		{
-			const size_t maxToCopy = sizeof(t_CharType) * std::min(size, m_Buffer.size());
+			const size_t maxToCopy = sizeof(TChar) * std::min(size, m_Buffer.size());
 			std::memmove(m_Buffer.data() + startAt, data, maxToCopy);
 			set_size_eos(startAt + size);
 		}
-		void assign(const StdStringViewT& view, size_t startAt = 0)
+		void assign(const TStringView& view, size_t startAt = 0)
 		{
 			assign(view.data(), view.size(), startAt);
 		}
-		void assign(size_t count, t_CharType c, size_t startAt = 0)
+		void assign(size_t count, TChar c, size_t startAt = 0)
 		{
-			for (size_t i = startAt; i < m_Size; i++)
+			count = std::clamp(count, count, max_size() - m_Size);
+			for (size_t i = 0; i < count; i++)
 			{
-				m_Buffer[i] = c;
+				m_Buffer[startAt + i] = c;
 			}
 			set_size_eos(startAt + count);
 		}
 
-		void append(const t_CharType* data, size_t size)
+		void append(const TChar* data, size_t size)
 		{
 			assign(data, size, m_Size);
 		}
-		void append(const StdStringViewT& view)
+		void append(const TStringView& view)
 		{
 			append(view.data(), view.size());
 		}
-		void append(size_t count, t_CharType c)
+		void append(size_t count, TChar c)
 		{
 			assign(count, c, m_Size);
 		}
@@ -89,32 +96,32 @@ class KxBasicDynamicStringStore
 		void clear()
 		{
 			set_size_eos(0);
-			m_Buffer.fill(t_CharType());
+			m_Buffer.fill(TChar());
 		}
 
-		const t_CharType& front() const
+		const TChar& front() const
 		{
 			return m_Buffer.front();
 		}
-		t_CharType& front()
+		TChar& front()
 		{
 			return m_Buffer.front();
 		}
 
-		const t_CharType& back() const
+		const TChar& back() const
 		{
 			return m_Buffer.back();
 		}
-		t_CharType& back()
+		TChar& back()
 		{
 			return m_Buffer.back();
 		}
 
-		const t_CharType& operator[](size_t i) const
+		const TChar& operator[](size_t i) const
 		{
 			return m_Buffer[i];
 		}
-		t_CharType& operator[](size_t i)
+		TChar& operator[](size_t i)
 		{
 			return m_Buffer[i];
 		}
@@ -140,13 +147,13 @@ class KxBasicDynamicStringStore
 };
 
 //////////////////////////////////////////////////////////////////////////
-template<class t_CharType, size_t t_StaticStorageLength, class t_Traits = std::char_traits<t_CharType>, class t_Allocator = std::allocator<t_CharType>>
+template<class t_Char, size_t t_StaticStorageLength, class t_Traits = std::char_traits<t_Char>, class t_Allocator = std::allocator<t_Char>>
 class KxBasicDynamicString
 {
 	public:
 		// Std types
 		using traits_type = t_Traits;
-		using value_type = t_CharType;
+		using value_type = t_Char;
 		using allocator_type = t_Allocator;
 		using size_type = typename std::allocator_traits<t_Allocator>::size_type;
 		using difference_type = typename std::allocator_traits<t_Allocator>::difference_type;
@@ -165,16 +172,16 @@ class KxBasicDynamicString
 		using const_reverse_iterator = const std::reverse_iterator<iterator>;
 
 		// KxBasicDynamicString types
-		using CharType = t_CharType;
-		using StdStringType = std::basic_string<value_type, traits_type, allocator_type>;
-		using StdStringViewType = std::basic_string_view<value_type, traits_type>;
-		using StaticStorageType = KxBasicDynamicStringStore<value_type, t_StaticStorageLength>;
+		using TChar = t_Char;
+		using TString = std::basic_string<value_type, traits_type, allocator_type>;
+		using TStringView = std::basic_string_view<value_type, traits_type>;
+		using TStaticStorage = KxBasicDynamicStringStore<value_type, t_StaticStorageLength>;
 
 		// Constants
-		static const constexpr size_t npos = StdStringType::npos;
+		static const constexpr size_t npos = TString::npos;
 
 	private:
-		std::variant<StaticStorageType, StdStringType> m_Storage;
+		std::variant<TStaticStorage, TString> m_Storage;
 
 	private:
 		// Store checks
@@ -188,41 +195,41 @@ class KxBasicDynamicString
 		}
 
 		// Store getters
-		const StaticStorageType& get_static_store() const
+		const TStaticStorage& get_static_store() const
 		{
-			return std::get<StaticStorageType>(m_Storage);
+			return std::get<TStaticStorage>(m_Storage);
 		}
-		StaticStorageType& get_static_store()
+		TStaticStorage& get_static_store()
 		{
-			return std::get<StaticStorageType>(m_Storage);
+			return std::get<TStaticStorage>(m_Storage);
 		}
 
-		const StdStringType& get_dynamic_store() const
+		const TString& get_dynamic_store() const
 		{
-			return std::get<StdStringType>(m_Storage);
+			return std::get<TString>(m_Storage);
 		}
-		StdStringType& get_dynamic_store()
+		TString& get_dynamic_store()
 		{
-			return std::get<StdStringType>(m_Storage);
+			return std::get<TString>(m_Storage);
 		}
 
 		// Assign
-		StaticStorageType& assgin_static_store()
+		TStaticStorage& assgin_static_store()
 		{
-			m_Storage = StaticStorageType();
+			m_Storage = TStaticStorage();
 			return get_static_store();
 		}
-		StdStringType& assgin_dynamic_store()
+		TString& assgin_dynamic_store()
 		{
-			m_Storage = StdStringType();
+			m_Storage = TString();
 			return get_dynamic_store();
 		}
 
 		void move_to_dynamic_store(size_t reserve = 0)
 		{
 			// Make copy
-			StaticStorageType staticStore = get_static_store();
-			StdStringType& dynamicStore = assgin_dynamic_store();
+			TStaticStorage staticStore = get_static_store();
+			TString& dynamicStore = assgin_dynamic_store();
 
 			dynamicStore.reserve(std::max(reserve, staticStore.size()));
 			dynamicStore.assign(staticStore.data(), staticStore.size());
@@ -230,11 +237,11 @@ class KxBasicDynamicString
 		void move_to_static_store()
 		{
 			// Move
-			StdStringType store = std::move(std::get<StdStringType>(m_Storage));
+			TString store = std::move(std::get<TString>(m_Storage));
 			assgin_static_store().assign(store.data(), store.size());
 		}
 
-		void do_assing(const StdStringViewType& view)
+		void do_assing(const TStringView& view)
 		{
 			if (can_use_static_store_for(view.size()))
 			{
@@ -257,7 +264,7 @@ class KxBasicDynamicString
 			}
 		}
 
-		void do_append(const StdStringViewType& view)
+		void do_append(const TStringView& view)
 		{
 			if (using_static_store())
 			{
@@ -298,20 +305,20 @@ class KxBasicDynamicString
 		{
 			if (length != npos)
 			{
-				do_assing(StdStringViewType(data, length));
+				do_assing(TStringView(data, length));
 			}
 			else
 			{
-				do_assing(StdStringViewType(data));
+				do_assing(TStringView(data));
 			}
 		}
-		KxBasicDynamicString(const StdStringViewType& view)
+		KxBasicDynamicString(TStringView view)
 		{
 			do_assing(view);
 		}
-		KxBasicDynamicString(const StdStringType& s)
+		KxBasicDynamicString(KxBasicDynamicString&& other)
 		{
-			do_assing(s);
+			m_Storage = std::move(other.m_Storage);
 		}
 		KxBasicDynamicString(const KxBasicDynamicString& other)
 		{
@@ -373,33 +380,33 @@ class KxBasicDynamicString
 			return data();
 		}
 		
-		StdStringViewType get_view() const noexcept
+		TStringView get_view() const noexcept
 		{
 			if (using_static_store())
 			{
-				const StaticStorageType& store = get_static_store();
-				return StdStringViewType(store.data(), store.size());
+				const TStaticStorage& store = get_static_store();
+				return TStringView(store.data(), store.size());
 			}
 			else
 			{
 				return get_dynamic_store();
 			}
 		}
-		StdStringViewType get_view(size_t offset, size_t count = npos) const
+		TStringView get_view(size_t offset, size_t count = npos) const
 		{
-			StdStringViewType view = get_view();
+			TStringView view = get_view();
 			if (offset < view.size())
 			{
 				return view.substr(offset, count);
 			}
-			return StdStringViewType();
+			return TStringView();
 		}
 
 		operator const value_type*() const noexcept
 		{
 			return data();
 		}
-		operator StdStringViewType() const noexcept
+		operator TStringView() const noexcept
 		{
 			return get_view();
 		}
@@ -443,6 +450,14 @@ class KxBasicDynamicString
 		{
 			return data()[index];
 		}
+		value_type& operator[](int index)
+		{
+			return data()[index];
+		}
+		const value_type& operator[](int index) const
+		{
+			return data()[index];
+		}
 
 		// Modifiers
 		void clear() noexcept
@@ -461,7 +476,7 @@ class KxBasicDynamicString
 		{
 			if (using_dynamic_store())
 			{
-				StdStringType& store = get_dynamic_store();
+				TString& store = get_dynamic_store();
 				if (can_use_static_store_for(store.size()))
 				{
 					move_to_static_store();
@@ -515,7 +530,7 @@ class KxBasicDynamicString
 		{
 			if (using_static_store())
 			{
-				StaticStorageType& store = get_static_store();
+				TStaticStorage& store = get_static_store();
 				if (offset > store.size())
 				{
 					throw std::out_of_range("erase");
@@ -534,7 +549,7 @@ class KxBasicDynamicString
 		{
 			if (using_static_store())
 			{
-				StaticStorageType& store = get_static_store();
+				TStaticStorage& store = get_static_store();
 				const size_t stringSize = size();
 
 				if (offset > stringSize)
@@ -543,7 +558,7 @@ class KxBasicDynamicString
 				}
 				else if (offset < stringSize && count != 0)
 				{
-					StdStringViewType view = get_view(offset + std::min(count, stringSize));
+					TStringView view = get_view(offset + std::min(count, stringSize));
 					store.assign(view, offset);
 					store.set_size_eos(stringSize - count);
 				}
@@ -559,7 +574,7 @@ class KxBasicDynamicString
 		{
 			return get_view(offset, count);
 		}
-		KxBasicDynamicString before_last(value_type ch, KxBasicDynamicString* rest = NULL) const
+		KxBasicDynamicString before_last(value_type ch, KxBasicDynamicString* rest = nullptr) const
 		{
 			KxBasicDynamicString out;
 			size_t charPos = rfind(ch);
@@ -594,20 +609,25 @@ class KxBasicDynamicString
 			}
 			return *this;
 		}
-		KxBasicDynamicString& assign(const StdStringViewType& view)
+		KxBasicDynamicString& assign(const TString& other)
 		{
-			do_assing(view);
+			do_assing(other);
+			return *this;
+		}
+		KxBasicDynamicString& assign(TStringView other)
+		{
+			do_assing(other);
 			return *this;
 		}
 		KxBasicDynamicString& assign(const value_type* data, size_t length = npos)
 		{
 			if (length != npos)
 			{
-				do_assing(StdStringViewType(data, length));
+				do_assing(TStringView(data, length));
 			}
 			else
 			{
-				do_assing(StdStringViewType(data));
+				do_assing(TStringView(data));
 			}
 			return *this;
 		}
@@ -615,6 +635,37 @@ class KxBasicDynamicString
 		{
 			do_assing(count, c);
 			return *this;
+		}
+		template<size_t length> KxBasicDynamicString& assign(const value_type(&data)[length])
+		{
+			do_assing(data, length);
+			return *this;
+		}
+
+		KxBasicDynamicString& operator=(const KxBasicDynamicString& other)
+		{
+			return assign(other);
+		}
+		KxBasicDynamicString& operator=(KxBasicDynamicString&& other)
+		{
+			m_Storage = std::move(other.m_Storage);
+			return *this;
+		}
+		KxBasicDynamicString& operator=(TStringView other)
+		{
+			return assign(other);
+		}
+		KxBasicDynamicString& operator=(value_type c)
+		{
+			return assign(1, c);
+		}
+		KxBasicDynamicString& operator=(const value_type* data)
+		{
+			return assign(data, npos);
+		}
+		template<size_t t_Length> KxBasicDynamicString& operator=(const value_type (&data)[t_Length])
+		{
+			return assign(data, t_Length);
 		}
 
 		// Append
@@ -624,8 +675,8 @@ class KxBasicDynamicString
 			// it will relocate the static store to dynamic invalidating it, so copy static store first.
 			if (this == &other && using_static_store() && !can_use_static_store_to_append(other.size()))
 			{
-				StaticStorageType store = other.get_static_store();
-				do_append(StdStringViewType(store.data(), store.size()));
+				TStaticStorage store = other.get_static_store();
+				do_append(TStringView(store.data(), store.size()));
 			}
 			else
 			{
@@ -633,12 +684,12 @@ class KxBasicDynamicString
 			}
 			return *this;
 		}
-		KxBasicDynamicString& append(const StdStringViewType& view)
+		KxBasicDynamicString& append(TStringView view)
 		{
 			do_append(view);
 			return *this;
 		}
-		KxBasicDynamicString& append(const StdStringType& s)
+		KxBasicDynamicString& append(const TString& s)
 		{
 			do_append(s);
 			return *this;
@@ -647,11 +698,11 @@ class KxBasicDynamicString
 		{
 			if (length != npos)
 			{
-				do_append(StdStringViewType(data, length));
+				do_append(TStringView(data, length));
 			}
 			else
 			{
-				do_append(StdStringViewType(data));
+				do_append(TStringView(data));
 			}
 			return *this;
 		}
@@ -665,7 +716,7 @@ class KxBasicDynamicString
 		{
 			return append(other);
 		}
-		KxBasicDynamicString& operator+=(const StdStringViewType& view)
+		KxBasicDynamicString& operator+=(TStringView view)
 		{
 			return append(view);
 		}
@@ -692,7 +743,7 @@ class KxBasicDynamicString
 			}
 			else
 			{
-				StaticStorageType& store = get_static_store();
+				TStaticStorage& store = get_static_store();
 				if (!store.empty())
 				{
 					store.set_size_eos(store.size() - 1);
@@ -702,7 +753,7 @@ class KxBasicDynamicString
 		}
 
 		// Search
-		size_t find(const StdStringViewType& pattern, size_t pos = 0) const
+		size_t find(const TStringView& pattern, size_t pos = 0) const
 		{
 			return get_view().find(pattern, pos);
 		}
@@ -711,7 +762,7 @@ class KxBasicDynamicString
 			return get_view().find(c, pos);
 		}
 
-		size_t rfind(const StdStringViewType& pattern, size_t pos = npos) const
+		size_t rfind(const TStringView& pattern, size_t pos = npos) const
 		{
 			return get_view().rfind(pattern, pos);
 		}
@@ -720,7 +771,7 @@ class KxBasicDynamicString
 			return get_view().rfind(c, pos);
 		}
 
-		size_t find_first_of(const StdStringViewType& pattern, size_t pos = 0) const
+		size_t find_first_of(const TStringView& pattern, size_t pos = 0) const
 		{
 			return get_view().find_first_of(pattern, pos);
 		}
@@ -729,7 +780,7 @@ class KxBasicDynamicString
 			return get_view().find_first_of(c, pos);
 		}
 
-		size_t find_first_not_of(const StdStringViewType& pattern, size_t pos = 0) const
+		size_t find_first_not_of(const TStringView& pattern, size_t pos = 0) const
 		{
 			return get_view().find_first_not_of(pattern, pos);
 		}
@@ -738,7 +789,7 @@ class KxBasicDynamicString
 			return get_view().find_first_not_of(c, pos);
 		}
 
-		size_t find_last_of(const StdStringViewType& pattern, size_t pos = npos) const
+		size_t find_last_of(const TStringView& pattern, size_t pos = npos) const
 		{
 			return get_view().find_last_of(pattern, pos);
 		}
@@ -747,7 +798,7 @@ class KxBasicDynamicString
 			return get_view().find_last_of(c, pos);
 		}
 
-		size_t find_last_not_of(const StdStringViewType& pattern, size_t pos = npos) const
+		size_t find_last_not_of(const TStringView& pattern, size_t pos = npos) const
 		{
 			return get_view().find_last_not_of(pattern, pos);
 		}
@@ -761,7 +812,7 @@ class KxBasicDynamicString
 		{
 			return get_view().compare(other.get_view());
 		}
-		int compare(const StdStringViewType& view) const
+		int compare(const TStringView& view) const
 		{
 			return get_view().compare(view);
 		}
@@ -911,7 +962,7 @@ class KxBasicDynamicString
 		static StringT to_utf16(const char* text, int length, int codePage)
 		{
 			StringT converted;
-			int lengthRequired = ::MultiByteToWideChar(codePage, 0, text, length, NULL, 0);
+			int lengthRequired = ::MultiByteToWideChar(codePage, 0, text, length, nullptr, 0);
 			if (lengthRequired != 0)
 			{
 				converted.resize(static_cast<size_t>(lengthRequired + 1));
@@ -925,11 +976,11 @@ class KxBasicDynamicString
 		static StringT to_codepage(const wchar_t* text, int length, int codePage)
 		{
 			StringT converted;
-			int lengthRequired = ::WideCharToMultiByte(codePage, 0, text, length, NULL, 0, NULL, NULL);
+			int lengthRequired = ::WideCharToMultiByte(codePage, 0, text, length, nullptr, 0, nullptr, nullptr);
 			if (lengthRequired != 0)
 			{
 				converted.resize(static_cast<size_t>(lengthRequired + 1));
-				::WideCharToMultiByte(codePage, 0, text, length, converted.data(), lengthRequired, NULL, NULL);
+				::WideCharToMultiByte(codePage, 0, text, length, converted.data(), lengthRequired, nullptr, nullptr);
 				converted.resize(static_cast<size_t>(lengthRequired - 1));
 			}
 			return converted;
@@ -951,11 +1002,11 @@ class KxBasicDynamicString
 			va_start(argptr, formatString);
 			int count = 0;
 
-			if constexpr (std::is_same_v<CharT, wchar_t>)
+			if constexpr(std::is_same_v<CharT, wchar_t>)
 			{
 				count = _vscwprintf(formatString, argptr);
 			}
-			else if constexpr (std::is_same_v<CharT, char>)
+			else if constexpr(std::is_same_v<CharT, char>)
 			{
 				count = _vscprintf(formatString, argptr);
 			}
@@ -983,16 +1034,16 @@ class KxBasicDynamicString
 };
 
 //////////////////////////////////////////////////////////////////////////
-template<class t_CharType, size_t t_StaticStorageLength, class t_Traits, class t_Allocator>
-struct std::hash<KxBasicDynamicString<t_CharType, t_StaticStorageLength, t_Traits, t_Allocator>>
+template<class TChar, size_t t_StaticStorageLength, class t_Traits, class t_Allocator>
+struct std::hash<KxBasicDynamicString<TChar, t_StaticStorageLength, t_Traits, t_Allocator>>
 {
 	public:
-		using argument_type = KxBasicDynamicString<t_CharType, t_StaticStorageLength, t_Traits, t_Allocator>;
+		using argument_type = KxBasicDynamicString<TChar, t_StaticStorageLength, t_Traits, t_Allocator>;
 		using result_type = size_t;
 
 	public:
 		size_t operator()(const argument_type& s) const noexcept
 		{
-			return std::hash<argument_type::StdStringViewType>()(s.get_view());
+			return std::hash<argument_type::TStringView>()(s.get_view());
 		}
 };

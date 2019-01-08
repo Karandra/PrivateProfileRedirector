@@ -453,7 +453,7 @@ size_t PrivateProfileRedirector::RefreshINI()
 	return m_INIMap.size();
 }
 
-KxDynamicStringW& PrivateProfileRedirector::TrimCharsL(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2)
+KxDynamicStringW& PrivateProfileRedirector::TrimCharsL(KxDynamicStringW& value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2)
 {
 	if (!value.empty())
 	{
@@ -473,7 +473,7 @@ KxDynamicStringW& PrivateProfileRedirector::TrimCharsL(KxDynamicStringW& value, 
 	}
 	return value;
 }
-KxDynamicStringW& PrivateProfileRedirector::TrimCharsR(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2)
+KxDynamicStringW& PrivateProfileRedirector::TrimCharsR(KxDynamicStringW& value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2)
 {
 	if (!value.empty())
 	{

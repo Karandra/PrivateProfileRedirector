@@ -246,9 +246,9 @@ class PrivateProfileRedirector
 			return KxDynamicStringW::to_codepage(string, length, m_ANSICodePage);
 		}
 		
-		static KxDynamicStringW& TrimCharsL(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2);
-		static KxDynamicStringW& TrimCharsR(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2);
-		static KxDynamicStringW& TrimCharsLR(KxDynamicStringW& value, KxDynamicStringW::CharType c1, KxDynamicStringW::CharType c2)
+		static KxDynamicStringW& TrimCharsL(KxDynamicStringW& value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2);
+		static KxDynamicStringW& TrimCharsR(KxDynamicStringW& value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2);
+		static KxDynamicStringW& TrimCharsLR(KxDynamicStringW& value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2)
 		{
 			TrimCharsL(value, c1, c2);
 			TrimCharsR(value, c1, c2);
