@@ -143,7 +143,7 @@ class PrivateProfileRedirector
 		bool m_DisableCCUnsafeA = false;
 		int m_ANSICodePage = CP_ACP;
 
-		std::unordered_map<KxDynamicStringW, std::unique_ptr<INIObject>> m_INIMap;
+		PPR::Utility::String::UnorderedMapWNoCase<std::unique_ptr<INIObject>> m_INIMap;
 		KxCriticalSection m_INIMapCS;
 		FILE* m_Log = nullptr;
 
@@ -239,7 +239,7 @@ class PrivateProfileRedirector
 			return m_DisableCCUnsafeA;
 		}
 
-		INIObject& GetOrLoadFile(const KxDynamicStringW& path);
+		INIObject& GetOrLoadFile(KxDynamicStringRefW path);
 		void SaveChnagedFiles(const wchar_t* message) const;
 		size_t RefreshINI();
 		

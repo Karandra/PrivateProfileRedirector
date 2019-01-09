@@ -110,7 +110,7 @@ void INIObject::OnWrite()
 PrivateProfileRedirector* PrivateProfileRedirector::ms_Instance = nullptr;
 const int PrivateProfileRedirector::ms_VersionMajor = 0;
 const int PrivateProfileRedirector::ms_VersionMinor = 3;
-const int PrivateProfileRedirector::ms_VersionPatch = 2;
+const int PrivateProfileRedirector::ms_VersionPatch = 3;
 
 PrivateProfileRedirector& PrivateProfileRedirector::CreateInstance()
 {
@@ -397,7 +397,7 @@ PrivateProfileRedirector::~PrivateProfileRedirector()
 	}
 }
 
-INIObject& PrivateProfileRedirector::GetOrLoadFile(const KxDynamicStringW& path)
+INIObject& PrivateProfileRedirector::GetOrLoadFile(KxDynamicStringRefW path)
 {
 	auto it = m_INIMap.find(path);
 	if (it != m_INIMap.end())
@@ -594,10 +594,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 			return 0;
 		}
 
-		KxDynamicStringW pathL(lpFileName);
-		pathL.make_lower();
-
-		const INIObject& iniObject = instance.GetOrLoadFile(pathL);
+		const INIObject& iniObject = instance.GetOrLoadFile(lpFileName);
 		const INIFile& iniFile = iniObject.GetFile();
 
 		// Enum all sections
@@ -690,10 +687,7 @@ PPR_API(UINT) On_GetPrivateProfileIntW(LPCWSTR appName, LPCWSTR keyName, INT def
 	
 	if (lpFileName && appName && keyName)
 	{
-		KxDynamicStringW pathL(lpFileName);
-		pathL.make_lower();
-
-		INIObject& ini = instance.GetOrLoadFile(pathL);
+		INIObject& ini = instance.GetOrLoadFile(lpFileName);
 		LPCWSTR value = ini.GetFile().GetValue(appName, keyName);
 		if (value)
 		{
@@ -761,10 +755,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionNamesW(LPWSTR lpszReturnBuffer, DWORD 
 		return 0;
 	}
 
-	KxDynamicStringW pathL(lpFileName);
-	pathL.make_lower();
-
-	const INIObject& iniObject = instance.GetOrLoadFile(pathL);
+	const INIObject& iniObject = instance.GetOrLoadFile(lpFileName);
 	const INIFile& iniFile = iniObject.GetFile();
 
 	INIFile::TNamesDepend sectionList;
@@ -849,10 +840,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionW(LPCWSTR appName, LPWSTR lpReturnedSt
 		return 0;
 	}
 
-	KxDynamicStringW pathL(lpFileName);
-	pathL.make_lower();
-
-	const INIObject& iniObject = instance.GetOrLoadFile(pathL);
+	const INIObject& iniObject = instance.GetOrLoadFile(lpFileName);
 	const INIFile& iniFile = iniObject.GetFile();
 
 	INIFile::TNamesDepend keyList;
@@ -922,10 +910,7 @@ PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LP
 	{
 		if (appName)
 		{
-			KxDynamicStringW pathL(lpFileName);
-			pathL.make_lower();
-
-			INIObject& iniObject = PrivateProfileRedirector::GetInstance().GetOrLoadFile(pathL);
+			INIObject& iniObject = PrivateProfileRedirector::GetInstance().GetOrLoadFile(lpFileName);
 			KxCriticalSectionLocker lock(iniObject.GetLock());
 			INIFile& ini = iniObject.GetFile();
 
