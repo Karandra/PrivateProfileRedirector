@@ -1,5 +1,9 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.3.3, 09.01.2019
+- Added option `m_AllowSEVersionMismatch` to initialize Script Extender functions even when runtime SE version does not match SE version for which this plugin was compiled.
+- Removed file names conversion to lower case.
+
 # Version 0.3.2, 04.10.2018
 - Fixed possible crash when `TrimValueQuotes` option is enabled.
 - KxDynamicString class is rewritten.

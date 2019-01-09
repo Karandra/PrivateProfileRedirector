@@ -89,10 +89,18 @@
     <None Include="Build\PrivateProfileRedirector.ini">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="ChangeLog.md">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Source\Utility\KxBasicDynamicString.natvis">
       <Filter>Header Files\Utility</Filter>
     </Natvis>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Build\PrivateProfileRedirector_preload.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

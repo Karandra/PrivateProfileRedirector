@@ -511,6 +511,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
   </ItemGroup>
   <ItemGroup>
     <None Include="Build\PrivateProfileRedirector.ini" />
+    <None Include="ChangeLog.md" />
     <None Include="Exports.def" />
   </ItemGroup>
   <ItemGroup>
@@ -518,6 +519,9 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Source\Utility\KxBasicDynamicString.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Build\PrivateProfileRedirector_preload.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
