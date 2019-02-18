@@ -1,5 +1,8 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.3.4, 18.02.2019
+- Added option `SkipByteOrderMark` to support files encoded in UTF-16.
+
 # Version 0.3.3, 09.01.2019
 - Added option `AllowSEVersionMismatch` to initialize Script Extender functions even when runtime SE version does not match SE version for which this plugin was compiled.
 - Removed file names conversion to lower case.

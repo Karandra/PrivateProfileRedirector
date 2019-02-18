@@ -18,16 +18,55 @@
 //////////////////////////////////////////////////////////////////////////
 bool INIObject::LoadFile()
 {
-	FILE* file = _wfopen(m_Path, L"rb");
-	if (file)
+	FILE* stream = _wfopen(m_Path, L"rb");
+	if (stream)
 	{
+		PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
+		KxCallAtScopeExit atExit([stream]()
+		{
+			fclose(stream);
+		});
+
+		if (instance.ShouldSkipByteOrderMark() && SkipByteOrderMark(stream))
+		{
+			// If BOM was skipped, we can't use 'LoadFile' because it rewinds the stream before read
+			// and reads content as narrow chars. So read data ourselves, convert it to UTF-8 and load
+			// converted data instead.
+			constexpr size_t bomLength = 2;
+
+			// Get file size
+			_fseeki64(stream, 0, SEEK_END);
+			const int64_t fileSize = _ftelli64(stream);
+
+			if (fileSize > bomLength)
+			{
+				// Seek after BOM
+				_fseeki64(stream, bomLength, SEEK_SET);
+				const size_t effectiveSize = fileSize - bomLength;
+
+				KxDynamicStringW fileData;
+				fileData.resize((effectiveSize / sizeof(wchar_t)) + 1);
+
+				if (fread(fileData.data(), 1, effectiveSize, stream) == effectiveSize)
+				{
+					// SimpleINI requires UTF-8, so convert file content
+					KxDynamicStringA utf8 = KxDynamicStringW::to_utf8(fileData.data(), fileData.size(), CP_UTF8);
+					m_INI.LoadData(utf8.data(), utf8.size());
+				}
+			}
+		}
+		else
+		{
+			// Load the file as usual
+			m_INI.LoadFile(stream);
+		}
+
+		// Set properties
 		m_ExistOnDisk = true;
 		m_IsChanged = false;
 
-		m_INI.LoadFile(file);
-		fclose(file);
-
-		if (PrivateProfileRedirector::GetInstance().ShouldProcessInlineComments())
+		// Process inline comments if allowed
+		if (!m_INI.IsEmpty() && instance.ShouldProcessInlineComments())
 		{
 			ProcessInlineComments();
 		}
@@ -51,6 +90,22 @@ bool INIObject::SaveFile()
 		m_ExistOnDisk = true;
 		return true;
 	}
+	return false;
+}
+
+bool INIObject::SkipByteOrderMark(FILE* stream) const
+{
+	uint8_t readBOM[2] = {0};
+	if (fread(readBOM, 1, std::size(readBOM), stream) == std::size(readBOM))
+	{
+		constexpr const uint8_t bom[] = {0xFF, 0xFE};
+		if (memcmp(readBOM, bom, std::size(bom)) == 0)
+		{
+			return true;
+		}
+	}
+
+	rewind(stream);
 	return false;
 }
 void INIObject::ProcessInlineComments()
@@ -110,7 +165,7 @@ void INIObject::OnWrite()
 PrivateProfileRedirector* PrivateProfileRedirector::ms_Instance = nullptr;
 const int PrivateProfileRedirector::ms_VersionMajor = 0;
 const int PrivateProfileRedirector::ms_VersionMinor = 3;
-const int PrivateProfileRedirector::ms_VersionPatch = 3;
+const int PrivateProfileRedirector::ms_VersionPatch = 4;
 
 PrivateProfileRedirector& PrivateProfileRedirector::CreateInstance()
 {
@@ -351,6 +406,7 @@ PrivateProfileRedirector::PrivateProfileRedirector()
 	m_TrimKeyNamesA = GetConfigOptionBool(L"General", L"TrimKeyNamesA", m_TrimKeyNamesA);
 	m_TrimValueQuotes = GetConfigOptionBool(L"General", L"TrimValueQuotes", m_TrimValueQuotes);
 	m_ProcessInlineComments = GetConfigOptionBool(L"General", L"ProcessInlineComments", m_ProcessInlineComments);
+	m_SkipByteOrderMark = GetConfigOptionBool(L"General", L"SkipByteOrderMark", m_SkipByteOrderMark);
 	m_DisableCCUnsafeA = GetConfigOptionBool(L"General", L"DisableCCUnsafeA", m_DisableCCUnsafeA);
 	m_ANSICodePage = GetConfigOptionInt(L"General", L"ANSICodePage", m_ANSICodePage);
 

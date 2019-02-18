@@ -3,10 +3,10 @@
 #include "KxBasicDynamicString.h"
 
 using KxDynamicStringA = KxBasicDynamicString<char, MAX_PATH>;
-using KxDynamicStringRefA = KxDynamicStringA::TStringView;
+using KxDynamicStringRefA = typename KxDynamicStringA::TStringView;
 
 using KxDynamicStringW = KxBasicDynamicString<wchar_t, MAX_PATH>;
-using KxDynamicStringRefW = KxDynamicStringW::TStringView;
+using KxDynamicStringRefW = typename KxDynamicStringW::TStringView;
 
 extern const KxDynamicStringA KxNullDynamicStringA;
 extern const KxDynamicStringRefA KxNullDynamicStringRefA;

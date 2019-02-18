@@ -484,6 +484,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="Source\ScriptExtenderInterfaceIncludes.h" />
     <ClInclude Include="Source\ScriptExtenderInterfaceNVSE.h" />
     <ClInclude Include="Source\Utility\KxBasicDynamicString.h" />
+    <ClInclude Include="Source\Utility\KxCallAtScopeExit.h" />
     <ClInclude Include="Source\Utility\KxCriticalSection.h" />
     <ClInclude Include="Source\Utility\KxDynamicString.h" />
     <ClInclude Include="Source\Utility\RtlDefines.h" />

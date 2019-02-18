@@ -4,6 +4,7 @@
 #include "Utility\RtlDefines.h"
 #include "Utility\KxDynamicString.h"
 #include "Utility\KxCriticalSection.h"
+#include "Utility\KxCallAtScopeExit.h"
 #include "Utility\String.h"
 
 using INIFile = CSimpleIniW;
@@ -21,6 +22,8 @@ class INIObject
 	private:
 		bool LoadFile();
 		bool SaveFile();
+
+		bool SkipByteOrderMark(FILE* stream) const;
 		void ProcessInlineComments();
 
 	public:
@@ -140,6 +143,7 @@ class PrivateProfileRedirector
 		bool m_TrimKeyNamesA = true;
 		bool m_TrimValueQuotes = true;
 		bool m_ProcessInlineComments = true;
+		bool m_SkipByteOrderMark = true;
 		bool m_DisableCCUnsafeA = false;
 		int m_ANSICodePage = CP_ACP;
 
@@ -233,6 +237,10 @@ class PrivateProfileRedirector
 		bool ShouldProcessInlineComments() const
 		{
 			return m_ProcessInlineComments;
+		}
+		bool ShouldSkipByteOrderMark() const
+		{
+			return m_SkipByteOrderMark;
 		}
 		bool ShouldDisableCCUnsafeA() const
 		{
