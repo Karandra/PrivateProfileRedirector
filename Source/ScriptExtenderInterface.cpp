@@ -84,11 +84,11 @@ bool RedirectorSEInterface::RegisterScaleform(GFxMovieView* view, GFxValue* root
 	return true;
 }
 
-bool RedirectorSEInterface::OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleforem)
+bool RedirectorSEInterface::OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleform)
 {
 	m_PluginHandle = pluginHandle;
 	m_XSE = xSE;
-	m_Scaleform = scaleforem;
+	m_Scaleform = scaleform;
 
 	return true;
 }

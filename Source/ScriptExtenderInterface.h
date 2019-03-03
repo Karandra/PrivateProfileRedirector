@@ -51,7 +51,7 @@ class RedirectorSEInterface
 		ConsoleCommandHandler m_OriginalRefreshINIHandler = nullptr;
 
 	private:
-		bool OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleforem);
+		bool OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleform);
 		bool OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion);
 		bool OnLoad();
 
