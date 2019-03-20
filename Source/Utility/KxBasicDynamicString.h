@@ -146,7 +146,6 @@ class KxBasicDynamicStringStore
 		}
 };
 
-//////////////////////////////////////////////////////////////////////////
 template<class t_Char, size_t t_StaticStorageLength, class t_Traits = std::char_traits<t_Char>, class t_Allocator = std::allocator<t_Char>>
 class KxBasicDynamicString
 {
@@ -577,7 +576,7 @@ class KxBasicDynamicString
 		KxBasicDynamicString before_last(value_type ch, KxBasicDynamicString* rest = nullptr) const
 		{
 			KxBasicDynamicString out;
-			size_t charPos = rfind(ch);
+			const size_t charPos = rfind(ch);
 			if (charPos != npos)
 			{
 				if (charPos != 0)
@@ -598,6 +597,23 @@ class KxBasicDynamicString
 				}
 			}
 			return out;
+		}
+		KxBasicDynamicString after_last(value_type ch) const
+		{
+			const size_t charPos = rfind(ch);
+			if (charPos != npos)
+			{
+				KxBasicDynamicString out;
+				if (charPos + 1 != size())
+				{
+					out.assign(get_view(charPos + 1));
+				}
+				return out;
+			}
+			else
+			{
+				return *this;
+			}
 		}
 
 		// Assign
@@ -959,37 +975,53 @@ class KxBasicDynamicString
 
 		// Encoding conversion
 		template<class StringT = KxBasicDynamicString<wchar_t, t_StaticStorageLength, std::char_traits<wchar_t>, std::allocator<wchar_t>>>
-		static StringT to_utf16(const char* text, int length, int codePage)
+		static StringT to_utf16(const char* text, size_t length, int codePage)
 		{
 			StringT converted;
-			int lengthRequired = ::MultiByteToWideChar(codePage, 0, text, length, nullptr, 0);
-			if (lengthRequired != 0)
+			const int lengthRequired = ::MultiByteToWideChar(codePage, 0, text, static_cast<int>(length), nullptr, 0);
+			if (lengthRequired > 0)
 			{
-				converted.resize(static_cast<size_t>(lengthRequired + 1));
-				::MultiByteToWideChar(codePage, 0, text, length, converted.data(), lengthRequired);
-				converted.resize(static_cast<size_t>(lengthRequired - 1));
+				converted.resize(static_cast<size_t>(lengthRequired));
+				::MultiByteToWideChar(codePage, 0, text, static_cast<int>(length), converted.data(), lengthRequired);
 			}
 			return converted;
 		}
 
 		template<class StringT = KxBasicDynamicString<char, t_StaticStorageLength, std::char_traits<char>, std::allocator<char>>>
-		static StringT to_codepage(const wchar_t* text, int length, int codePage)
+		StringT to_utf16(int codePage) const
+		{
+			return to_utf16<StringT>(data(), length(), codePage);
+		}
+
+		template<class StringT = KxBasicDynamicString<char, t_StaticStorageLength, std::char_traits<char>, std::allocator<char>>>
+		StringT to_utf16() const
+		{
+			return to_utf16<StringT>(data(), length(), CP_UTF8);
+		}
+
+		template<class StringT = KxBasicDynamicString<char, t_StaticStorageLength, std::char_traits<char>, std::allocator<char>>>
+		static StringT to_codepage(const wchar_t* text, size_t length, int codePage)
 		{
 			StringT converted;
-			int lengthRequired = ::WideCharToMultiByte(codePage, 0, text, length, nullptr, 0, nullptr, nullptr);
-			if (lengthRequired != 0)
+			const int lengthRequired = ::WideCharToMultiByte(codePage, 0, text, static_cast<int>(length), nullptr, 0, nullptr, nullptr);
+			if (lengthRequired > 0)
 			{
-				converted.resize(static_cast<size_t>(lengthRequired + 1));
-				::WideCharToMultiByte(codePage, 0, text, length, converted.data(), lengthRequired, nullptr, nullptr);
-				converted.resize(static_cast<size_t>(lengthRequired - 1));
+				converted.resize(static_cast<size_t>(lengthRequired));
+				::WideCharToMultiByte(codePage, 0, text, static_cast<int>(length), converted.data(), lengthRequired, nullptr, nullptr);
 			}
 			return converted;
 		}
 
 		template<class StringT = KxBasicDynamicString<char, t_StaticStorageLength, std::char_traits<char>, std::allocator<char>>>
-		static StringT to_utf8(const wchar_t* text, int length, int codePage)
+		StringT to_codepage(int codePage) const
 		{
-			return to_codepage(text, length, CP_UTF8);
+			return to_codepage<StringT>(data(), length(), codePage);
+		}
+
+		template<class StringT = KxBasicDynamicString<char, t_StaticStorageLength, std::char_traits<char>, std::allocator<char>>>
+		StringT to_utf8() const
+		{
+			return to_codepage<StringT>(data(), length(), CP_UTF8);
 		}
 
 		// Formatting
@@ -1017,15 +1049,19 @@ class KxBasicDynamicString
 
 			if (count > 0)
 			{
-				buffer.resize((size_t)count + 1);
+				// Resize to exact required length, the string will take care of null terminator
+				buffer.resize((size_t)count);
 
-				if constexpr (std::is_same_v<CharT, wchar_t>)
+				// And tell vs[n][w]printf that we allocated buffer with space for that null terminator
+				// because it expects length with it, otherwise it won't print last character.
+				const size_t effectiveSize = buffer.size() + 1;
+				if constexpr(std::is_same_v<CharT, wchar_t>)
 				{
-					count = vswprintf(buffer.data(), buffer.size(), formatString, argptr);
+					count = vswprintf(buffer.data(), effectiveSize, formatString, argptr);
 				}
-				else if constexpr (std::is_same_v<CharT, char>)
+				else if constexpr(std::is_same_v<CharT, char>)
 				{
-					count = vsprintf(buffer.data(), buffer.size(), formatString, argptr);
+					count = vsnprintf(buffer.data(), effectiveSize, formatString, argptr);
 				}
 			}
 			va_end(argptr);
@@ -1033,7 +1069,6 @@ class KxBasicDynamicString
 		}
 };
 
-//////////////////////////////////////////////////////////////////////////
 template<class TChar, size_t t_StaticStorageLength, class t_Traits, class t_Allocator>
 struct std::hash<KxBasicDynamicString<TChar, t_StaticStorageLength, t_Traits, t_Allocator>>
 {
