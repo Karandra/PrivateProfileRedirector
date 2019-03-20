@@ -39,12 +39,12 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
 	{
 		// Don't return, I don't use scaleform anyway.
 		scaleform = static_cast<xSE_ScaleformInterface*>(xSE->QueryInterface(kInterface_Scaleform));
-		if (!scaleform)
+		if (scaleform == nullptr)
 		{
 			xSE_LOG("Couldn't get scaleform interface");
 			//return false;
 		}
-		if (scaleform->interfaceVersion < xSE_ScaleformInterface::kInterfaceVersion)
+		if (scaleform && scaleform->interfaceVersion < xSE_ScaleformInterface::kInterfaceVersion)
 		{
 			xSE_LOG("Scaleform interface too old (%d, expected %d)", (int)scaleform->interfaceVersion, (int)xSE_ScaleformInterface::kInterfaceVersion);
 			//return false;
