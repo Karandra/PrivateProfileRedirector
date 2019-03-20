@@ -17,7 +17,7 @@ template<class T> class KxCallAtScopeExit
 			:m_Functor(functor)
 		{
 		}
-			
+		
 		KxCallAtScopeExit(KxCallAtScopeExit&& other)
 			:m_Functor(std::move(other.m_Functor))
 		{
@@ -27,23 +27,27 @@ template<class T> class KxCallAtScopeExit
 			:m_Functor(other.m_Functor)
 		{
 		}
-			
-		KxCallAtScopeExit& operator=(KxCallAtScopeExit&& other)
-		{
-			m_Functor = std::move(other.m_Functor);
-			other.m_Functor.reset();
-		}
-		KxCallAtScopeExit& operator=(const KxCallAtScopeExit& other)
-		{
-			m_Functor = other.m_Functor;
-		}
-
+		
 		~KxCallAtScopeExit()
 		{
 			if (m_Functor)
 			{
 				(void)std::invoke(*m_Functor);
 			}
+		}
+	
+	public:
+		KxCallAtScopeExit& operator=(KxCallAtScopeExit&& other)
+		{
+			m_Functor = std::move(other.m_Functor);
+			other.m_Functor.reset();
+
+			return *this;
+		}
+		KxCallAtScopeExit& operator=(const KxCallAtScopeExit& other)
+		{
+			m_Functor = other.m_Functor;
+			return *this;
 		}
 };
 
