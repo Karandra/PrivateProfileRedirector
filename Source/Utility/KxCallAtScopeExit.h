@@ -50,4 +50,3 @@ template<class T> class KxCallAtScopeExit
 			return *this;
 		}
 };
-
