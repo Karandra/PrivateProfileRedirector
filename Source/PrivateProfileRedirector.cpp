@@ -683,37 +683,34 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 			return static_cast<DWORD>(length);
 		}
 
-		if (lpReturnedString)
+		LPCWSTR value = iniFile.GetValue(appName, keyName, defaultValue);
+		if (value)
 		{
-			LPCWSTR value = iniFile.GetValue(appName, keyName, defaultValue);
-			if (value)
+			instance.Log(L"[GetPrivateProfileStringW] Value: '%s'", value);
+
+			if (instance.ShouldTrimValueQuotes())
 			{
-				instance.Log(L"[GetPrivateProfileStringW] Value: '%s'", value);
+				KxDynamicStringW valueTrimmed(value);
+				PrivateProfileRedirector::TrimQuoteCharsLR(valueTrimmed);
+				StringCchCopyNW(lpReturnedString, nSize, valueTrimmed.data(), valueTrimmed.length());
 
-				if (instance.ShouldTrimValueQuotes())
-				{
-					KxDynamicStringW valueTrimmed(value);
-					PrivateProfileRedirector::TrimQuoteCharsLR(valueTrimmed);
-					StringCchCopyNW(lpReturnedString, nSize, valueTrimmed.data(), valueTrimmed.length());
-
-					instance.Log(L"[GetPrivateProfileStringW] Trimmed value: '%s'", valueTrimmed.data());
-					return static_cast<DWORD>(valueTrimmed.length());
-				}
-				else
-				{
-					size_t length = 0;
-					StringCchLengthW(value, nSize, &length);
-					StringCchCopyNW(lpReturnedString, nSize, value, length);
-					return static_cast<DWORD>(length);
-				}
+				instance.Log(L"[GetPrivateProfileStringW] Trimmed value: '%s'", valueTrimmed.data());
+				return static_cast<DWORD>(valueTrimmed.length());
 			}
 			else
 			{
-				instance.Log(L"[GetPrivateProfileStringW] Value: '<null>'");
-
-				StringCchCopyNW(lpReturnedString, nSize, L"", 1);
-				return 0;
+				size_t length = 0;
+				StringCchLengthW(value, nSize, &length);
+				StringCchCopyNW(lpReturnedString, nSize, value, length);
+				return static_cast<DWORD>(length);
 			}
+		}
+		else
+		{
+			instance.Log(L"[GetPrivateProfileStringW] Value: '<null>'");
+
+			StringCchCopyNW(lpReturnedString, nSize, L"", 1);
+			return 0;
 		}
 	}
 
