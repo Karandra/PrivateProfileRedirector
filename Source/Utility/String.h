@@ -15,7 +15,7 @@ namespace PPR::Utility::String
 	{
 		#pragma warning(suppress: 4312) // 'operation' : conversion from 'type1' to 'type2' of greater size
 		#pragma warning(suppress: 4302) // 'conversion' : truncation from 'type 1' to 'type 2'
-		return reinterpret_cast<char>(::CharLowerA(reinterpret_cast<LPSTR>(c)));
+		return reinterpret_cast<char>(::CharUpperA(reinterpret_cast<LPSTR>(c)));
 	}
 	inline wchar_t CharToLower(wchar_t c)
 	{
@@ -27,7 +27,7 @@ namespace PPR::Utility::String
 	{
 		#pragma warning(suppress: 4312) // 'operation' : conversion from 'type1' to 'type2' of greater size
 		#pragma warning(suppress: 4302) // 'conversion' : truncation from 'type 1' to 'type 2'
-		return reinterpret_cast<wchar_t>(::CharLowerW(reinterpret_cast<LPWSTR>(c)));
+		return reinterpret_cast<wchar_t>(::CharUpperW(reinterpret_cast<LPWSTR>(c)));
 	}
 }
 
