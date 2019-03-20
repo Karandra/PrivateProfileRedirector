@@ -143,7 +143,7 @@ class PrivateProfileRedirector
 		bool m_TrimKeyNamesA = true;
 		bool m_TrimValueQuotes = true;
 		bool m_ProcessInlineComments = true;
-		bool m_SkipByteOrderMark = true;
+		bool m_ProcessByteOrderMark = true;
 		bool m_DisableCCUnsafeA = false;
 		int m_ANSICodePage = CP_ACP;
 
@@ -240,7 +240,7 @@ class PrivateProfileRedirector
 		}
 		bool ShouldSkipByteOrderMark() const
 		{
-			return m_SkipByteOrderMark;
+			return m_ProcessByteOrderMark;
 		}
 		bool ShouldDisableCCUnsafeA() const
 		{
@@ -277,11 +277,11 @@ class PrivateProfileRedirector
 			return TrimCharsLR(value, L'\"', L'\'');
 		}
 		
-		template<class ...Args> void Log(const wchar_t* format, Args... args) const
+		template<class ...Args> void Log(const wchar_t* format, Args&&... arg) const
 		{
 			if (m_Log)
 			{
-				KxDynamicStringW string = KxDynamicStringW::Format(format, std::forward<Args>(args)...);
+				KxDynamicStringW string = KxDynamicStringW::Format(format, std::forward<Args>(arg)...);
 				LogBase(string.data());
 			}
 		}

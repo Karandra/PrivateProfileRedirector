@@ -50,7 +50,7 @@ bool INIObject::LoadFile()
 				if (fread(fileData.data(), 1, effectiveSize, stream) == effectiveSize)
 				{
 					// SimpleINI requires UTF-8, so convert file content
-					KxDynamicStringA utf8 = KxDynamicStringW::to_utf8(fileData.data(), fileData.size(), CP_UTF8);
+					KxDynamicStringA utf8 = KxDynamicStringW::to_codepage(fileData.data(), fileData.size(), CP_UTF8);
 					m_INI.LoadData(utf8.data(), utf8.size());
 				}
 			}
@@ -406,7 +406,7 @@ PrivateProfileRedirector::PrivateProfileRedirector()
 	m_TrimKeyNamesA = GetConfigOptionBool(L"General", L"TrimKeyNamesA", m_TrimKeyNamesA);
 	m_TrimValueQuotes = GetConfigOptionBool(L"General", L"TrimValueQuotes", m_TrimValueQuotes);
 	m_ProcessInlineComments = GetConfigOptionBool(L"General", L"ProcessInlineComments", m_ProcessInlineComments);
-	m_SkipByteOrderMark = GetConfigOptionBool(L"General", L"SkipByteOrderMark", m_SkipByteOrderMark);
+	m_ProcessByteOrderMark = GetConfigOptionBool(L"General", L"ProcessByteOrderMark", m_ProcessByteOrderMark);
 	m_DisableCCUnsafeA = GetConfigOptionBool(L"General", L"DisableCCUnsafeA", m_DisableCCUnsafeA);
 	m_ANSICodePage = GetConfigOptionInt(L"General", L"ANSICodePage", m_ANSICodePage);
 
@@ -604,7 +604,7 @@ namespace
 	}
 }
 
-PPR_API(DWORD) On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCSTR defaultValue, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
+DWORD On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCSTR defaultValue, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 
@@ -637,7 +637,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCST
 	}
 	return length;
 }
-PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR defaultValue, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
+DWORD On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR defaultValue, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileStringW] Section: '%s', Key: '%s', Default: '%s', Buffer size: '%u', Path: '%s'", appName, keyName, defaultValue, nSize, lpFileName);
@@ -718,7 +718,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPC
 	return 0;
 }
 
-PPR_API(UINT) On_GetPrivateProfileIntA(LPCSTR appName, LPCSTR keyName, INT defaultValue, LPCSTR lpFileName)
+UINT On_GetPrivateProfileIntA(LPCSTR appName, LPCSTR keyName, INT defaultValue, LPCSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileIntA] Redirecting to 'GetPrivateProfileIntW'");
@@ -733,7 +733,7 @@ PPR_API(UINT) On_GetPrivateProfileIntA(LPCSTR appName, LPCSTR keyName, INT defau
 	}
 	return On_GetPrivateProfileIntW(appNameW, keyNameW, defaultValue, lpFileNameW);
 }
-PPR_API(UINT) On_GetPrivateProfileIntW(LPCWSTR appName, LPCWSTR keyName, INT defaultValue, LPCWSTR lpFileName)
+UINT On_GetPrivateProfileIntW(LPCWSTR appName, LPCWSTR keyName, INT defaultValue, LPCWSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileIntW]: Section: '%s', Key: '%s', Default: '%d', Path: '%s'", appName, keyName, defaultValue, lpFileName);
@@ -762,7 +762,7 @@ PPR_API(UINT) On_GetPrivateProfileIntW(LPCWSTR appName, LPCWSTR keyName, INT def
 	return defaultValue;
 }
 
-PPR_API(DWORD) On_GetPrivateProfileSectionNamesA(LPSTR lpszReturnBuffer, DWORD nSize, LPCSTR lpFileName)
+DWORD On_GetPrivateProfileSectionNamesA(LPSTR lpszReturnBuffer, DWORD nSize, LPCSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileSectionNamesA] Redirecting to 'GetPrivateProfileSectionNamesW'");
@@ -793,7 +793,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionNamesA(LPSTR lpszReturnBuffer, DWORD n
 	}
 	return length;
 }
-PPR_API(DWORD) On_GetPrivateProfileSectionNamesW(LPWSTR lpszReturnBuffer, DWORD nSize, LPCWSTR lpFileName)
+DWORD On_GetPrivateProfileSectionNamesW(LPWSTR lpszReturnBuffer, DWORD nSize, LPCWSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileSectionNamesW]: Buffer size: '%u', Path: '%s'", nSize, lpFileName);
@@ -845,7 +845,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionNamesW(LPWSTR lpszReturnBuffer, DWORD 
 	}
 }
 
-PPR_API(DWORD) On_GetPrivateProfileSectionA(LPCSTR appName, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
+DWORD On_GetPrivateProfileSectionA(LPCSTR appName, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileSectionA] Redirecting to 'GetPrivateProfileSectionW'");
@@ -878,7 +878,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionA(LPCSTR appName, LPSTR lpReturnedStri
 	}
 	return length;
 }
-PPR_API(DWORD) On_GetPrivateProfileSectionW(LPCWSTR appName, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
+DWORD On_GetPrivateProfileSectionW(LPCWSTR appName, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[GetPrivateProfileSectionW] Section: '%s', Buffer size: '%u', Path: '%s'", appName, nSize, lpFileName);
@@ -938,7 +938,7 @@ PPR_API(DWORD) On_GetPrivateProfileSectionW(LPCWSTR appName, LPWSTR lpReturnedSt
 	}
 }
 
-PPR_API(BOOL) On_WritePrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCSTR lpString, LPCSTR lpFileName)
+BOOL On_WritePrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCSTR lpString, LPCSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[WritePrivateProfileStringA] Redirecting to 'WritePrivateProfileStringW'");
@@ -954,7 +954,7 @@ PPR_API(BOOL) On_WritePrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCS
 	}
 	return On_WritePrivateProfileStringW(appNameW, keyNameW, lpStringW, lpFileNameW);
 }
-PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
+BOOL On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
 {
 	PrivateProfileRedirector& instance = PrivateProfileRedirector::GetInstance();
 	instance.Log(L"[WritePrivateProfileStringW] Section: '%s', Key: '%s', Value: '%s', Path: '%s'", appName, keyName, lpString, lpFileName);
