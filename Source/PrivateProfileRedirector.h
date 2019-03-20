@@ -238,7 +238,7 @@ class PrivateProfileRedirector
 		{
 			return m_ProcessInlineComments;
 		}
-		bool ShouldSkipByteOrderMark() const
+		bool ShouldProcessByteOrderMark() const
 		{
 			return m_ProcessByteOrderMark;
 		}
