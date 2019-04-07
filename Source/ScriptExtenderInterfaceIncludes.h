@@ -25,7 +25,7 @@
 #pragma comment(lib, "skse64/x64/Release/skse64_1_5_73.lib")
 #pragma comment(lib, "skse64/x64/Release/skse64_common.lib")
 #pragma comment(lib, "skse64/x64/Release/skse64_loader_common.lib")
-#pragma comment(lib, "skse64/x64_v141/Release/common_vc14.lib")
+#pragma comment(lib, "skse64/x64_v142/Release/common_vc14.lib")
 
 #elif xSE_PLATFORM_SKSEVR
 
@@ -40,7 +40,7 @@
 #pragma comment(lib, "skseVR/x64/Release/sksevr_1_4_15.lib")
 #pragma comment(lib, "skseVR/x64/Release/skse64_common.lib")
 #pragma comment(lib, "skseVR/x64/Release/skse64_loader_common.lib")
-#pragma comment(lib, "skseVR/x64_v141/Release/common_vc14.lib")
+#pragma comment(lib, "skseVR/x64_v142/Release/common_vc14.lib")
 
 #elif xSE_PLATFORM_F4SE
 
