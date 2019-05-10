@@ -621,6 +621,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCST
 	if (instance.ShouldTrimKeyNamesA())
 	{
 		PrivateProfileRedirector::TrimSpaceCharsLR(keyNameW);
+		instance.Log(L"[GetPrivateProfileStringA] Trimmed key name: '%s'", keyNameW.data());
 	}
 	DWORD length = On_GetPrivateProfileStringW(appNameW, keyNameW, defaultValueW, lpReturnedStringW.data(), nSize, lpFileNameW);
 	if (length != 0)

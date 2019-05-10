@@ -15,6 +15,9 @@ class KxBasicDynamicStringStore
 		using TChar = typename t_Char;
 		using TStringView = typename std::basic_string_view<TChar, std::char_traits<TChar>>;
 
+	public:
+		 static constexpr size_t npos = TStringView::npos;
+
 	private:
 		std::array<TChar, t_StaticStorageLength> m_Buffer;
 		size_t m_Size = 0;
@@ -977,14 +980,21 @@ class KxBasicDynamicString
 		template<class StringT = KxBasicDynamicString<wchar_t, t_StaticStorageLength, std::char_traits<wchar_t>, std::allocator<wchar_t>>>
 		static StringT to_utf16(const char* text, size_t length, int codePage)
 		{
-			StringT converted;
+			if (length == npos)
+			{
+				length = std::char_traits<char>::length(text);
+			}
+
 			const int lengthRequired = ::MultiByteToWideChar(codePage, 0, text, static_cast<int>(length), nullptr, 0);
 			if (lengthRequired > 0)
 			{
+				StringT converted;
 				converted.resize(static_cast<size_t>(lengthRequired));
 				::MultiByteToWideChar(codePage, 0, text, static_cast<int>(length), converted.data(), lengthRequired);
+
+				return converted;
 			}
-			return converted;
+			return {};
 		}
 
 		template<class StringT = KxBasicDynamicString<char, t_StaticStorageLength, std::char_traits<char>, std::allocator<char>>>
@@ -1002,14 +1012,21 @@ class KxBasicDynamicString
 		template<class StringT = KxBasicDynamicString<char, t_StaticStorageLength, std::char_traits<char>, std::allocator<char>>>
 		static StringT to_codepage(const wchar_t* text, size_t length, int codePage)
 		{
-			StringT converted;
+			if (length == npos)
+			{
+				length = std::char_traits<wchar_t>::length(text);
+			}
+
 			const int lengthRequired = ::WideCharToMultiByte(codePage, 0, text, static_cast<int>(length), nullptr, 0, nullptr, nullptr);
 			if (lengthRequired > 0)
 			{
+				StringT converted;
 				converted.resize(static_cast<size_t>(lengthRequired));
 				::WideCharToMultiByte(codePage, 0, text, static_cast<int>(length), converted.data(), lengthRequired, nullptr, nullptr);
+
+				return converted;
 			}
-			return converted;
+			return {};
 		}
 
 		template<class StringT = KxBasicDynamicString<char, t_StaticStorageLength, std::char_traits<char>, std::allocator<char>>>

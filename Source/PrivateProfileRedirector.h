@@ -251,11 +251,11 @@ class PrivateProfileRedirector
 		void SaveChnagedFiles(const wchar_t* message) const;
 		size_t RefreshINI();
 		
-		KxDynamicStringW ConvertToUTF16(const char* string, int length = -1) const
+		KxDynamicStringW ConvertToUTF16(const char* string, size_t length = KxDynamicStringA::npos) const
 		{
 			return KxDynamicStringW::to_utf16(string, length, m_ANSICodePage);
 		}
-		KxDynamicStringA ConvertToCodePage(const wchar_t* string, int length = -1) const
+		KxDynamicStringA ConvertToCodePage(const wchar_t* string, size_t length = KxDynamicStringW::npos) const
 		{
 			return KxDynamicStringW::to_codepage(string, length, m_ANSICodePage);
 		}
