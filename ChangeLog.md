@@ -1,5 +1,8 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.3.5, 11.05.2019
+- Fixed key names trimming when `TrimKeyNamesA` option is enabled.
+
 # Version 0.3.4, 20.03.2019
 - Added option `ProcessByteOrderMark` to support files encoded in UTF-16LE.
 

@@ -165,7 +165,7 @@ void INIObject::OnWrite()
 PrivateProfileRedirector* PrivateProfileRedirector::ms_Instance = nullptr;
 const int PrivateProfileRedirector::ms_VersionMajor = 0;
 const int PrivateProfileRedirector::ms_VersionMinor = 3;
-const int PrivateProfileRedirector::ms_VersionPatch = 4;
+const int PrivateProfileRedirector::ms_VersionPatch = 5;
 
 PrivateProfileRedirector& PrivateProfileRedirector::CreateInstance()
 {
