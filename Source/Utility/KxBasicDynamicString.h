@@ -980,6 +980,10 @@ class KxBasicDynamicString
 		template<class StringT = KxBasicDynamicString<wchar_t, t_StaticStorageLength, std::char_traits<wchar_t>, std::allocator<wchar_t>>>
 		static StringT to_utf16(const char* text, size_t length, int codePage)
 		{
+			if (text == nullptr || length == 0)
+			{
+				return {};
+			}
 			if (length == npos)
 			{
 				length = std::char_traits<char>::length(text);
@@ -1012,6 +1016,10 @@ class KxBasicDynamicString
 		template<class StringT = KxBasicDynamicString<char, t_StaticStorageLength, std::char_traits<char>, std::allocator<char>>>
 		static StringT to_codepage(const wchar_t* text, size_t length, int codePage)
 		{
+			if (text == nullptr || length == 0)
+			{
+				return {};
+			}
 			if (length == npos)
 			{
 				length = std::char_traits<wchar_t>::length(text);

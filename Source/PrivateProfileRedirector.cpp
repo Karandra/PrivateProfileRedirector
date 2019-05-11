@@ -602,6 +602,11 @@ namespace
 	{
 		return CopyToBufferT(buffer, data);
 	}
+
+	wchar_t* DataOrNull(KxDynamicStringW& string)
+	{
+		return string.empty() ? nullptr : string.data();
+	}
 }
 
 PPR_API(DWORD) On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCSTR defaultValue, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
@@ -623,7 +628,7 @@ PPR_API(DWORD) On_GetPrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCST
 		PrivateProfileRedirector::TrimSpaceCharsLR(keyNameW);
 		instance.Log(L"[GetPrivateProfileStringA] Trimmed key name: '%s'", keyNameW.data());
 	}
-	DWORD length = On_GetPrivateProfileStringW(appNameW, keyNameW, defaultValueW, lpReturnedStringW.data(), nSize, lpFileNameW);
+	DWORD length = On_GetPrivateProfileStringW(DataOrNull(appNameW), DataOrNull(keyNameW), DataOrNull(defaultValueW), lpReturnedStringW.data(), nSize, lpFileNameW);
 	if (length != 0)
 	{
 		KxDynamicStringA result = instance.ConvertToCodePage(lpReturnedStringW.data());
@@ -953,7 +958,7 @@ PPR_API(BOOL) On_WritePrivateProfileStringA(LPCSTR appName, LPCSTR keyName, LPCS
 	{
 		PrivateProfileRedirector::TrimSpaceCharsLR(keyNameW);
 	}
-	return On_WritePrivateProfileStringW(appNameW, keyNameW, lpStringW, lpFileNameW);
+	return On_WritePrivateProfileStringW(DataOrNull(appNameW), DataOrNull(keyNameW), DataOrNull(lpStringW), lpFileNameW);
 }
 PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
 {
@@ -962,7 +967,7 @@ PPR_API(BOOL) On_WritePrivateProfileStringW(LPCWSTR appName, LPCWSTR keyName, LP
 	
 	auto CustomWrite = [](LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName) -> BOOL
 	{
-		if (appName)
+		if (appName && lpFileName)
 		{
 			INIObject& iniObject = PrivateProfileRedirector::GetInstance().GetOrLoadFile(lpFileName);
 			KxCriticalSectionLocker lock(iniObject.GetLock());
