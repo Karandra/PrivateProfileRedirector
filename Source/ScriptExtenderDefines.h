@@ -60,15 +60,15 @@ using xSE_ConsoleCommandInfo = void;
 #if xSE_PLATFORM_NVSE
 
 #define xSE_HAS_SE_LOG 0
-#define xSE_LOG(format, ...)	PrivateProfileRedirector::GetInstance().Log(L##format, __VA_ARGS__);
+#define xSE_LOG(format, ...)	Redirector::GetInstance().Log(L##format, __VA_ARGS__);
 
 #else
 
 #define xSE_HAS_SE_LOG 1
 
 #define xSE_LOG(format, ...) 	\
-PrivateProfileRedirector::GetInstance().Log(L##format, __VA_ARGS__);	\
-if (RedirectorSEInterface::GetInstance().CanUseSEFunctions())	\
+PPR::Redirector::GetInstance().Log(L##format, __VA_ARGS__);	\
+if (PPR::SEInterface::GetInstance().CanUseSEFunctions())	\
 {	\
 	_MESSAGE("[" xSE_NAME_A "] " format, __VA_ARGS__);	\
 }	\

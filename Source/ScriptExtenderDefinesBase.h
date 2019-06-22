@@ -21,6 +21,7 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_NAME MWSE
 #define xSE_FOLDER_NAME MWSE
+#define xSE_VERSION "unknown"
 #define xSE_PACKED_VERSION PACKED_MWSE_VERSION
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_MWSE
 
@@ -31,6 +32,7 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_NAME OBSE
 #define xSE_FOLDER_NAME OBSE
+#define xSE_VERSION "0.21.4"
 #define xSE_PACKED_VERSION OBSE_VERSION_INTEGER
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_OBSE
 
@@ -41,6 +43,7 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_NAME FOSE
 #define xSE_FOLDER_NAME FOSE
+#define xSE_VERSION "1.2.2"
 #define xSE_PACKED_VERSION FOSE_VERSION_INTEGER
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_FOSE
 
@@ -51,6 +54,7 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_NAME NVSE
 #define xSE_FOLDER_NAME NVSE
+#define xSE_VERSION "5.1.4"
 #define xSE_PACKED_VERSION NVSE_VERSION_INTEGER
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_NVSE
 
@@ -61,6 +65,7 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_NAME SKSE
 #define xSE_FOLDER_NAME SKSE
+#define xSE_VERSION "1.7.3"
 #define xSE_PACKED_VERSION PACKED_SKSE_VERSION
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_SKSE
 
@@ -71,6 +76,7 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_NAME SKSE64
 #define xSE_FOLDER_NAME SKSE
+#define xSE_VERSION CURRENT_RELEASE_SKSE_STR
 #define xSE_PACKED_VERSION PACKED_SKSE_VERSION
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_SKSE64
 
@@ -81,6 +87,7 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_NAME SKSEVR
 #define xSE_FOLDER_NAME SKSE
+#define xSE_VERSION CURRENT_RELEASE_SKSE_STR
 #define xSE_PACKED_VERSION PACKED_SKSE_VERSION
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_SKSEVR
 
@@ -91,6 +98,7 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_NAME F4SE
 #define xSE_FOLDER_NAME F4SE
+#define xSE_VERSION CURRENT_RELEASE_F4SE_STR
 #define xSE_PACKED_VERSION PACKED_F4SE_VERSION
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_F4SE
 
@@ -101,6 +109,7 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_NAME None
 #define xSE_FOLDER_NAME None
+#define xSE_VERSION "none"
 #define xSE_PACKED_VERSION 0
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_NONE
 
@@ -111,6 +120,9 @@ enum xSE_PlatfromGenerationEnum: int
 
 #define xSE_FOLDER_NAME_A _CRT_STRINGIZE(xSE_FOLDER_NAME)
 #define xSE_FOLDER_NAME_W _CRT_WIDE(xSE_FOLDER_NAME_A)
+
+#define xSE_VERSION_A xSE_VERSION
+#define xSE_VERSION_W _CRT_WIDE(xSE_VERSION)
 
 //////////////////////////////////////////////////////////////////////////
 // Call conventions

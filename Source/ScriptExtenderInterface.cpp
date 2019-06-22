@@ -4,18 +4,19 @@
 
 #pragma warning(disable: 4005) // macro redefinition
 #pragma warning(disable: 4244) // conversion from 'x' to 'y', possible loss of data
-#pragma warning(disable: 4267) // ~
+#pragma warning(disable: 4267) // conversion from 'size_t' to 'y', possible loss of data
 #include "ScriptExtenderInterfaceIncludes.h"
 
 //////////////////////////////////////////////////////////////////////////
 bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
 {
+	using namespace PPR;
 	xSE_LOG("[" _CRT_STRINGIZE(xSE_QUERYFUNCTION) "] On query plugin info");
 
 	// Set info
 	info->infoVersion = PluginInfo::kInfoVersion;
-	info->name = PrivateProfileRedirector::GetLibraryNameA();
-	info->version = PrivateProfileRedirector::GetLibraryVersionInt();
+	info->name = Redirector::GetLibraryNameA();
+	info->version = Redirector::GetLibraryVersionInt();
 
 	// Save handle
 	PluginHandle pluginHandle = xSE->GetPluginHandle();
@@ -23,7 +24,7 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
 	// Check SE version
 	const auto interfaceVersion = xSE_INTERFACE_VERSION(xSE);
 	constexpr auto compiledVersion = xSE_PACKED_VERSION;
-	if (!RedirectorSEInterface::GetInstance().OnCheckVersion(interfaceVersion, compiledVersion))
+	if (!SEInterface::GetInstance().OnCheckVersion(interfaceVersion, compiledVersion))
 	{
 		xSE_LOG("This plugin might be incompatible with this version of " xSE_NAME_A);
 		xSE_LOG("Script extender interface version '%u', expected '%u'", (uint32_t)interfaceVersion, (uint32_t)compiledVersion);
@@ -51,20 +52,21 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
 		}
 	}
 	#endif
-	return RedirectorSEInterface::GetInstance().OnQuery(pluginHandle, pluginHandle != kPluginHandle_Invalid ? xSE : nullptr, scaleform);
+	return SEInterface::GetInstance().OnQuery(pluginHandle, pluginHandle != kPluginHandle_Invalid ? xSE : nullptr, scaleform);
 }
 bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 {
+	using namespace PPR;
 	xSE_LOG("[" _CRT_STRINGIZE(xSE_LOADFUNCTION) "] On load plugin");
 
-	RedirectorSEInterface& instance = RedirectorSEInterface::GetInstance();
+	SEInterface& instance = SEInterface::GetInstance();
 	if (instance.OnLoad())
 	{
-		PrivateProfileRedirector::GetInstance().Log(L"[" xSE_NAME_A L"] %s %s loaded", PrivateProfileRedirector::GetLibraryNameW(), PrivateProfileRedirector::GetLibraryVersionW());
+		Redirector::GetInstance().Log(L"[" xSE_NAME_A L"] %s %s loaded", Redirector::GetLibraryNameW(), Redirector::GetLibraryVersionW());
 		#if xSE_HAS_SE_LOG
-		if (RedirectorSEInterface::GetInstance().CanUseSEFunctions())
+		if (SEInterface::GetInstance().CanUseSEFunctions())
 		{
-			_MESSAGE("[" xSE_NAME_A "] %s %s loaded", PrivateProfileRedirector::GetLibraryNameA(), PrivateProfileRedirector::GetLibraryVersionA());
+			_MESSAGE("[" xSE_NAME_A "] %s %s loaded", Redirector::GetLibraryNameA(), Redirector::GetLibraryVersionA());
 		}
 		#endif
 		return true;
@@ -72,98 +74,100 @@ bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 	return false;
 }
 
-//////////////////////////////////////////////////////////////////////////
-RedirectorSEInterface& RedirectorSEInterface::GetInstance()
+namespace PPR
 {
-	static RedirectorSEInterface ms_Instance;
-	return ms_Instance;
-}
-
-bool RedirectorSEInterface::RegisterScaleform(GFxMovieView* view, GFxValue* root)
-{
-	return true;
-}
-
-bool RedirectorSEInterface::OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleform)
-{
-	m_PluginHandle = pluginHandle;
-	m_XSE = xSE;
-	m_Scaleform = scaleform;
-
-	return true;
-}
-bool RedirectorSEInterface::OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion)
-{
-	m_CanUseSEFunctions = interfaceVersion == compiledVersion || PrivateProfileRedirector::GetInstance().IsSEVersionMismatchAllowed();
-	return m_CanUseSEFunctions;
-}
-bool RedirectorSEInterface::OnLoad()
-{
-	if (CanUseSEFunctions())
+	SEInterface& SEInterface::GetInstance()
 	{
-		OverrideRefreshINI();
+		static SEInterface ms_Instance;
+		return ms_Instance;
 	}
-	return true;
-}
 
-xSE_ConsoleCommandInfo* RedirectorSEInterface::FindConsoleCommand(const std::string_view& fullName) const
-{
-	#if xSE_HAS_CONSOLE_COMMAND_INFO
-	for (xSE_ConsoleCommandInfo* command = g_firstConsoleCommand; command->opcode < kObScript_NumConsoleCommands + kObScript_ConsoleOpBase; ++command)
+	bool SEInterface::RegisterScaleform(GFxMovieView* view, GFxValue* root)
 	{
-		if (command->longName && std::string_view(command->longName) == fullName)
+		return true;
+	}
+
+	bool SEInterface::OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleform)
+	{
+		m_PluginHandle = pluginHandle;
+		m_XSE = xSE;
+		m_Scaleform = scaleform;
+
+		return true;
+	}
+	bool SEInterface::OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion)
+	{
+		m_CanUseSEFunctions = interfaceVersion == compiledVersion || Redirector::GetInstance().IsOptionEnabled(RedirectorOption::AllowSEVersionMismatch);
+		return m_CanUseSEFunctions;
+	}
+	bool SEInterface::OnLoad()
+	{
+		if (CanUseSEFunctions())
 		{
-			return command;
+			OverrideRefreshINI();
 		}
+		return true;
 	}
-	#endif
-	return nullptr;
-}
-void RedirectorSEInterface::OverrideRefreshINI()
-{
-	#if xSE_HAS_CONSOLE_COMMAND_INFO
-	xSE_LOG("Overriding 'RefreshINI' console command to refresh INIs from disk");
 
-	m_RefreshINICommand = FindConsoleCommand("RefreshINI");
-	if (m_RefreshINICommand)
+	xSE_ConsoleCommandInfo* SEInterface::FindConsoleCommand(const std::string_view& fullName) const
 	{
-		m_OriginalRefreshINIHandler = m_RefreshINICommand->execute;
-		auto OnCall = [](void* paramInfo, void* scriptData, TESObjectREFR* thisObj, void* containingObj, void* scriptObj, void* locals, double* result, void* opcodeOffsetPtr) -> bool
+		#if xSE_HAS_CONSOLE_COMMAND_INFO
+		for (xSE_ConsoleCommandInfo* command = g_firstConsoleCommand; command->opcode < kObScript_NumConsoleCommands + kObScript_ConsoleOpBase; ++command)
 		{
-			RedirectorSEInterface& instance = RedirectorSEInterface::GetInstance();
-			Console_Print("Executing 'RefreshINI'");
-
-			size_t reloadedCount = PrivateProfileRedirector::GetInstance().RefreshINI();
-			bool ret = instance.m_OriginalRefreshINIHandler(paramInfo, scriptData, thisObj, containingObj, scriptObj, locals, result, opcodeOffsetPtr);
-
-			// Apparently Fallout 4 doesn't support '%zu' format specifier.
-			Console_Print("Executing 'RefreshINI' done with result '%d', %u files reloaded.", (int)ret, (unsigned int)reloadedCount);
-			return ret;
-		};
-
-		xSE_ConsoleCommandInfo newCommand = *m_RefreshINICommand;
-		newCommand.helpText = "[PrivateProfileRedirector] Reloads INIs content from disk and calls original 'RefreshINI' after it";
-		newCommand.execute = OnCall;
-
-		SafeWriteBuf(reinterpret_cast<uintptr_t>(m_RefreshINICommand), &newCommand, sizeof(newCommand));
-		xSE_LOG("Command 'RefreshINI' is overridden");
+			if (command->longName && KxDynamicStringRefA(command->longName) == fullName)
+			{
+				return command;
+			}
+		}
+		#endif
+		return nullptr;
 	}
-	else
+	void SEInterface::OverrideRefreshINI()
 	{
-		xSE_LOG("Can't find 'RefreshINI' command to override");
+		#if xSE_HAS_CONSOLE_COMMAND_INFO
+		xSE_LOG("Overriding 'RefreshINI' console command to refresh INIs from disk");
+
+		m_RefreshINICommand = FindConsoleCommand("RefreshINI");
+		if (m_RefreshINICommand)
+		{
+			m_OriginalRefreshINIHandler = m_RefreshINICommand->execute;
+			auto OnCall = [](void* paramInfo, void* scriptData, TESObjectREFR* thisObj, void* containingObj, void* scriptObj, void* locals, double* result, void* opcodeOffsetPtr) -> bool
+			{
+				SEInterface& instance = SEInterface::GetInstance();
+				Console_Print("Executing 'RefreshINI'");
+
+				size_t reloadedCount = Redirector::GetInstance().RefreshINI();
+				bool ret = instance.m_OriginalRefreshINIHandler(paramInfo, scriptData, thisObj, containingObj, scriptObj, locals, result, opcodeOffsetPtr);
+
+				// Apparently Fallout 4 doesn't support '%zu' format specifier.
+				Console_Print("Executing 'RefreshINI' done with result '%d', %u files reloaded.", (int)ret, (unsigned int)reloadedCount);
+				return ret;
+			};
+
+			xSE_ConsoleCommandInfo newCommand = *m_RefreshINICommand;
+			newCommand.helpText = "[Redirector] Reloads INIs content from disk and calls original 'RefreshINI' after it";
+			newCommand.execute = OnCall;
+
+			SafeWriteBuf(reinterpret_cast<uintptr_t>(m_RefreshINICommand), &newCommand, sizeof(newCommand));
+			xSE_LOG("Command 'RefreshINI' is overridden");
+		}
+		else
+		{
+			xSE_LOG("Can't find 'RefreshINI' command to override");
+		}
+		#endif
 	}
-	#endif
-}
 
-RedirectorSEInterface::RedirectorSEInterface()
-	:m_PluginHandle(kPluginHandle_Invalid)
-{
-}
-RedirectorSEInterface::~RedirectorSEInterface()
-{
-}
+	SEInterface::SEInterface()
+		:m_PluginHandle(kPluginHandle_Invalid)
+	{
+	}
+	SEInterface::~SEInterface()
+	{
+	}
 
-bool RedirectorSEInterface::CanUseSEFunctions() const
-{
-	return m_CanUseSEFunctions;
+	bool SEInterface::CanUseSEFunctions() const
+	{
+		return m_CanUseSEFunctions;
+	}
 }

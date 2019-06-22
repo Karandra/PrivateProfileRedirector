@@ -477,23 +477,39 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Source\ConfigObject.h" />
+    <ClInclude Include="Source\FunctionRedirector.h" />
+    <ClInclude Include="Source\INIWrapper.h" />
     <ClInclude Include="Source\PrivateProfileRedirector.h" />
+    <ClInclude Include="Source\FunctionTable.h" />
+    <ClInclude Include="Source\RedirectedFunctions.h" />
+    <ClInclude Include="Source\RedirectorConfig.h" />
     <ClInclude Include="Source\ScriptExtenderDefines.h" />
     <ClInclude Include="Source\ScriptExtenderDefinesBase.h" />
     <ClInclude Include="Source\ScriptExtenderInterface.h" />
     <ClInclude Include="Source\ScriptExtenderInterfaceIncludes.h" />
     <ClInclude Include="Source\ScriptExtenderInterfaceNVSE.h" />
+    <ClInclude Include="Source\Utility\EnumClassOperations.h" />
     <ClInclude Include="Source\Utility\KxBasicDynamicString.h" />
     <ClInclude Include="Source\Utility\KxCallAtScopeExit.h" />
-    <ClInclude Include="Source\Utility\KxCriticalSection.h" />
+    <ClInclude Include="Source\Utility\CriticalSection.h" />
     <ClInclude Include="Source\Utility\KxDynamicString.h" />
-    <ClInclude Include="Source\Utility\RtlDefines.h" />
+    <ClInclude Include="Source\Utility\KxOptionSet.h" />
+    <ClInclude Include="Source\Utility\KxWithOptions.h" />
+    <ClInclude Include="Source\Utility\LibraryHandle.h" />
     <ClInclude Include="Source\Utility\SimpleINI.h" />
+    <ClInclude Include="Source\Utility\SRWLock.h" />
     <ClInclude Include="Source\Utility\String.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ConfigObject.cpp" />
+    <ClCompile Include="Source\DLLMain.cpp" />
+    <ClCompile Include="Source\FunctionRedirector.cpp" />
+    <ClCompile Include="Source\INIWrapper.cpp" />
     <ClCompile Include="Source\PrivateProfileRedirector.cpp" />
+    <ClCompile Include="Source\RedirectedFunctions.cpp" />
+    <ClCompile Include="Source\RedirectorConfig.cpp" />
     <ClCompile Include="Source\ScriptExtenderInterface.cpp" />
     <ClCompile Include="Source\Utility\KxDynamicString.cpp" />
     <ClCompile Include="Source\Utility\String.cpp" />

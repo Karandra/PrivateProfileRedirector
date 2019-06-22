@@ -27,23 +27,15 @@ namespace PPR
 		public:
 			void Enter() noexcept
 			{
-				#if !KxVFS_DEBUG_DISABLE_LOCKS
 				::EnterCriticalSection(&m_CritSec);
-				#endif
 			}
 			bool TryEnter() noexcept
 			{
-				#if !KxVFS_DEBUG_DISABLE_LOCKS
 				return ::TryEnterCriticalSection(&m_CritSec);
-				#else
-				return true;
-				#endif
 			}
 			void Leave() noexcept
 			{
-				#if !KxVFS_DEBUG_DISABLE_LOCKS
 				::LeaveCriticalSection(&m_CritSec);
-				#endif
 			}
 
 		public:
@@ -54,7 +46,7 @@ namespace PPR
 
 namespace PPR::Utility
 {
-	template<bool t_IsMoveable, bool t_TryLock> class BasicCriticalSectionLocker final
+	template<bool t_IsMoveable> class BasicCriticalSectionLocker final
 	{
 		public:
 			constexpr static bool IsMoveable() noexcept
@@ -64,20 +56,12 @@ namespace PPR::Utility
 
 		private:
 			CriticalSection* m_CritSec = nullptr;
-			bool m_IsTryLocked = false;
 
 		public:
 			BasicCriticalSectionLocker(CriticalSection& critSec) noexcept
 				:m_CritSec(&critSec)
 			{
-				if constexpr(t_TryLock)
-				{
-					m_IsTryLocked = m_CritSec->TryEnter();
-				}
-				else
-				{
-					m_CritSec->Enter();
-				}
+				m_CritSec->Enter();
 			}
 			BasicCriticalSectionLocker(BasicCriticalSectionLocker&& other) noexcept
 			{
@@ -93,24 +77,7 @@ namespace PPR::Utility
 						return;
 					}
 				}
-
-				if constexpr(t_TryLock)
-				{
-					if (m_IsTryLocked)
-					{
-						m_CritSec->Leave();
-					}
-				}
-				else
-				{
-					m_CritSec->Leave();
-				}
-			}
-			
-		public:
-			std::enable_if_t<t_TryLock, bool> IsTryLocked() const noexcept
-			{
-				return m_IsTryLocked;
+				m_CritSec->Leave();
 			}
 
 		public:
@@ -121,21 +88,18 @@ namespace PPR::Utility
 				{
 					m_CritSec = other.m_CritSec;
 					other.m_CritSec = nullptr;
-					return *this;
 				}
 				else
 				{
 					static_assert(false, "this locker type is not movable");
 				}
+				return *this;
 			}
 	};
 }
 
 namespace PPR
 {
-	using CriticalSectionLocker = Utility::BasicCriticalSectionLocker<false, false>;
-	using MoveableCriticalSectionLocker = Utility::BasicCriticalSectionLocker<true, false>;
-
-	using CriticalSectionTryLocker = Utility::BasicCriticalSectionLocker<false, true>;
-	using MoveableCriticalSectionTryLocker = Utility::BasicCriticalSectionLocker<true, true>;
+	using CriticalSectionLocker = Utility::BasicCriticalSectionLocker<false>;
+	using MoveableCriticalSectionLocker = Utility::BasicCriticalSectionLocker<true>;
 }

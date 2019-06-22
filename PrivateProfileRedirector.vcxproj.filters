@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Utility">
       <UniqueIdentifier>{57f912be-12f4-44b9-bd34-6ba680dda8ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Utility">
+      <UniqueIdentifier>{681ea3ad-ef1e-4577-a6ac-4182e65ed129}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\PrivateProfileRedirector.h">
@@ -46,13 +49,7 @@
     <ClInclude Include="Source\Utility\KxDynamicString.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Utility\RtlDefines.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Utility\SimpleINI.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxCriticalSection.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\KxBasicDynamicString.h">
@@ -62,6 +59,42 @@
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\KxCallAtScopeExit.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\EnumClassOperations.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RedirectedFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FunctionTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConfigObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\KxWithOptions.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\KxOptionSet.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\LibraryHandle.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RedirectorConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FunctionRedirector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\INIWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\CriticalSection.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\SRWLock.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
@@ -78,6 +111,24 @@
     </ClCompile>
     <ClCompile Include="Source\Utility\String.cpp">
       <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RedirectedFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ConfigObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DLLMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RedirectorConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FunctionRedirector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\INIWrapper.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,13 +148,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="Source\Utility\KxBasicDynamicString.natvis">
-      <Filter>Header Files\Utility</Filter>
-    </Natvis>
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="Build\PrivateProfileRedirector_preload.txt">
       <Filter>Resource Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Source\Utility\KxBasicDynamicString.natvis">
+      <Filter>Resource Files\Utility</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

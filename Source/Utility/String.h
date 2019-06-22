@@ -53,7 +53,7 @@ namespace PPR::Utility::String::Internal
 		return CompareStrings(v1, v2, true);
 	}
 
-	KxDynamicStringW ToUTF16(KxDynamicStringRefA value);
+	KxDynamicStringW ToCurrentCodePage(KxDynamicStringRefA value);
 }
 
 namespace PPR::Utility::String
@@ -75,16 +75,42 @@ namespace PPR::Utility::String
 
 	inline bool IsEqual(KxDynamicStringRefA v1, KxDynamicStringRefA v2)
 	{
-		KxDynamicStringW w1 = Internal::ToUTF16(v1);
-		KxDynamicStringW w2 = Internal::ToUTF16(v2);
+		KxDynamicStringW w1 = Internal::ToCurrentCodePage(v1);
+		KxDynamicStringW w2 = Internal::ToCurrentCodePage(v2);
 		return Internal::CompareStrings(w1, w2) == Internal::CompareResult::Equal;
 	}
 	inline bool IsEqualNoCase(KxDynamicStringRefA v1, KxDynamicStringRefA v2)
 	{
-		KxDynamicStringW w1 = Internal::ToUTF16(v1);
-		KxDynamicStringW w2 = Internal::ToUTF16(v2);
+		KxDynamicStringW w1 = Internal::ToCurrentCodePage(v1);
+		KxDynamicStringW w2 = Internal::ToCurrentCodePage(v2);
 		return Internal::CompareStringsNoCase(w1, w2) == Internal::CompareResult::Equal;
 	}
+}
+
+namespace PPR::Utility::String
+{
+	KxDynamicStringRefW TrimCharsL(KxDynamicStringRefW value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2);
+	KxDynamicStringRefW TrimCharsR(KxDynamicStringRefW value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2);
+	inline KxDynamicStringRefW TrimCharsLR(KxDynamicStringRefW value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2)
+	{
+		value = TrimCharsL(value, c1, c2);
+		value = TrimCharsR(value, c1, c2);
+		return value;
+	}
+	
+	inline KxDynamicStringRefW TrimSpaceCharsLR(KxDynamicStringRefW value)
+	{
+		return TrimCharsLR(value, L' ', L'\t');
+	}
+	inline KxDynamicStringRefW TrimQuoteCharsLR(KxDynamicStringRefW value)
+	{
+		return TrimCharsLR(value, L'\"', L'\'');
+	}
+}
+
+namespace PPR::Utility::String
+{
+	std::optional<int64_t> ToInteger(KxDynamicStringRefW value, int base = 0);
 }
 
 namespace PPR::Utility::String

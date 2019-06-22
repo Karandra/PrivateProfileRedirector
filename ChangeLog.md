@@ -1,7 +1,13 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.4.0, 23.06.2019
+- Fixed trimming quote characters for values and space characters for sections, keys and values. Should fix visual issues with some ENB presets.
+- Removed options: `TrimKeyNamesA`, `TrimValueQuotes`, `ProcessByteOrderMark`, `DisableCCUnsafeA`.
+- Proper locking for multithreaded read/write access.
+- General refactoring.
+
 # Version 0.3.5, 11.05.2019
-- Fixed key names trimming when `TrimKeyNamesA` option is enabled. Shpuld fix visual issues with some ENB presets.
+- Fixed key names trimming when `TrimKeyNamesA` option is enabled. Should fix visual issues with some ENB presets.
 - Added handling of empty key and value names in `GetPrivateProfileStringA` and `SetPrivateProfileStringA`.
 
 # Version 0.3.4, 20.03.2019
