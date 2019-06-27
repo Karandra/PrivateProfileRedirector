@@ -51,10 +51,10 @@ namespace
 	{
 		if (TrimSpaceCharsLR(value))
 		{
-			// Copy string to buffer to make it null terminated
+			// Copy string to the buffer from string_view to make it null terminated if we trimmed it
 			argsBuffer[(size_t)arg] = value;
 
-			// Update ref
+			// Update string_view to refer to the new null-terminated buffer
 			value = argsBuffer[(size_t)arg];
 		}
 	}
