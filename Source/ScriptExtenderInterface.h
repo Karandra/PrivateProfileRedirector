@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "ScriptExtenderDefines.h"
+#include "Utility/KxDynamicString.h"
 
 xSE_API(bool) xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info);
 xSE_API(bool) xSE_LOADFUNCTION(const xSE_Interface* xSE);
@@ -56,7 +57,7 @@ namespace PPR
 			bool OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion);
 			bool OnLoad();
 
-			xSE_ConsoleCommandInfo* FindConsoleCommand(const std::string_view& fullName) const;
+			xSE_ConsoleCommandInfo* FindConsoleCommand(KxDynamicStringRefA fullName) const;
 			void OverrideRefreshINI();
 
 		private:

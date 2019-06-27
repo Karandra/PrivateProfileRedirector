@@ -109,7 +109,7 @@ namespace PPR
 		return true;
 	}
 
-	xSE_ConsoleCommandInfo* SEInterface::FindConsoleCommand(const std::string_view& fullName) const
+	xSE_ConsoleCommandInfo* SEInterface::FindConsoleCommand(KxDynamicStringRefA fullName) const
 	{
 		#if xSE_HAS_CONSOLE_COMMAND_INFO
 		for (xSE_ConsoleCommandInfo* command = g_firstConsoleCommand; command->opcode < kObScript_NumConsoleCommands + kObScript_ConsoleOpBase; ++command)
