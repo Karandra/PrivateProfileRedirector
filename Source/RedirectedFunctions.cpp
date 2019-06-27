@@ -10,10 +10,9 @@
 
 namespace
 {
-	template<class T, class TChar> size_t CopyToBuffer(TChar* buffer, const T& data)
+	template<class T, class TChar> void CopyToBuffer(TChar* buffer, const T& data)
 	{
 		std::memcpy(buffer, data.data(), data.size() * sizeof(TChar));
-		return data.size();
 	}
 	const wchar_t* DataOrNull(const KxDynamicStringW& string)
 	{
