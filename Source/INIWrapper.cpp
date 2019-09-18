@@ -126,13 +126,8 @@ namespace PPR
 				const size_t anchor = FindCommentStart(value);
 				if (anchor != KxDynamicStringRefW::npos)
 				{
-					value = value.substr(0, anchor);
-					KxDynamicStringRefW trimmed = Utility::String::TrimSpaceCharsLR(value);
-					if (trimmed.length() != value.length())
-					{
-						KxDynamicStringW trimmedCopy = trimmed;
-						m_INI.SetValue(section.pItem, key.pItem, trimmedCopy.data(), nullptr, true);
-					}
+					KxDynamicStringW trimmed = Utility::String::TrimSpaceCharsLR(value.substr(0, anchor));
+					m_INI.SetValue(section.pItem, key.pItem, trimmed.data(), nullptr, true);
 				}
 			}
 		}
