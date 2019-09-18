@@ -13,7 +13,7 @@ namespace PPR
 	Redirector* Redirector::ms_Instance = nullptr;
 	const int Redirector::ms_VersionMajor = 0;
 	const int Redirector::ms_VersionMinor = 4;
-	const int Redirector::ms_VersionPatch = 0;
+	const int Redirector::ms_VersionPatch = 1;
 
 	Redirector& Redirector::CreateInstance()
 	{
