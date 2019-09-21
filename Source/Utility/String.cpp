@@ -2,8 +2,6 @@
 #include "stdafx.h"
 #include "String.h"
 #include "PrivateProfileRedirector.h"
-#include <sstream>
-#include <iomanip>
 
 namespace PPR::Utility::String::Internal
 {
