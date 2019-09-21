@@ -63,7 +63,7 @@ namespace PPR::PrivateProfile
 		{
 			if (lpReturnedString == nullptr || nSize <= 1)
 			{
-				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				::SetLastError(ERROR_INSUFFICIENT_BUFFER);
 				return 0;
 			}
 
@@ -78,7 +78,7 @@ namespace PPR::PrivateProfile
 
 				KxDynamicStringW sections = ini.GetSectionNamesZSSTRZZ(nSize);
 				StringCchCopyNW(lpReturnedString, nSize, sections.data(), sections.length());
-				return sections.length();
+				return std::min<DWORD>(sections.length(), nSize);
 			}
 
 			// Enum all keys in section
@@ -88,16 +88,15 @@ namespace PPR::PrivateProfile
 
 				KxDynamicStringW keys = ini.GetKeyNamesZSSTRZZ(appName, nSize);
 				StringCchCopyNW(lpReturnedString, nSize, keys.data(), keys.length());
-				return keys.length();
+				return std::min<DWORD>(keys.length(), nSize);
 			}
 
-			auto value = ini.TryGetValue(appName, keyName, defaultValue);
-			if (value)
+			if (auto value = ini.TryGetValue(appName, keyName, defaultValue))
 			{
 				redirector.Log(L"[GetPrivateProfileStringW] Value found: '%s'", value->data());
 
 				StringCchCopyNW(lpReturnedString, nSize, value->data(), value->length());
-				return value->length();
+				return std::min<DWORD>(value->length(), nSize);
 			}
 			else
 			{
@@ -148,8 +147,7 @@ namespace PPR::PrivateProfile
 
 		if (auto value = configObject.GetINI().TryGetValue(appName, keyName))
 		{
-			auto intValue = Utility::String::ToInteger(*value);
-			if (intValue)
+			if (auto intValue = Utility::String::ToInteger(*value))
 			{
 				redirector.Log(L"[GetPrivateProfileIntW] ValueString: '%s', ValueInt: '%d'", value->data(), (int)*intValue);
 				return *intValue;
@@ -157,6 +155,7 @@ namespace PPR::PrivateProfile
 			else
 			{
 				redirector.Log(L"[GetPrivateProfileIntW] Couldn't convert string '%s' to integer value", value->data());
+				return defaultValue;
 			}
 		}
 
@@ -173,7 +172,7 @@ namespace PPR::PrivateProfile
 		{
 			if (lpszReturnBuffer)
 			{
-				*lpszReturnBuffer = '\000';
+				*lpszReturnBuffer = '\0';
 			}
 			return 0;
 		}
@@ -201,7 +200,7 @@ namespace PPR::PrivateProfile
 
 		if (lpszReturnBuffer == nullptr || nSize <= 2)
 		{
-			SetLastError(ERROR_INSUFFICIENT_BUFFER);
+			::SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			if (lpszReturnBuffer)
 			{
 				*lpszReturnBuffer = L'\0';
@@ -232,7 +231,7 @@ namespace PPR::PrivateProfile
 				redirector.Log(L"[GetPrivateProfileSectionNamesW]: Buffer is not large enough to contain all section names, '%zu' required, only '%u' available.", sectionNames.length(), nSize);
 
 				StringCchCopyNW(lpszReturnBuffer, nSize, L"\0\0", 2);
-				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				::SetLastError(ERROR_INSUFFICIENT_BUFFER);
 				return nSize - 2;
 			}
 		}
@@ -255,7 +254,7 @@ namespace PPR::PrivateProfile
 		}
 		if (nSize == 1)
 		{
-			*lpReturnedString = '\000';
+			*lpReturnedString = '\0';
 			return 0;
 		}
 
@@ -284,7 +283,7 @@ namespace PPR::PrivateProfile
 
 		if (lpReturnedString == nullptr || nSize <= 2)
 		{
-			SetLastError(ERROR_INSUFFICIENT_BUFFER);
+			::SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			if (lpReturnedString)
 			{
 				*lpReturnedString = L'\0';
@@ -330,7 +329,7 @@ namespace PPR::PrivateProfile
 			redirector.Log(L"[GetPrivateProfileSectionW]: Buffer is not large enough to contain all key-value pairs, '%zu' required, only '%u' available.", result.length(), nSize);
 			
 			StringCchCopyNW(lpReturnedString, nSize, L"\0\0", 2);
-			SetLastError(ERROR_INSUFFICIENT_BUFFER);
+			::SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			return nSize - 2;
 		}
 	}
@@ -356,7 +355,9 @@ namespace PPR::PrivateProfile
 		auto lock = configObject.LockExclusive();
 		INIWrapper& ini = configObject.GetINI();
 
-		auto CustomWrite = [&](LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
+		// This function will write value to the in-memory file.
+		// When 'NativeWrite' or 'WriteProtected' options are enabled, it will not flush updated file to the disk.
+		auto WriteStringToMemoryFile = [&](LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
 		{
 			if (!lpFileName)
 			{
@@ -402,10 +403,7 @@ namespace PPR::PrivateProfile
 			}
 			return false;
 		};
-
-		// This will write value into in-memory file.
-		// When 'NativeWrite' or 'WriteProtected' is enabled, it will not flush updated file to disk.
-		const bool customWriteRet = CustomWrite(appName, keyName, lpString, lpFileName);
+		const bool memoryWriteSuccess = WriteStringToMemoryFile(appName, keyName, lpString, lpFileName);
 
 		// Call native function or proceed with our own implementation
 		if (redirector.IsOptionEnabled(RedirectorOption::NativeWrite))
@@ -413,6 +411,6 @@ namespace PPR::PrivateProfile
 			redirector.Log(L"[WritePrivateProfileStringW]: Calling native 'WritePrivateProfileStringW'");
 			return redirector.GetFunctionTable().PrivateProfile.WriteStringW(appName, keyName, lpString, lpFileName);
 		}
-		return customWriteRet;
+		return memoryWriteSuccess;
 	}
 }
