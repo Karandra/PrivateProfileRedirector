@@ -26,11 +26,13 @@ namespace PPR
 
 		private:
 			CSimpleIniW m_INI;
+			Options m_Options = Options::None;
 
 		private:
-			void RemoveInlineComments();
 			bool LoadUTF8(FILE* stream, size_t fileSize);
 			bool LoadUTF16LE(FILE* stream, size_t fileSize);
+
+			KxDynamicStringRefW ExtractValue(KxDynamicStringRefW value) const;
 
 		public:
 			INIWrapper()
@@ -44,8 +46,8 @@ namespace PPR
 			{
 				return m_INI.IsEmpty();
 			}
-			bool Load(const KxDynamicStringW& path, Options options = Options::None, Encoding encoding = Encoding::Auto);
-			bool Save(const KxDynamicStringW& path, Options options = Options::None, Encoding encoding = Encoding::Auto);
+			bool Load(KxDynamicStringRefW path, Options options = Options::None, Encoding encoding = Encoding::Auto);
+			bool Save(KxDynamicStringRefW path, Options options = Options::None, Encoding encoding = Encoding::Auto);
 
 			std::optional<KxDynamicStringRefW> TryGetValue(KxDynamicStringRefW section, KxDynamicStringRefW key) const;
 			std::optional<KxDynamicStringRefW> TryGetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, const wchar_t* defaultValue) const;

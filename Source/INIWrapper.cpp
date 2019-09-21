@@ -34,21 +34,18 @@ namespace
 		return SkipBOM(stream, bom, nullptr, true);
 	}
 
-	bool TrimSpaceCharsLR(KxDynamicStringRefW& value)
-	{
-		const size_t oldLength = value.length();
-		value = PPR::Utility::String::TrimSpaceCharsLR(value);
-		return oldLength != value.length();
-	}
-	KxDynamicStringRefW TrimAll(KxDynamicStringRefW value)
+	template<size_t count> using ArgsBuffer = std::array<KxDynamicStringW, count>;
+	template<size_t arg, size_t argsCount> void ProcessArgument(ArgsBuffer<argsCount>& argsBuffer, KxDynamicStringRefW& value)
 	{
 		using namespace PPR::Utility;
-		return String::TrimSpaceCharsLR(String::TrimQuoteCharsLR(value));
-	}
-	
-	template<size_t count> using ArgsBuffer = std::array<KxDynamicStringW, count>;
-	template<size_t arg, class TArgs> void ProcessArgument(TArgs& argsBuffer, KxDynamicStringRefW& value)
-	{
+		static_assert(arg < argsCount, "invalid argument index");
+
+		auto TrimSpaceCharsLR = [](KxDynamicStringRefW& value)
+		{
+			const size_t oldLength = value.length();
+			value = String::TrimSpaceCharsLR(value);
+			return oldLength != value.length();
+		};
 		if (TrimSpaceCharsLR(value))
 		{
 			// Copy string to the buffer from string_view to make it null terminated if we trimmed it
@@ -95,43 +92,47 @@ namespace
 		}
 		return result;
 	}
-}
-
-namespace PPR
-{
-	void INIWrapper::RemoveInlineComments()
+	KxDynamicStringRefW ExtractValueAndComment(KxDynamicStringRefW source, bool removeInlineComments, KxDynamicStringRefW* comment = nullptr)
 	{
-		auto FindCommentStart = [](const std::wstring_view& value) -> size_t
+		using namespace PPR::Utility;
+		auto FindCommentStart = [](const KxDynamicStringRefW& value) -> size_t
 		{
-			for (size_t i = 0; i < value.size(); i++)
+			if (!value.empty())
 			{
-				const wchar_t c = value[i];
-				if (c == L';' || c == L'#')
+				for (size_t i = value.size() - 1; i != 0; i--)
 				{
-					return i;
+					const wchar_t c = value[i];
+					if (c == L';' || c == L'#')
+					{
+						return i;
+					}
 				}
 			}
 			return KxDynamicStringRefW::npos;
 		};
-
-		CSimpleIniW::TNamesDepend sectionList;
-		m_INI.GetAllSections(sectionList);
-		for (const auto& section: sectionList)
+		auto TrimAll = [](KxDynamicStringRefW value)
 		{
-			CSimpleIniW::TNamesDepend keyList;
-			m_INI.GetAllKeys(section.pItem, keyList);
-			for (const auto& key: keyList)
+			value = String::TrimSpaceCharsLR(value);
+			value = String::TrimQuoteCharsLR(value);
+
+			return value;
+		};
+
+		if (const size_t anchor = FindCommentStart(source); anchor != KxDynamicStringRefW::npos)
+		{
+			KxDynamicStringRefW trimmed = source.substr(0, anchor);
+			if (comment && source.length() > anchor)
 			{
-				KxDynamicStringRefW value = m_INI.GetValue(section.pItem, key.pItem);
-				const size_t anchor = FindCommentStart(value);
-				if (anchor != KxDynamicStringRefW::npos)
-				{
-					KxDynamicStringW trimmed = Utility::String::TrimSpaceCharsLR(value.substr(0, anchor));
-					m_INI.SetValue(section.pItem, key.pItem, trimmed.data(), nullptr, true);
-				}
+				*comment = source.substr(anchor + 1);
 			}
+			return TrimAll(trimmed);
 		}
+		return source;
 	}
+}
+
+namespace PPR
+{
 	bool INIWrapper::LoadUTF8(FILE* stream, size_t fileSize)
 	{
 		return m_INI.LoadFile(stream) == SI_OK;
@@ -155,9 +156,19 @@ namespace PPR
 		return false;
 	}
 
-	bool INIWrapper::Load(const KxDynamicStringW& path, Options options, Encoding encoding)
+	KxDynamicStringRefW INIWrapper::ExtractValue(KxDynamicStringRefW value) const
 	{
-		FILE* stream = _wfopen(path, L"rb");
+		return ExtractValueAndComment(value, m_Options & Options::RemoveInlineComments);
+	}
+
+	bool INIWrapper::Load(KxDynamicStringRefW path, Options options, Encoding encoding)
+	{
+		m_Options = options;
+
+		ArgsBuffer<1> argsBuffer;
+		ProcessArgument<0>(argsBuffer, path);
+
+		FILE* stream = _wfopen(path.data(), L"rb");
 		if (stream)
 		{
 			KxCallAtScopeExit atExit([stream]()
@@ -170,51 +181,41 @@ namespace PPR
 			const int64_t fileSize = _ftelli64(stream);
 			rewind(stream);
 
-			bool isSuccess = false;
 			switch (encoding)
 			{
 				case Encoding::Auto:
 				{
 					if (TestBOM(stream, BOM_UTF16_LE))
 					{
-						isSuccess = LoadUTF16LE(stream, fileSize);
+						return LoadUTF16LE(stream, fileSize);
 					}
 					else if (TestBOM(stream, BOM_UTF16_BE))
 					{
-						isSuccess = false;
+						return false;
 					}
 					else
 					{
-						isSuccess = LoadUTF8(stream, fileSize);
+						return LoadUTF8(stream, fileSize);
 					}
-					break;
 				}
 				case Encoding::UTF8:
 				{
-					isSuccess = LoadUTF8(stream, fileSize);
-					break;
+					return LoadUTF8(stream, fileSize);
 				}
 				case Encoding::UTF16LE:
 				{
-					isSuccess = LoadUTF16LE(stream, fileSize);
-					break;
-				}
-				default:
-				{
-					return false;
+					return LoadUTF16LE(stream, fileSize);
 				}
 			};
-
-			if (isSuccess && options & Options::RemoveInlineComments)
-			{
-				RemoveInlineComments();
-			}
-			return isSuccess;
+			return false;
 		}
 		return false;
 	}
-	bool INIWrapper::Save(const KxDynamicStringW& path, Options options, Encoding encoding)
+	bool INIWrapper::Save(KxDynamicStringRefW path, Options options, Encoding encoding)
 	{
+		ArgsBuffer<1> argsBuffer;
+		ProcessArgument<0>(argsBuffer, path);
+
 		const bool addSignature = options & Options::WithBOM;
 		switch (encoding)
 		{
@@ -228,7 +229,7 @@ namespace PPR
 				std::string buffer;
 				if (m_INI.Save(buffer) == SI_OK)
 				{
-					FILE* stream = _wfopen(path, L"w+b");
+					FILE* stream = _wfopen(path.data(), L"w+b");
 					if (stream)
 					{
 						KxCallAtScopeExit atExit([stream]()
@@ -264,7 +265,7 @@ namespace PPR
 		const wchar_t* value = m_INI.GetValue(section.data(), key.data(), nullptr);
 		if (value)
 		{
-			return TrimAll(value);
+			return ExtractValue(value);
 		}
 		return std::nullopt;
 	}
