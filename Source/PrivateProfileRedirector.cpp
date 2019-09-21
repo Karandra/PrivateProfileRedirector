@@ -10,21 +10,37 @@
 
 namespace PPR
 {
-	Redirector* Redirector::ms_Instance = nullptr;
-	const int Redirector::ms_VersionMajor = 0;
-	const int Redirector::ms_VersionMinor = 4;
-	const int Redirector::ms_VersionPatch = 1;
+	static Redirector* g_Instance = nullptr;
+	constexpr int g_VersionMajor = 0;
+	constexpr int g_VersionMinor = 4;
+	constexpr int g_VersionPatch = 1;
+}
 
+namespace PPR
+{
+	bool Redirector::HasInstance()
+	{
+		return g_Instance != nullptr;
+	}
+	Redirector& Redirector::GetInstance()
+	{
+		return *g_Instance;
+	}
+	Redirector* Redirector::GetInstancePtr()
+	{
+		return g_Instance;
+	}
 	Redirector& Redirector::CreateInstance()
 	{
 		DestroyInstance();
 		new Redirector();
 
-		return *ms_Instance;
+		return *g_Instance;
 	}
 	void Redirector::DestroyInstance()
 	{
-		delete ms_Instance;
+		delete g_Instance;
+		g_Instance = nullptr;
 	}
 
 	const char* Redirector::GetLibraryNameA()
@@ -41,7 +57,7 @@ namespace PPR
 		static char ms_VersionA[16] = {0};
 		if (*ms_VersionA == '\000')
 		{
-			sprintf_s(ms_VersionA, "%d.%d.%d", ms_VersionMajor, ms_VersionMinor, ms_VersionPatch);
+			sprintf_s(ms_VersionA, "%d.%d.%d", g_VersionMajor, g_VersionMinor, g_VersionPatch);
 		}
 		return ms_VersionA;
 	}
@@ -50,16 +66,41 @@ namespace PPR
 		static wchar_t ms_VersionW[16] = {0};
 		if (*ms_VersionW == L'\000')
 		{
-			swprintf_s(ms_VersionW, L"%d.%d.%d", ms_VersionMajor, ms_VersionMinor, ms_VersionPatch);
+			swprintf_s(ms_VersionW, L"%d.%d.%d", g_VersionMajor, g_VersionMinor, g_VersionPatch);
 		}
 		return ms_VersionW;
 	}
-
 	int Redirector::GetLibraryVersionInt()
 	{
 		// 1.2.3 -> 1 * 100 + 2 * 10 + 3 * 1 = 123
 		// 0.1 -> (0 * 100) + (1 * 10) + (0 * 1) = 10
-		return (ms_VersionMajor * 100) + (ms_VersionMinor * 10) + (ms_VersionPatch * 1);
+		return (g_VersionMajor * 100) + (g_VersionMinor * 10) + (g_VersionPatch * 1);
+	}
+
+	bool Redirector::DllMain(HMODULE module, DWORD event)
+	{
+		switch (event)
+		{
+			case DLL_PROCESS_ATTACH:
+			{
+				CreateInstance();
+				break;
+			}
+			case DLL_THREAD_DETACH:
+			{
+				if (g_Instance && g_Instance->IsOptionEnabled(RedirectorOption::SaveOnThreadDetach))
+				{
+					g_Instance->SaveChnagedFiles(L"On thread detach");
+				}
+				break;
+			}
+			case DLL_PROCESS_DETACH:
+			{
+				DestroyInstance();
+				break;
+			}
+		};
+		return true;
 	}
 }
 
@@ -203,9 +244,9 @@ namespace PPR
 	}
 
 	Redirector::Redirector()
-		:m_ThreadID(GetCurrentThreadId())
+		:m_InitialThreadID(::GetCurrentThreadId())
 	{
-		ms_Instance = this;
+		g_Instance = this;
 
 		// Load config
 		InitConfig();
@@ -228,7 +269,7 @@ namespace PPR
 		}
 
 		CloseLog();
-		ms_Instance = nullptr;
+		g_Instance = nullptr;
 	}
 
 	ConfigObject& Redirector::GetOrLoadFile(KxDynamicStringRefW path)

@@ -17,39 +17,25 @@ namespace PPR
 	{
 		friend class RedirectorConfigLoader;
 
-		private:
-			static Redirector* ms_Instance;
-			static const int ms_VersionMajor;
-			static const int ms_VersionMinor;
-			static const int ms_VersionPatch;
-
 		public:
-			static bool HasInstance()
-			{
-				return ms_Instance != nullptr;
-			}
-			static Redirector& GetInstance()
-			{
-				return *ms_Instance;
-			}
-			static Redirector* GetInstancePtr()
-			{
-				return ms_Instance;
-			}
+			static bool HasInstance();
+			static Redirector& GetInstance();
+			static Redirector* GetInstancePtr();
 			static Redirector& CreateInstance();
 			static void DestroyInstance();
-		
+			
 			static const char* GetLibraryNameA();
 			static const wchar_t* GetLibraryNameW();
 
 			static const char* GetLibraryVersionA();
 			static const wchar_t* GetLibraryVersionW();
-
 			static int GetLibraryVersionInt();
+
+			static bool DllMain(HMODULE module, DWORD event);
 
 		private:
 			FunctionTable m_Functions;
-			const DWORD m_ThreadID = 0;
+			const DWORD m_InitialThreadID = 0;
 
 			TRedirectorOptionSet m_Options;
 			int m_ANSICodePage = CP_ACP;
@@ -86,7 +72,11 @@ namespace PPR
 			
 			bool IsInitialThread(DWORD threadID) const
 			{
-				return m_ThreadID == threadID;
+				return m_InitialThreadID == threadID;
+			}
+			bool IsCurrentThreadInitial() const
+			{
+				return m_InitialThreadID == ::GetCurrentThreadId();
 			}
 			bool IsLogEnabled() const
 			{
@@ -137,8 +127,8 @@ namespace PPR
 				{
 					if constexpr((sizeof...(Args)) != 0)
 					{
-						KxDynamicStringW string = KxDynamicStringW::Format(format, std::forward<Args>(arg)...);
-						LogBase(string.data());
+						KxDynamicStringW logString = KxDynamicStringW::Format(format, std::forward<Args>(arg)...);
+						LogBase(logString.data());
 					}
 					else
 					{
