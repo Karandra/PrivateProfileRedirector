@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "SKSE64.h"
-#include "ScriptExtenderInterface.h"
+#include "SKSEVR.h"
+#include "xSE\ScriptExtenderInterface.h"
 #include "PrivateProfileRedirector.h"
 
 namespace PPR
 {
-	ObScriptCommand* RefreshINIOverrider_SKSE64::FindCommand(KxDynamicStringRefA fullName) const
+	ObScriptCommand* RefreshINIOverrider_SKSEVR::FindCommand(KxDynamicStringRefA fullName) const
 	{
 		for (ObScriptCommand* command = g_firstConsoleCommand; command->opcode < kObScript_NumConsoleCommands + kObScript_ConsoleOpBase; ++command)
 		{
@@ -17,7 +17,7 @@ namespace PPR
 		return nullptr;
 	}
 
-	void RefreshINIOverrider_SKSE64::Execute()
+	void RefreshINIOverrider_SKSEVR::Execute()
 	{
 		xSE_LOG("Overriding 'RefreshINI' console command to refresh INIs from disk");
 
@@ -29,9 +29,9 @@ namespace PPR
 			// Make new command
 			m_NewCommand = *command;
 			m_NewCommand.helpText = "[Redirector] Reloads INIs content from disk and calls original 'RefreshINI' after it";
-			m_NewCommand.execute = [](const ObScriptParam* paramInfo, ScriptData* scriptData, TESObjectREFR* thisObj, TESObjectREFR* containingObj, Script* scriptObj, ScriptLocals* locals, double& result, UInt32& opcodeOffset)
+			m_NewCommand.execute = [](void* paramInfo, void* scriptData, TESObjectREFR* thisObj, void* containingObj, void* scriptObj, void* locals, double* result, void* opcodeOffset)
 			{
-				RefreshINIOverrider_SKSE64& instance = *SEInterface::GetInstance().GetRefreshINIOverrider<RefreshINIOverrider_SKSE64>();
+				RefreshINIOverrider_SKSEVR& instance = *SEInterface::GetInstance().GetRefreshINIOverrider<RefreshINIOverrider_SKSEVR>();
 				Console_Print("Executing 'RefreshINI'");
 
 				const size_t reloadedCount = Redirector::GetInstance().RefreshINI();

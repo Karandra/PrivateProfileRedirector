@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
-#include "IRefreshINIOverrider.h"
-#include "ScriptExtenderInterfaceIncludes.h"
+#include "xSE\IRefreshINIOverrider.h"
+#include "xSE\ScriptExtenderInterfaceIncludes.h"
 #include "Utility/KxDynamicString.h"
 
 namespace PPR

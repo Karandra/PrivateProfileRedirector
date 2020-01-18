@@ -1,187 +1,178 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
+    <Filter Include="Code">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    <Filter Include="Code\xSE">
+      <UniqueIdentifier>{57b08a04-a4a6-4158-9545-bcc203a02920}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
+    <Filter Include="Code\xSE\RefreshINIOverriders">
+      <UniqueIdentifier>{7193ec96-b0b7-465f-b415-fbe9d1b8575c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Utility">
+      <UniqueIdentifier>{57f912be-12f4-44b9-bd34-6ba680dda8ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Utility">
-      <UniqueIdentifier>{a9e37386-ea6a-47ee-b5bc-6e6d6c4cc2af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Utility">
-      <UniqueIdentifier>{57f912be-12f4-44b9-bd34-6ba680dda8ae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Utility">
+    <Filter Include="Resources\Utility">
       <UniqueIdentifier>{681ea3ad-ef1e-4577-a6ac-4182e65ed129}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\RefreshINIOverriders">
-      <UniqueIdentifier>{abff97c2-9959-4b83-b18a-4288f0f731b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\RefreshINIOverriders">
-      <UniqueIdentifier>{7193ec96-b0b7-465f-b415-fbe9d1b8575c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\PrivateProfileRedirector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Source\ScriptExtenderInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ScriptExtenderDefines.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Source\xSE\RefreshINIOverriders\F4SE.h">
+      <Filter>Code\xSE\RefreshINIOverriders</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ScriptExtenderInterfaceNVSE.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Source\xSE\RefreshINIOverriders\SKSE64.h">
+      <Filter>Code\xSE\RefreshINIOverriders</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ScriptExtenderInterfaceIncludes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ScriptExtenderDefinesBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxDynamicString.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\SimpleINI.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxBasicDynamicString.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\String.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxCallAtScopeExit.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\EnumClassOperations.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\RedirectedFunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\FunctionTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ConfigObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxWithOptions.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxOptionSet.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\LibraryHandle.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\RedirectorConfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\FunctionRedirector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\INIWrapper.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Source\xSE\RefreshINIOverriders\SKSEVR.h">
+      <Filter>Code\xSE\RefreshINIOverriders</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\CriticalSection.h">
-      <Filter>Header Files\Utility</Filter>
+      <Filter>Code\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\EnumClassOperations.h">
+      <Filter>Code\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\KxBasicDynamicString.h">
+      <Filter>Code\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\KxCallAtScopeExit.h">
+      <Filter>Code\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\KxDynamicString.h">
+      <Filter>Code\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\KxOptionSet.h">
+      <Filter>Code\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\KxWithOptions.h">
+      <Filter>Code\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\LibraryHandle.h">
+      <Filter>Code\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\SimpleINI.h">
+      <Filter>Code\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\SRWLock.h">
-      <Filter>Header Files\Utility</Filter>
+      <Filter>Code\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Source\IRefreshINIOverrider.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Source\Utility\String.h">
+      <Filter>Code\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RefreshINIOverriders\SKSE64.h">
-      <Filter>Header Files\RefreshINIOverriders</Filter>
+    <ClInclude Include="Source\xSE\ScriptExtenderInterfaceNVSE.h">
+      <Filter>Code\xSE</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RefreshINIOverriders\SKSEVR.h">
-      <Filter>Header Files\RefreshINIOverriders</Filter>
+    <ClInclude Include="Source\xSE\ScriptExtenderInterfaceIncludes.h">
+      <Filter>Code\xSE</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RefreshINIOverriders\F4SE.h">
-      <Filter>Header Files\RefreshINIOverriders</Filter>
+    <ClInclude Include="Source\xSE\ScriptExtenderInterface.h">
+      <Filter>Code\xSE</Filter>
     </ClInclude>
+    <ClInclude Include="Source\xSE\ScriptExtenderDefinesBase.h">
+      <Filter>Code\xSE</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\xSE\ScriptExtenderDefines.h">
+      <Filter>Code\xSE</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RedirectorConfig.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConfigObject.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FunctionRedirector.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FunctionTable.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\INIWrapper.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PrivateProfileRedirector.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RedirectedFunctions.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\IRefreshINIOverrider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\PrivateProfileRedirector.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Source\ScriptExtenderInterface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Utility\KxDynamicString.cpp">
-      <Filter>Source Files\Utility</Filter>
+      <Filter>Code\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Source\Utility\String.cpp">
-      <Filter>Source Files\Utility</Filter>
+      <Filter>Code\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Source\RedirectedFunctions.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\ConfigObject.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\DLLMain.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\RedirectorConfig.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\FunctionRedirector.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\INIWrapper.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RefreshINIOverriders\SKSE64.cpp">
-      <Filter>Source Files\RefreshINIOverriders</Filter>
+    <ClCompile Include="Source\xSE\RefreshINIOverriders\SKSE64.cpp">
+      <Filter>Code\xSE\RefreshINIOverriders</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RefreshINIOverriders\SKSEVR.cpp">
-      <Filter>Source Files\RefreshINIOverriders</Filter>
+    <ClCompile Include="Source\xSE\RefreshINIOverriders\SKSEVR.cpp">
+      <Filter>Code\xSE\RefreshINIOverriders</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RefreshINIOverriders\F4SE.cpp">
-      <Filter>Source Files\RefreshINIOverriders</Filter>
+    <ClCompile Include="Source\xSE\RefreshINIOverriders\F4SE.cpp">
+      <Filter>Code\xSE\RefreshINIOverriders</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\xSE\ScriptExtenderInterface.cpp">
+      <Filter>Code\xSE</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PrivateProfileRedirector.rc">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </None>
     <None Include="Build\PrivateProfileRedirector.ini">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </None>
     <None Include="ChangeLog.md">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Build\PrivateProfileRedirector_preload.txt">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Source\Utility\KxBasicDynamicString.natvis">
-      <Filter>Resource Files\Utility</Filter>
+      <Filter>Resources\Utility</Filter>
     </Natvis>
   </ItemGroup>
 </Project>

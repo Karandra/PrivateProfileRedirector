@@ -1,12 +1,12 @@
 #pragma once
 #include "stdafx.h"
-#include "IRefreshINIOverrider.h"
-#include "ScriptExtenderInterfaceIncludes.h"
+#include "xSE\IRefreshINIOverrider.h"
+#include "xSE\ScriptExtenderInterfaceIncludes.h"
 #include "Utility/KxDynamicString.h"
 
 namespace PPR
 {
-	class RefreshINIOverrider_SKSEVR final: public IRefreshINIOverrider
+	class RefreshINIOverrider_F4SE final: public IRefreshINIOverrider
 	{
 		private:
 			ObScriptCommand m_OriginalCommand = {};

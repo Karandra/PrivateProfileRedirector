@@ -485,7 +485,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="Source\FunctionTable.h" />
     <ClInclude Include="Source\RedirectedFunctions.h" />
     <ClInclude Include="Source\RedirectorConfig.h" />
-    <ClInclude Include="Source\RefreshINIOverriders\F4SE.h">
+    <ClInclude Include="Source\xSE\RefreshINIOverriders\F4SE.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -497,7 +497,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\RefreshINIOverriders\SKSE64.h">
+    <ClInclude Include="Source\xSE\RefreshINIOverriders\SKSE64.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -509,7 +509,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\RefreshINIOverriders\SKSEVR.h">
+    <ClInclude Include="Source\xSE\RefreshINIOverriders\SKSEVR.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -521,11 +521,11 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\ScriptExtenderDefines.h" />
-    <ClInclude Include="Source\ScriptExtenderDefinesBase.h" />
-    <ClInclude Include="Source\ScriptExtenderInterface.h" />
-    <ClInclude Include="Source\ScriptExtenderInterfaceIncludes.h" />
-    <ClInclude Include="Source\ScriptExtenderInterfaceNVSE.h" />
+    <ClInclude Include="Source\xSE\ScriptExtenderDefines.h" />
+    <ClInclude Include="Source\xSE\ScriptExtenderDefinesBase.h" />
+    <ClInclude Include="Source\xSE\ScriptExtenderInterface.h" />
+    <ClInclude Include="Source\xSE\ScriptExtenderInterfaceIncludes.h" />
+    <ClInclude Include="Source\xSE\ScriptExtenderInterfaceNVSE.h" />
     <ClInclude Include="Source\Utility\EnumClassOperations.h" />
     <ClInclude Include="Source\Utility\KxBasicDynamicString.h" />
     <ClInclude Include="Source\Utility\KxCallAtScopeExit.h" />
@@ -547,7 +547,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClCompile Include="Source\PrivateProfileRedirector.cpp" />
     <ClCompile Include="Source\RedirectedFunctions.cpp" />
     <ClCompile Include="Source\RedirectorConfig.cpp" />
-    <ClCompile Include="Source\RefreshINIOverriders\F4SE.cpp">
+    <ClCompile Include="Source\xSE\RefreshINIOverriders\F4SE.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -559,7 +559,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\RefreshINIOverriders\SKSE64.cpp">
+    <ClCompile Include="Source\xSE\RefreshINIOverriders\SKSE64.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -571,7 +571,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\RefreshINIOverriders\SKSEVR.cpp">
+    <ClCompile Include="Source\xSE\RefreshINIOverriders\SKSEVR.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -583,7 +583,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\ScriptExtenderInterface.cpp" />
+    <ClCompile Include="Source\xSE\ScriptExtenderInterface.cpp" />
     <ClCompile Include="Source\Utility\KxDynamicString.cpp" />
     <ClCompile Include="Source\Utility\String.cpp" />
     <ClCompile Include="stdafx.cpp">

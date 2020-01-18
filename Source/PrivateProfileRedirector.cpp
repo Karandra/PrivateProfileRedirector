@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "PrivateProfileRedirector.h"
 #include "RedirectedFunctions.h"
-#include "ScriptExtenderInterfaceIncludes.h"
-#include "ScriptExtenderDefines.h"
+#include "xSE\ScriptExtenderInterfaceIncludes.h"
+#include "xSE\ScriptExtenderDefines.h"
 
 #include <detours.h>
 #include <detver.h>
