@@ -7,6 +7,14 @@
 #pragma warning(disable: 4267) // conversion from 'size_t' to 'y', possible loss of data
 #include "ScriptExtenderInterfaceIncludes.h"
 
+#if xSE_PLATFORM_SKSE64
+#include "RefreshINIOverriders/SKSE64.h"
+#elif xSE_PLATFORM_F4SE
+#include "RefreshINIOverriders/F4SE.h"
+#elif xSE_PLATFORM_SKSEVR
+#include "RefreshINIOverriders/SKSEVR.h"
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
 {
@@ -104,70 +112,25 @@ namespace PPR
 	{
 		if (CanUseSEFunctions())
 		{
-			OverrideRefreshINI();
-		}
-		return true;
-	}
+			#if xSE_PLATFORM_SKSE64
+			m_RefreshINIOverrider = std::make_unique<RefreshINIOverrider_SKSE64>();
+			#elif xSE_PLATFORM_F4SE
+			m_RefreshINIOverrider = std::make_unique<RefreshINIOverrider_F4SE>();
+			#elif xSE_PLATFORM_SKSEVR
+			m_RefreshINIOverrider = std::make_unique<RefreshINIOverrider_SKSEVR>();
+			#endif
 
-	xSE_ConsoleCommandInfo* SEInterface::FindConsoleCommand(KxDynamicStringRefA fullName) const
-	{
-		#if xSE_HAS_CONSOLE_COMMAND_INFO
-		for (xSE_ConsoleCommandInfo* command = g_firstConsoleCommand; command->opcode < kObScript_NumConsoleCommands + kObScript_ConsoleOpBase; ++command)
-		{
-			if (command->longName && KxDynamicStringRefA(command->longName) == fullName)
+			if (m_RefreshINIOverrider)
 			{
-				return command;
+				m_RefreshINIOverrider->Execute();
 			}
 		}
-		#endif
-		return nullptr;
-	}
-	void SEInterface::OverrideRefreshINI()
-	{
-		#if xSE_HAS_CONSOLE_COMMAND_INFO
-		xSE_LOG("Overriding 'RefreshINI' console command to refresh INIs from disk");
-
-		m_RefreshINICommand = FindConsoleCommand("RefreshINI");
-		if (m_RefreshINICommand)
-		{
-			m_OriginalRefreshINIHandler = m_RefreshINICommand->execute;
-			auto OnCall = [](void* paramInfo, void* scriptData, TESObjectREFR* thisObj, void* containingObj, void* scriptObj, void* locals, double* result, void* opcodeOffsetPtr) -> bool
-			{
-				SEInterface& instance = SEInterface::GetInstance();
-				Console_Print("Executing 'RefreshINI'");
-
-				size_t reloadedCount = Redirector::GetInstance().RefreshINI();
-				bool ret = instance.m_OriginalRefreshINIHandler(paramInfo, scriptData, thisObj, containingObj, scriptObj, locals, result, opcodeOffsetPtr);
-
-				// Apparently Fallout 4 doesn't support '%zu' format specifier.
-				Console_Print("Executing 'RefreshINI' done with result '%d', %u files reloaded.", (int)ret, (unsigned int)reloadedCount);
-				return ret;
-			};
-
-			xSE_ConsoleCommandInfo newCommand = *m_RefreshINICommand;
-			newCommand.helpText = "[Redirector] Reloads INIs content from disk and calls original 'RefreshINI' after it";
-			newCommand.execute = OnCall;
-
-			SafeWriteBuf(reinterpret_cast<uintptr_t>(m_RefreshINICommand), &newCommand, sizeof(newCommand));
-			xSE_LOG("Command 'RefreshINI' is overridden");
-		}
-		else
-		{
-			xSE_LOG("Can't find 'RefreshINI' command to override");
-		}
-		#endif
+		return true;
 	}
 
 	SEInterface::SEInterface()
 		:m_PluginHandle(kPluginHandle_Invalid)
 	{
 	}
-	SEInterface::~SEInterface()
-	{
-	}
-
-	bool SEInterface::CanUseSEFunctions() const
-	{
-		return m_CanUseSEFunctions;
-	}
+	SEInterface::~SEInterface() = default;
 }

@@ -121,7 +121,8 @@ namespace PPR
 				return ConvertToACP(value.data(), value.length());
 			}
 			
-			template<class ...Args> void Log(const wchar_t* format, Args&&... arg) const
+			template<class ...Args>
+			void Log(const wchar_t* format, Args&&... arg) const
 			{
 				if (m_Log)
 				{

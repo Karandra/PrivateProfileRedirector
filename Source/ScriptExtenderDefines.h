@@ -44,14 +44,8 @@ using xSE_ScaleformInterface = void;
 //////////////////////////////////////////////////////////////////////////
 // Console command struct
 //////////////////////////////////////////////////////////////////////////
-#if xSE_PLATFORM_SKSE
-//using xSE_ConsoleCommandInfo = struct CommandInfo; // Can't get it to work
-using xSE_ConsoleCommandInfo = void;
-#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR || xSE_PLATFORM_F4SE
-using xSE_ConsoleCommandInfo = struct ObScriptCommand;
+#if xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR || xSE_PLATFORM_F4SE
 #define xSE_HAS_CONSOLE_COMMAND_INFO 1
-#else
-using xSE_ConsoleCommandInfo = void;
 #endif
 
 //////////////////////////////////////////////////////////////////////////

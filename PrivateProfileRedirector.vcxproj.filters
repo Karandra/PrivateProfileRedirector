@@ -22,6 +22,12 @@
     <Filter Include="Resource Files\Utility">
       <UniqueIdentifier>{681ea3ad-ef1e-4577-a6ac-4182e65ed129}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\RefreshINIOverriders">
+      <UniqueIdentifier>{abff97c2-9959-4b83-b18a-4288f0f731b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\RefreshINIOverriders">
+      <UniqueIdentifier>{7193ec96-b0b7-465f-b415-fbe9d1b8575c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\PrivateProfileRedirector.h">
@@ -97,6 +103,18 @@
     <ClInclude Include="Source\Utility\SRWLock.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Source\IRefreshINIOverrider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RefreshINIOverriders\SKSE64.h">
+      <Filter>Header Files\RefreshINIOverriders</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RefreshINIOverriders\SKSEVR.h">
+      <Filter>Header Files\RefreshINIOverriders</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RefreshINIOverriders\F4SE.h">
+      <Filter>Header Files\RefreshINIOverriders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\PrivateProfileRedirector.cpp">
@@ -129,6 +147,15 @@
     </ClCompile>
     <ClCompile Include="Source\INIWrapper.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RefreshINIOverriders\SKSE64.cpp">
+      <Filter>Source Files\RefreshINIOverriders</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RefreshINIOverriders\SKSEVR.cpp">
+      <Filter>Source Files\RefreshINIOverriders</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RefreshINIOverriders\F4SE.cpp">
+      <Filter>Source Files\RefreshINIOverriders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

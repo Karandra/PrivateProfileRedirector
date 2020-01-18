@@ -22,7 +22,7 @@
 #include <skse64/GameAPI.h>
 #include <skse64/ObScript.h>
 
-#pragma comment(lib, "skse64/x64/Release/skse64_1_5_80.lib")
+#pragma comment(lib, "skse64/x64/Release/skse64_1_5_97.lib")
 #pragma comment(lib, "skse64/x64/Release/skse64_common.lib")
 #pragma comment(lib, "skse64/x64/Release/skse64_loader_common.lib")
 #pragma comment(lib, "skse64/x64_v142/Release/common_vc14.lib")
@@ -52,7 +52,7 @@
 #include <f4se/GameAPI.h>
 #include <f4se/ObScript.h>
 
-#pragma comment(lib, "f4se/x64/Release/f4se_1_10_138.lib")
+#pragma comment(lib, "f4se/x64/Release/f4se_1_10_163.lib")
 #pragma comment(lib, "f4se/x64/Release/f4se_common.lib")
 #pragma comment(lib, "f4se/x64/Release/f4se_loader_common.lib")
 #pragma comment(lib, "f4se/x64_vc11/Release/common_vc11.lib")
