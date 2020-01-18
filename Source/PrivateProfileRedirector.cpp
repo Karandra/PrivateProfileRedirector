@@ -13,7 +13,10 @@ namespace PPR
 	static Redirector* g_Instance = nullptr;
 	constexpr int g_VersionMajor = 0;
 	constexpr int g_VersionMinor = 4;
-	constexpr int g_VersionPatch = 1;
+	constexpr int g_VersionPatch = 2;
+
+	constexpr int g_SaveOnWriteBufferMin = 2;
+	constexpr int g_SaveOnWriteBufferMax = 2000;
 }
 
 namespace PPR
@@ -125,6 +128,13 @@ namespace PPR
 		config.LoadOption(RedirectorOption::SaveOnThreadDetach, L"SaveOnThreadDetach", RedirectorOption::NativeWrite);
 		config.LoadOption(RedirectorOption::ProcessInlineComments, L"ProcessInlineComments");
 		m_ANSICodePage = config.GetInt(L"ANSICodePage", m_ANSICodePage);
+		m_SaveOnWriteBuffer = config.GetInt(L"SaveOnWriteBuffer", m_SaveOnWriteBuffer);
+
+		// Correct options
+		if (m_SaveOnWriteBuffer < g_SaveOnWriteBufferMin || m_SaveOnWriteBuffer > g_SaveOnWriteBufferMax || !m_Options.IsEnabled(RedirectorOption::SaveOnWrite))
+		{
+			m_SaveOnWriteBuffer = 0;
+		}
 
 		// Print options
 		Log(L"Loaded options:");
@@ -136,6 +146,7 @@ namespace PPR
 		config.LogOption(RedirectorOption::SaveOnThreadDetach, L"SaveOnThreadDetach");
 		config.LogOption(RedirectorOption::ProcessInlineComments, L"ProcessInlineComments");
 		config.LogOption(m_ANSICodePage, L"ANSICodePage");
+		config.LogOption(m_SaveOnWriteBuffer, L"SaveOnWriteBuffer");
 	}
 	bool Redirector::OpenLog()
 	{

@@ -17,9 +17,10 @@ namespace PPR
 		private:
 			INIWrapper m_INI;
 			KxDynamicStringW m_Path;
-			SRWLock m_Lock;
-			bool m_HasChanges = false;
+			size_t m_ChangesCount = 0;
 			bool m_ExistOnDisk = false;
+
+			SRWLock m_Lock;
 
 		private:
 			bool LoadFile();
@@ -45,19 +46,19 @@ namespace PPR
 				return m_Path;
 			}
 
-			void OnWrite();
 			bool IsExistOnDisk() const
 			{
 				return m_ExistOnDisk;
 			}
 			bool HasChanges() const
 			{
-				return m_HasChanges;
+				return m_ChangesCount != 0;
 			}
 			bool IsEmpty() const
 			{
 				return m_INI.IsEmpty();
 			}
+			void OnWrite();
 
 			SRWLock& GetLock()
 			{

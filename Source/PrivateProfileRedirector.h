@@ -39,6 +39,7 @@ namespace PPR
 
 			TRedirectorOptionSet m_Options;
 			int m_ANSICodePage = CP_ACP;
+			int m_SaveOnWriteBuffer = 0;
 
 			Utility::String::UnorderedMapWNoCase<std::unique_ptr<ConfigObject>> m_INIMap;
 			SRWLock m_INIMapLock;
@@ -85,6 +86,14 @@ namespace PPR
 			int GetANSICodePage() const
 			{
 				return m_ANSICodePage;
+			}
+			std::optional<size_t> GetSaveOnWriteBuffer() const
+			{
+				if (m_SaveOnWriteBuffer > 0)
+				{
+					return m_SaveOnWriteBuffer;
+				}
+				return std::nullopt;
 			}
 			bool IsOptionEnabled(RedirectorOption option) const
 			{
