@@ -7,6 +7,7 @@
 #include <skse/SafeWrite.h>
 #include <skse/PluginAPI.h>
 #include <skse/GameAPI.h>
+#include <skse/CommandTable.h>
 
 #pragma comment(lib, "skse/Release/skse.lib")
 #pragma comment(lib, "skse/Release/loader_common.lib")

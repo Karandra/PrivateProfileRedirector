@@ -1,5 +1,11 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.4.2, 24.01.2020
+- Added 'SaveOnWriteBuffer' option to accumulate changes to the same INI file before saving to disk to avoid excessive IO when many options are changed at once.
+- Added 'SaveOnProcessDetach' option to save changed files when game exits.
+- Added 'SaveOnGameSave' option to allow save changed files before making saving the game.
+- Console command `RefreshINI` now works in Skyrim LE.
+
 # Version 0.4.1, 21.09.2019
 - Fixed inline comments processing. Should fix issues with FreeFlyCam SKSE plugin (Skyrim LE/SE).
 - Inline comments no longer being removed from the file on load.

@@ -15,12 +15,14 @@ namespace PPR
 		NativeWrite = 1 << 2,
 		SaveOnWrite = 1 << 3,
 		SaveOnThreadDetach = 1 << 4,
-		ProcessInlineComments = 1 << 5,
+		SaveOnProcessDetach = 1 << 5,
+		SaveOnGameSave = 1 << 6,
+		ProcessInlineComments = 1 << 7,
 	};
 	PPR_AllowEnumCastOp(RedirectorOption);
 	PPR_AllowEnumBitwiseOp(RedirectorOption);
 
-	using TRedirectorOptionSet = KxOptionSet<RedirectorOption, RedirectorOption::SaveOnWrite|RedirectorOption::ProcessInlineComments>;
+	using RedirectorOptionSet = KxOptionSet<RedirectorOption, RedirectorOption::SaveOnWrite|RedirectorOption::ProcessInlineComments>;
 }
 
 namespace PPR
@@ -29,14 +31,14 @@ namespace PPR
 	{
 		private:
 			CSimpleIniW m_Config;
-			TRedirectorOptionSet& m_OptionSet;
+			RedirectorOptionSet& m_OptionSet;
 
 		private:
 			const wchar_t* DoGetOption(const wchar_t* section, const wchar_t* key, const wchar_t* defaultValue = nullptr) const;
 			int DoGetOptionInt(const wchar_t* section, const wchar_t* key, int defaultValue = 0) const;
 
 		public:
-			RedirectorConfigLoader(TRedirectorOptionSet& optionSet, KxDynamicStringRefW filePath);
+			RedirectorConfigLoader(RedirectorOptionSet& optionSet, KxDynamicStringRefW filePath);
 			
 		public:
 			const wchar_t* GetString(const wchar_t* name, const wchar_t* defaultValue = nullptr) const

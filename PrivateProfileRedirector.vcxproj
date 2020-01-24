@@ -198,6 +198,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Skyrim;$(ProjectDir)ScriptExtender\Skyrim\skse;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -227,6 +228,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\FalloutNV;$(ProjectDir)ScriptExtender\FalloutNV\nvse;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -256,6 +258,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimSE;$(ProjectDir)ScriptExtender\SkyrimSE\skse64;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -285,6 +288,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Fallout4;$(ProjectDir)ScriptExtender\Fallout4\f4se;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -314,6 +318,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimVR;$(ProjectDir)ScriptExtender\SkyrimVR\skseVR;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -343,6 +348,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Skyrim;$(ProjectDir)ScriptExtender\Skyrim\skse;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -372,6 +378,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\FalloutNV;$(ProjectDir)ScriptExtender\FalloutNV\nvse;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -401,6 +408,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimSE;$(ProjectDir)ScriptExtender\SkyrimSE\skse64;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -430,6 +438,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Fallout4;$(ProjectDir)ScriptExtender\Fallout4\f4se;$(SolutionDir)..\\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -459,6 +468,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimVR;$(ProjectDir)ScriptExtender\SkyrimVR\skseVR;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -480,12 +490,24 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="Source\ConfigObject.h" />
     <ClInclude Include="Source\FunctionRedirector.h" />
     <ClInclude Include="Source\INIWrapper.h" />
-    <ClInclude Include="Source\IRefreshINIOverrider.h" />
     <ClInclude Include="Source\PrivateProfileRedirector.h" />
     <ClInclude Include="Source\FunctionTable.h" />
+    <ClInclude Include="Source\Qx\ClientData.h" />
+    <ClInclude Include="Source\Qx\EventSystem\CallWrapper.h" />
+    <ClInclude Include="Source\Qx\EventSystem\Common.h" />
+    <ClInclude Include="Source\Qx\EventSystem\Event.h" />
+    <ClInclude Include="Source\Qx\EventSystem\EventBuilder.h" />
+    <ClInclude Include="Source\Qx\EventSystem\EventFilter.h" />
+    <ClInclude Include="Source\Qx\EventSystem\EventItem.h" />
+    <ClInclude Include="Source\Qx\EventSystem\Events\QxConsoleEvent.h" />
+    <ClInclude Include="Source\Qx\EventSystem\Events\QxGameEvent.h" />
+    <ClInclude Include="Source\Qx\EventSystem\Events\QxIdleEvent.h" />
+    <ClInclude Include="Source\Qx\EventSystem\Events\QxNotifyEvent.h" />
+    <ClInclude Include="Source\Qx\EventSystem\EvtHandler.h" />
+    <ClInclude Include="Source\Qx\Utility.h" />
     <ClInclude Include="Source\RedirectedFunctions.h" />
     <ClInclude Include="Source\RedirectorConfig.h" />
-    <ClInclude Include="Source\xSE\RefreshINIOverriders\F4SE.h">
+    <ClInclude Include="Source\xSE\ConsoleCommandOverrider\F4SE.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -497,7 +519,19 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\xSE\RefreshINIOverriders\SKSE64.h">
+    <ClInclude Include="Source\xSE\ConsoleCommandOverrider\SKSE.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Source\xSE\ConsoleCommandOverrider\SKSE64.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -509,7 +543,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\xSE\RefreshINIOverriders\SKSEVR.h">
+    <ClInclude Include="Source\xSE\ConsoleCommandOverrider\SKSEVR.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -521,6 +555,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Source\xSE\IConsoleCommandOverrider.h" />
     <ClInclude Include="Source\xSE\ScriptExtenderDefines.h" />
     <ClInclude Include="Source\xSE\ScriptExtenderDefinesBase.h" />
     <ClInclude Include="Source\xSE\ScriptExtenderInterface.h" />
@@ -545,9 +580,13 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClCompile Include="Source\FunctionRedirector.cpp" />
     <ClCompile Include="Source\INIWrapper.cpp" />
     <ClCompile Include="Source\PrivateProfileRedirector.cpp" />
+    <ClCompile Include="Source\Qx\EventSystem\Event.cpp" />
+    <ClCompile Include="Source\Qx\EventSystem\EventBuilder.cpp" />
+    <ClCompile Include="Source\Qx\EventSystem\EventItem.cpp" />
+    <ClCompile Include="Source\Qx\EventSystem\EvtHandler.cpp" />
     <ClCompile Include="Source\RedirectedFunctions.cpp" />
     <ClCompile Include="Source\RedirectorConfig.cpp" />
-    <ClCompile Include="Source\xSE\RefreshINIOverriders\F4SE.cpp">
+    <ClCompile Include="Source\xSE\ConsoleCommandOverrider\F4SE.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -559,7 +598,19 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\xSE\RefreshINIOverriders\SKSE64.cpp">
+    <ClCompile Include="Source\xSE\ConsoleCommandOverrider\SKSE.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Source\xSE\ConsoleCommandOverrider\SKSE64.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>
@@ -571,7 +622,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\xSE\RefreshINIOverriders\SKSEVR.cpp">
+    <ClCompile Include="Source\xSE\ConsoleCommandOverrider\SKSEVR.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">true</ExcludedFromBuild>

@@ -42,6 +42,23 @@ using xSE_ScaleformInterface = void;
 #endif
 
 //////////////////////////////////////////////////////////////////////////
+// xSE_MessagingInterface
+//////////////////////////////////////////////////////////////////////////
+#if xSE_PLATFORM_SKSE || xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR
+
+using xSE_MessagingInterface = struct SKSEMessagingInterface;
+#define xSE_HAS_MESSAGING_INTERFACE 1
+
+#elif xSE_PLATFORM_F4SE
+
+using xSE_MessagingInterface = struct F4SEMessagingInterface;
+#define xSE_HAS_MESSAGING_INTERFACE 1
+
+#else
+using xSE_MessagingInterface = void;
+#endif
+
+//////////////////////////////////////////////////////////////////////////
 // Console command struct
 //////////////////////////////////////////////////////////////////////////
 #if xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR || xSE_PLATFORM_F4SE

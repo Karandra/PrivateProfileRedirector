@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "PrivateProfileRedirector.h"
 #include "RedirectedFunctions.h"
-#include "xSE\ScriptExtenderInterfaceIncludes.h"
-#include "xSE\ScriptExtenderDefines.h"
+#include "xSE/ScriptExtenderInterfaceIncludes.h"
+#include "xSE/ScriptExtenderInterface.h"
 
 #include <detours.h>
 #include <detver.h>
@@ -29,10 +29,6 @@ namespace PPR
 	{
 		return *g_Instance;
 	}
-	Redirector* Redirector::GetInstancePtr()
-	{
-		return g_Instance;
-	}
 	Redirector& Redirector::CreateInstance()
 	{
 		DestroyInstance();
@@ -58,7 +54,7 @@ namespace PPR
 	const char* Redirector::GetLibraryVersionA()
 	{
 		static char ms_VersionA[16] = {0};
-		if (*ms_VersionA == '\000')
+		if (*ms_VersionA == '\0')
 		{
 			sprintf_s(ms_VersionA, "%d.%d.%d", g_VersionMajor, g_VersionMinor, g_VersionPatch);
 		}
@@ -67,7 +63,7 @@ namespace PPR
 	const wchar_t* Redirector::GetLibraryVersionW()
 	{
 		static wchar_t ms_VersionW[16] = {0};
-		if (*ms_VersionW == L'\000')
+		if (*ms_VersionW == L'\0')
 		{
 			swprintf_s(ms_VersionW, L"%d.%d.%d", g_VersionMajor, g_VersionMinor, g_VersionPatch);
 		}
@@ -99,7 +95,12 @@ namespace PPR
 			}
 			case DLL_PROCESS_DETACH:
 			{
+				if (g_Instance && g_Instance->IsOptionEnabled(RedirectorOption::SaveOnProcessDetach))
+				{
+					g_Instance->SaveChnagedFiles(L"On process detach");
+				}
 				DestroyInstance();
+
 				break;
 			}
 		};
@@ -126,6 +127,8 @@ namespace PPR
 		config.LoadOption(RedirectorOption::NativeWrite, L"NativeWrite", RedirectorOption::WriteProtected);
 		config.LoadOption(RedirectorOption::SaveOnWrite, L"SaveOnWrite", RedirectorOption::WriteProtected);
 		config.LoadOption(RedirectorOption::SaveOnThreadDetach, L"SaveOnThreadDetach", RedirectorOption::NativeWrite);
+		config.LoadOption(RedirectorOption::SaveOnProcessDetach, L"SaveOnProcessDetach", RedirectorOption::NativeWrite);
+		config.LoadOption(RedirectorOption::SaveOnGameSave, L"SaveOnGameSave", RedirectorOption::NativeWrite);
 		config.LoadOption(RedirectorOption::ProcessInlineComments, L"ProcessInlineComments");
 		m_ANSICodePage = config.GetInt(L"ANSICodePage", m_ANSICodePage);
 		m_SaveOnWriteBuffer = config.GetInt(L"SaveOnWriteBuffer", m_SaveOnWriteBuffer);
@@ -283,31 +286,42 @@ namespace PPR
 		g_Instance = nullptr;
 	}
 
+	SEInterface& Redirector::GetSEInterface() const
+	{
+		return SEInterface::GetInstance();
+	}
+
 	ConfigObject& Redirector::GetOrLoadFile(KxDynamicStringRefW path)
 	{
-		auto it = m_INIMap.find(path);
-		if (it != m_INIMap.end())
+		// Get loaded file
+		if (SharedSRWLocker lock(m_INIMapLock); true)
 		{
-			return *it->second;
+			if (auto it = m_INIMap.find(path); it != m_INIMap.end())
+			{
+				return *it->second;
+			}
 		}
-		else
-		{
-			ExclusiveSRWLocker lock(m_INIMapLock);
 
-			auto& ini = m_INIMap.insert_or_assign(path, std::make_unique<ConfigObject>(path)).first->second;
-			ini->LoadFile();
+		// Load the file
+		ExclusiveSRWLocker lock(m_INIMapLock);
 
-			Log(L"Attempt to access file: '%s' -> file object initialized. Exist on disk: %d", path.data(), ini->IsExistOnDisk());
-			return *ini;
-		}
+		auto& ini = m_INIMap.insert_or_assign(path, std::make_unique<ConfigObject>(path)).first->second;
+		ini->LoadFile();
+
+		Log(L"Attempt to access file: '%s' -> file object initialized. Exist on disk: %d", path.data(), ini->IsExistOnDisk());
+		return *ini;
 	}
 	void Redirector::SaveChnagedFiles(const wchar_t* message) const
 	{
 		Log(L"Saving files: %s", message);
 
+		SharedSRWLocker mapLock(m_INIMapLock);
+
 		size_t changedCount = 0;
 		for (const auto& [path, config]: m_INIMap)
 		{
+			auto lock = config->LockExclusive();
+
 			if (config->HasChanges())
 			{
 				changedCount++;

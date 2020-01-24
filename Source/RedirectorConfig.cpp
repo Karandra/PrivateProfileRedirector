@@ -20,7 +20,7 @@ namespace PPR
 		return defaultValue;
 	}
 
-	RedirectorConfigLoader::RedirectorConfigLoader(TRedirectorOptionSet& optionSet, KxDynamicStringRefW filePath)
+	RedirectorConfigLoader::RedirectorConfigLoader(RedirectorOptionSet& optionSet, KxDynamicStringRefW filePath)
 		:m_OptionSet(optionSet), m_Config(false, false, false)
 	{
 		m_Config.LoadFile(filePath.data());
@@ -28,7 +28,7 @@ namespace PPR
 
 	bool RedirectorConfigLoader::LoadOption(RedirectorOption option, const wchar_t* name, RedirectorOption disableIf) const
 	{
-		bool enabledByDefault = option & TRedirectorOptionSet::DefaultOptions;
+		bool enabledByDefault = option & RedirectorOptionSet::DefaultOptions;
 		bool value = GetBool(name, enabledByDefault);
 		if (disableIf != RedirectorOption::None && m_OptionSet.IsEnabled(disableIf))
 		{

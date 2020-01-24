@@ -13,6 +13,11 @@
 
 namespace PPR
 {
+	class SEInterface;
+}
+
+namespace PPR
+{
 	class Redirector final
 	{
 		friend class RedirectorConfigLoader;
@@ -20,7 +25,6 @@ namespace PPR
 		public:
 			static bool HasInstance();
 			static Redirector& GetInstance();
-			static Redirector* GetInstancePtr();
 			static Redirector& CreateInstance();
 			static void DestroyInstance();
 			
@@ -37,16 +41,16 @@ namespace PPR
 			FunctionTable m_Functions;
 			const DWORD m_InitialThreadID = 0;
 
-			TRedirectorOptionSet m_Options;
+			RedirectorOptionSet m_Options;
 			int m_ANSICodePage = CP_ACP;
 			int m_SaveOnWriteBuffer = 0;
 
 			Utility::String::UnorderedMapWNoCase<std::unique_ptr<ConfigObject>> m_INIMap;
-			SRWLock m_INIMapLock;
+			mutable SRWLock m_INIMapLock;
 			FILE* m_Log = nullptr;
 
 		private:
-			void LogBase(const wchar_t* string) const
+			void DoLog(const wchar_t* string) const
 			{
 				fputws(string, m_Log);
 				fputws(L"\r\n", m_Log);
@@ -70,7 +74,8 @@ namespace PPR
 			{
 				return m_Functions;
 			}
-			
+			SEInterface& GetSEInterface() const;
+
 			bool IsInitialThread(DWORD threadID) const
 			{
 				return m_InitialThreadID == threadID;
@@ -130,7 +135,7 @@ namespace PPR
 				return ConvertToACP(value.data(), value.length());
 			}
 			
-			template<class ...Args>
+			template<class... Args>
 			void Log(const wchar_t* format, Args&&... arg) const
 			{
 				if (m_Log)
@@ -138,11 +143,11 @@ namespace PPR
 					if constexpr((sizeof...(Args)) != 0)
 					{
 						KxDynamicStringW logString = KxDynamicStringW::Format(format, std::forward<Args>(arg)...);
-						LogBase(logString.data());
+						DoLog(logString.data());
 					}
 					else
 					{
-						LogBase(format);
+						DoLog(format);
 					}
 				}
 			}
