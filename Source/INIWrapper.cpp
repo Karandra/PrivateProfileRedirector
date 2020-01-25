@@ -56,69 +56,33 @@ namespace
 		}
 	}
 
-	KxDynamicStringW ToZSSTRZZ(const CSimpleIniW::TNamesDepend& valuesList, size_t maxSize)
+	size_t FindCommentStart(KxDynamicStringRefW value)
 	{
-		KxDynamicStringW result;
-		if (!valuesList.empty())
+		if (!value.empty())
 		{
-			for (const auto& v: valuesList)
+			for (size_t i = value.size() - 1; i != 0; i--)
 			{
-				result.append(v.pItem);
-				result.append(1, L'\000');
-
-				if (result.length() >= maxSize)
+				const wchar_t c = value[i];
+				if (c == L';' || c == L'#')
 				{
-					break;
+					return i;
 				}
 			}
-			result.append(1, L'\000');
 		}
-		else
-		{
-			result.append(2, L'\000');
-		}
-
-		if (maxSize != KxDynamicStringW::npos && result.length() > maxSize)
-		{
-			result.resize(maxSize);
-			if (maxSize >= 2)
-			{
-				result[maxSize - 2] = L'\000';
-			}
-			if (maxSize >= 1)
-			{
-				result[maxSize - 1] = L'\000';
-			}
-		}
-		return result;
-	}
-	KxDynamicStringRefW ExtractValueAndComment(KxDynamicStringRefW source, bool removeInlineComments, KxDynamicStringRefW* comment = nullptr)
+		return KxDynamicStringRefW::npos;
+	};
+	KxDynamicStringRefW TrimAll(KxDynamicStringRefW value)
 	{
 		using namespace PPR::Utility;
-		auto FindCommentStart = [](const KxDynamicStringRefW& value) -> size_t
-		{
-			if (!value.empty())
-			{
-				for (size_t i = value.size() - 1; i != 0; i--)
-				{
-					const wchar_t c = value[i];
-					if (c == L';' || c == L'#')
-					{
-						return i;
-					}
-				}
-			}
-			return KxDynamicStringRefW::npos;
-		};
-		auto TrimAll = [](KxDynamicStringRefW value)
-		{
-			value = String::TrimSpaceCharsLR(value);
-			value = String::TrimQuoteCharsLR(value);
 
-			return value;
-		};
-
-		if (const size_t anchor = FindCommentStart(source); anchor != KxDynamicStringRefW::npos)
+		value = String::TrimSpaceCharsLR(value);
+		value = String::TrimQuoteCharsLR(value);
+		return value;
+	};
+	KxDynamicStringRefW ExtractValueAndComment(KxDynamicStringRefW source, bool removeInlineComments, KxDynamicStringRefW* comment = nullptr)
+	{
+		const size_t anchor = removeInlineComments ? FindCommentStart(source) : KxDynamicStringRefW::npos;
+		if (anchor != KxDynamicStringRefW::npos)
 		{
 			KxDynamicStringRefW trimmed = source.substr(0, anchor);
 			if (comment && source.length() > anchor)
@@ -127,7 +91,44 @@ namespace
 			}
 			return TrimAll(trimmed);
 		}
-		return source;
+		return TrimAll(source);
+	}
+
+	KxDynamicStringW ToZSSTRZZ(const CSimpleIniW::TNamesDepend& valuesList, size_t maxSize, bool removeInlineComments)
+	{
+		KxDynamicStringW result;
+		if (!valuesList.empty())
+		{
+			for (const auto& value: valuesList)
+			{
+				result.append(ExtractValueAndComment(value.pItem, removeInlineComments));
+				result.append(1, L'\0');
+
+				if (result.length() >= maxSize)
+				{
+					break;
+				}
+			}
+			result.append(1, L'\0');
+		}
+		else
+		{
+			result.append(2, L'\0');
+		}
+
+		if (maxSize != KxDynamicStringW::npos && result.length() > maxSize)
+		{
+			result.resize(maxSize);
+			if (maxSize >= 2)
+			{
+				result[maxSize - 2] = L'\0';
+			}
+			if (maxSize >= 1)
+			{
+				result[maxSize - 1] = L'\0';
+			}
+		}
+		return result;
 	}
 }
 
@@ -262,8 +263,7 @@ namespace PPR
 		ProcessArgument<0>(argsBuffer, section);
 		ProcessArgument<1>(argsBuffer, key);
 
-		const wchar_t* value = m_INI.GetValue(section.data(), key.data(), nullptr);
-		if (value)
+		if (const wchar_t* value = m_INI.GetValue(section.data(), key.data(), nullptr))
 		{
 			return ExtractValue(value);
 		}
@@ -271,8 +271,7 @@ namespace PPR
 	}
 	std::optional<KxDynamicStringRefW> INIWrapper::TryGetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, const wchar_t* defaultValue) const
 	{
-		auto value = TryGetValue(section, key);
-		if (value)
+		if (auto value = TryGetValue(section, key))
 		{
 			return value;
 		}
@@ -303,7 +302,7 @@ namespace PPR
 		sectionNames.reserve(sections.size());
 		for (const CSimpleIniW::Entry& entry: sections)
 		{
-			sectionNames.emplace_back(entry.pItem);
+			sectionNames.emplace_back(ExtractValue(entry.pItem));
 		}
 
 		// Return count of added items
@@ -315,7 +314,7 @@ namespace PPR
 		m_INI.GetAllSections(sections);
 		sections.sort(CSimpleIniW::Entry::LoadOrder());
 
-		return ToZSSTRZZ(sections, maxSize);
+		return ToZSSTRZZ(sections, maxSize, m_Options & Options::RemoveInlineComments);
 	}
 
 	size_t INIWrapper::GetKeyNames(KxDynamicStringRefW section, TStringRefVector& keyNames) const
@@ -330,7 +329,7 @@ namespace PPR
 		keyNames.reserve(keys.size());
 		for (const CSimpleIniW::Entry& entry: keys)
 		{
-			keyNames.emplace_back(entry.pItem);
+			keyNames.emplace_back(ExtractValue(entry.pItem));
 		}
 
 		// Return count of added items
@@ -344,7 +343,7 @@ namespace PPR
 		CSimpleIniW::TNamesDepend keys;
 		m_INI.GetAllKeys(section.data(), keys);
 		keys.sort(CSimpleIniW::Entry::LoadOrder());
-		return ToZSSTRZZ(keys, maxSize);
+		return ToZSSTRZZ(keys, maxSize, m_Options & Options::RemoveInlineComments);
 	}
 
 	bool INIWrapper::DeleteSection(KxDynamicStringRefW section)
