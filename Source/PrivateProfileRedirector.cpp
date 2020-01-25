@@ -277,11 +277,6 @@ namespace PPR
 		FunctionRedirector::Uninitialize();
 		RestoreFunctions();
 
-		if (m_Options.IsEnabled(RedirectorOption::SaveOnThreadDetach))
-		{
-			SaveChnagedFiles(L"On process detach");
-		}
-
 		CloseLog();
 		g_Instance = nullptr;
 	}
