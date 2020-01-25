@@ -147,6 +147,8 @@ namespace PPR
 		config.LogOption(RedirectorOption::NativeWrite, L"NativeWrite");
 		config.LogOption(RedirectorOption::SaveOnWrite, L"SaveOnWrite");
 		config.LogOption(RedirectorOption::SaveOnThreadDetach, L"SaveOnThreadDetach");
+		config.LogOption(RedirectorOption::SaveOnProcessDetach, L"SaveOnProcessDetach");
+		config.LogOption(RedirectorOption::SaveOnGameSave, L"SaveOnGameSave");
 		config.LogOption(RedirectorOption::ProcessInlineComments, L"ProcessInlineComments");
 		config.LogOption(m_ANSICodePage, L"ANSICodePage");
 		config.LogOption(m_SaveOnWriteBuffer, L"SaveOnWriteBuffer");
