@@ -12,8 +12,8 @@ namespace PPR
 {
 	static Redirector* g_Instance = nullptr;
 	constexpr int g_VersionMajor = 0;
-	constexpr int g_VersionMinor = 4;
-	constexpr int g_VersionPatch = 2;
+	constexpr int g_VersionMinor = 5;
+	constexpr int g_VersionPatch = 0;
 
 	constexpr int g_SaveOnWriteBufferMin = 2;
 	constexpr int g_SaveOnWriteBufferMax = 2000;

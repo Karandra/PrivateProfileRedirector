@@ -1,9 +1,10 @@
 *Dates in DD.MM.YYYY*
 
-# Version 0.4.2, 24.01.2020
+# Version 0.5, 25.01.2020
 - Added 'SaveOnWriteBuffer' option to accumulate changes to the same INI file before saving to disk to avoid excessive IO when many options are changed at once.
 - Added 'SaveOnProcessDetach' option to save changed files when game exits.
 - Added 'SaveOnGameSave' option to allow save changed files before making saving the game.
+- Fixed application of 'ProcessInlineComments' option. Now it should be applied for every INI value access.
 - Console command `RefreshINI` now works in Skyrim LE.
 
 # Version 0.4.1, 21.09.2019
