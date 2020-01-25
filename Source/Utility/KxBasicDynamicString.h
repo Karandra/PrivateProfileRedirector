@@ -181,6 +181,7 @@ class KxBasicDynamicString
 
 		// Constants
 		static const constexpr size_t npos = TString::npos;
+		static const constexpr size_t StaticStorageLength = t_StaticStorageLength;
 
 	private:
 		std::variant<TStaticStorage, TString> m_Storage;

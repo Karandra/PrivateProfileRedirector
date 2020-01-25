@@ -78,7 +78,7 @@ using xSE_MessagingInterface = void;
 #define xSE_HAS_SE_LOG 1
 
 #define xSE_LOG(format, ...) 	\
-PPR::Redirector::GetInstance().Log(L##format, __VA_ARGS__);	\
+PPR::Redirector::GetInstance().Log(format, __VA_ARGS__);	\
 if (PPR::SEInterface::GetInstance().CanUseSEFunctions())	\
 {	\
 	_MESSAGE("[" xSE_NAME_A "] " format, __VA_ARGS__);	\

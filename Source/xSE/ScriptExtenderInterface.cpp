@@ -139,6 +139,8 @@ namespace PPR
 
 	bool SEInterface::DoPrintConsole(const char* string) const
 	{
+		GetRedirector().Log("Printed to console: %s", string);
+
 		#if !xSE_PLATFORM_NVSE
 		Console_Print("%s", string);
 		return true;
@@ -269,6 +271,9 @@ namespace PPR
 	}
 	void SEInterface::OnGameSave(QxGameEvent& event)
 	{
+		auto saveFile = event.GetSaveFile();
+
+		GetRedirector().Log("Saving game: %s", saveFile.data());
 		GetRedirector().SaveChnagedFiles(L"On game save");
 	}
 

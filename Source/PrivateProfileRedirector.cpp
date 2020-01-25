@@ -327,7 +327,7 @@ namespace PPR
 			}
 			else
 			{
-				Log(L"File wasn't changed: '%s', Is empty: %d", path.data(), (int)config->IsEmpty());
+				Log(L"No changes: '%s', Is empty: %d", path.data(), (int)config->IsEmpty());
 			}
 		}
 		Log(L"All changed files saved. Total: %zu, Changed: %zu", m_INIMap.size(), changedCount);

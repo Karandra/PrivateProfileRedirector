@@ -50,9 +50,14 @@ namespace PPR
 			FILE* m_Log = nullptr;
 
 		private:
-			void DoLog(const wchar_t* string) const
+			void DoLog(KxDynamicStringRefA logString) const
 			{
-				fputws(string, m_Log);
+				auto logStringW = ConvertFromACP(logString);
+				DoLog(logStringW);
+			}
+			void DoLog(KxDynamicStringRefW logString) const
+			{
+				fputws(logString.data(), m_Log);
 				fputws(L"\r\n", m_Log);
 				fflush(m_Log);
 			}
@@ -135,19 +140,26 @@ namespace PPR
 				return ConvertToACP(value.data(), value.length());
 			}
 			
-			template<class... Args>
-			void Log(const wchar_t* format, Args&&... arg) const
+			template<class TChar, class... Args>
+			void Log(const TChar* format, Args&&... arg) const
 			{
 				if (m_Log)
 				{
-					if constexpr((sizeof...(Args)) != 0)
+					if (format)
 					{
-						KxDynamicStringW logString = KxDynamicStringW::Format(format, std::forward<Args>(arg)...);
-						DoLog(logString.data());
+						if constexpr ((sizeof...(Args)) != 0)
+						{
+							auto logString = KxBasicDynamicString<TChar, KxDynamicStringW::StaticStorageLength>::Format(format, std::forward<Args>(arg)...);
+							DoLog(logString);
+						}
+						else
+						{
+							DoLog(format);
+						}
 					}
 					else
 					{
-						DoLog(format);
+						DoLog(L"<Null log string>");
 					}
 				}
 			}
