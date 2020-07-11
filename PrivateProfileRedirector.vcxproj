@@ -185,6 +185,46 @@
     <IntDir>$(ProjectDir)Junk\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='NVSE|Win32'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='SKSE|Win32'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='SKSE64|Win32'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='SKSEVR|Win32'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='F4SE|x64'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='NVSE|x64'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='SKSE64|x64'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='SKSEVR|x64'">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='SKSE|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>

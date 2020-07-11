@@ -7,6 +7,7 @@
 #include <variant>
 #include <cstdio>
 #include <cwchar>
+#include <stdexcept>
 
 template<class t_Char, size_t t_StaticStorageLength>
 class KxBasicDynamicStringStore
