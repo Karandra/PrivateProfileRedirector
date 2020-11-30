@@ -9,7 +9,8 @@ namespace
 	constexpr uint8_t BOM_UTF16_LE[] = {0xFF, 0xFE};
 	constexpr uint8_t BOM_UTF16_BE[] = {0xFE, 0xFF};
 
-	template<class T, size_t size> bool SkipBOM(FILE* stream, const T(&bom)[size], size_t* bomLength = nullptr, bool alwaysReset = false)
+	template<class T, size_t size>
+	bool SkipBOM(FILE* stream, const T(&bom)[size], size_t* bomLength = nullptr, bool alwaysReset = false)
 	{
 		if (bomLength)
 		{
@@ -29,13 +30,18 @@ namespace
 		}
 		return hasBOM;
 	}
-	template<class T, size_t size> bool TestBOM(FILE* stream, const T(&bom)[size])
+
+	template<class T, size_t size>
+	bool TestBOM(FILE* stream, const T(&bom)[size])
 	{
 		return SkipBOM(stream, bom, nullptr, true);
 	}
 
-	template<size_t count> using ArgsBuffer = std::array<KxDynamicStringW, count>;
-	template<size_t arg, size_t argsCount> void ProcessArgument(ArgsBuffer<argsCount>& argsBuffer, KxDynamicStringRefW& value)
+	template<size_t count>
+	using ArgsBuffer = std::array<KxDynamicStringW, count>;
+
+	template<size_t arg, size_t argsCount>
+	void ProcessArgument(ArgsBuffer<argsCount>& argsBuffer, KxDynamicStringRefW& value)
 	{
 		using namespace PPR::Utility;
 		static_assert(arg < argsCount, "invalid argument index");
@@ -81,17 +87,21 @@ namespace
 	};
 	KxDynamicStringRefW ExtractValueAndComment(KxDynamicStringRefW source, bool removeInlineComments, KxDynamicStringRefW* comment = nullptr)
 	{
-		const size_t anchor = removeInlineComments ? FindCommentStart(source) : KxDynamicStringRefW::npos;
-		if (anchor != KxDynamicStringRefW::npos)
+		if (!source.empty())
 		{
-			KxDynamicStringRefW trimmed = source.substr(0, anchor);
-			if (comment && source.length() > anchor)
+			const size_t anchor = removeInlineComments ? FindCommentStart(source) : KxDynamicStringRefW::npos;
+			if (anchor != KxDynamicStringRefW::npos)
 			{
-				*comment = source.substr(anchor + 1);
+				KxDynamicStringRefW trimmed = source.substr(0, anchor);
+				if (comment && source.length() > anchor)
+				{
+					*comment = source.substr(anchor + 1);
+				}
+				return TrimAll(trimmed);
 			}
-			return TrimAll(trimmed);
+			return TrimAll(source);
 		}
-		return TrimAll(source);
+		return {};
 	}
 
 	KxDynamicStringW ToZSSTRZZ(const CSimpleIniW::TNamesDepend& valuesList, size_t maxSize, bool removeInlineComments)
@@ -257,7 +267,7 @@ namespace PPR
 		return false;
 	}
 
-	std::optional<KxDynamicStringRefW> INIWrapper::TryGetValue(KxDynamicStringRefW section, KxDynamicStringRefW key) const
+	std::optional<KxDynamicStringRefW> INIWrapper::QueryValue(KxDynamicStringRefW section, KxDynamicStringRefW key) const
 	{
 		ArgsBuffer<2> argsBuffer;
 		ProcessArgument<0>(argsBuffer, section);
@@ -267,11 +277,11 @@ namespace PPR
 		{
 			return ExtractValue(value);
 		}
-		return std::nullopt;
+		return {};
 	}
-	std::optional<KxDynamicStringRefW> INIWrapper::TryGetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, const wchar_t* defaultValue) const
+	std::optional<KxDynamicStringRefW> INIWrapper::QueryValue(KxDynamicStringRefW section, KxDynamicStringRefW key, const wchar_t* defaultValue) const
 	{
-		if (auto value = TryGetValue(section, key))
+		if (auto value = QueryValue(section, key))
 		{
 			return value;
 		}
@@ -279,7 +289,7 @@ namespace PPR
 		{
 			return defaultValue;
 		}
-		return std::nullopt;
+		return {};
 	}
 
 	bool INIWrapper::SetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, KxDynamicStringRefW value)

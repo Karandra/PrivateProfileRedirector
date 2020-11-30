@@ -6,7 +6,7 @@
 
 namespace PPR
 {
-	class INIWrapper
+	class INIWrapper final
 	{
 		public:
 			using TStringRefVector = std::vector<KxDynamicStringRefW>;
@@ -49,21 +49,21 @@ namespace PPR
 			bool Load(KxDynamicStringRefW path, Options options = Options::None, Encoding encoding = Encoding::Auto);
 			bool Save(KxDynamicStringRefW path, Options options = Options::None, Encoding encoding = Encoding::Auto);
 
-			std::optional<KxDynamicStringRefW> TryGetValue(KxDynamicStringRefW section, KxDynamicStringRefW key) const;
-			std::optional<KxDynamicStringRefW> TryGetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, const wchar_t* defaultValue) const;
-			std::optional<KxDynamicStringRefW> TryGetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, KxDynamicStringRefW defaultValue) const
+			std::optional<KxDynamicStringRefW> QueryValue(KxDynamicStringRefW section, KxDynamicStringRefW key) const;
+			std::optional<KxDynamicStringRefW> QueryValue(KxDynamicStringRefW section, KxDynamicStringRefW key, const wchar_t* defaultValue) const;
+			std::optional<KxDynamicStringRefW> QueryValue(KxDynamicStringRefW section, KxDynamicStringRefW key, KxDynamicStringRefW defaultValue) const
 			{
-				auto value = TryGetValue(section, key);
+				auto value = QueryValue(section, key);
 				return value ? value : defaultValue;
 			}
 
 			KxDynamicStringRefW GetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, KxDynamicStringRefW defaultValue = {}) const
 			{
-				auto value = TryGetValue(section, key);
+				auto value = QueryValue(section, key);
 				return value ? *value : defaultValue;
 			}
 			bool SetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, KxDynamicStringRefW value);
-			
+
 			size_t GetSectionNames(TStringRefVector& sectionNames) const;
 			KxDynamicStringW GetSectionNamesZSSTRZZ(size_t maxSize = KxDynamicStringW::npos) const;
 			TStringRefVector GetSectionNames() const
@@ -72,7 +72,7 @@ namespace PPR
 				GetSectionNames(sectionNames);
 				return sectionNames;
 			}
-			
+
 			size_t GetKeyNames(KxDynamicStringRefW section, TStringRefVector& keyNames) const;
 			KxDynamicStringW GetKeyNamesZSSTRZZ(KxDynamicStringRefW section, size_t maxSize = KxDynamicStringW::npos) const;
 			TStringRefVector GetKeyNames(KxDynamicStringRefW section) const

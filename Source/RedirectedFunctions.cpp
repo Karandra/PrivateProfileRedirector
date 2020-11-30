@@ -91,7 +91,7 @@ namespace PPR::PrivateProfile
 				return std::min<DWORD>(keys.length(), nSize);
 			}
 
-			if (auto value = ini.TryGetValue(appName, keyName, defaultValue))
+			if (auto value = ini.QueryValue(appName, keyName, defaultValue))
 			{
 				redirector.Log(L"[GetPrivateProfileStringW] Value found: '%s'", value->data());
 
@@ -129,7 +129,7 @@ namespace PPR::PrivateProfile
 	PPR_API(UINT) GetIntW(LPCWSTR appName, LPCWSTR keyName, INT defaultValue, LPCWSTR lpFileName)
 	{
 		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[GetPrivateProfileIntW]: Section: '%s', Key: '%s', Default: '%d', Path: '%s'", appName, keyName, defaultValue, lpFileName);
+		redirector.Log(L"[GetPrivateProfileIntW] Section: '%s', Key: '%s', Default: '%d', Path: '%s'", appName, keyName, defaultValue, lpFileName);
 
 		if (!lpFileName)
 		{
@@ -145,7 +145,7 @@ namespace PPR::PrivateProfile
 		ConfigObject& configObject = redirector.GetOrLoadFile(lpFileName);
 		auto lock = configObject.LockShared();
 
-		if (auto value = configObject.GetINI().TryGetValue(appName, keyName))
+		if (auto value = configObject.GetINI().QueryValue(appName, keyName))
 		{
 			if (auto intValue = Utility::String::ToInteger(*value))
 			{
@@ -327,7 +327,7 @@ namespace PPR::PrivateProfile
 		else
 		{
 			redirector.Log(L"[GetPrivateProfileSectionW]: Buffer is not large enough to contain all key-value pairs, '%zu' required, only '%u' available.", result.length(), nSize);
-			
+
 			StringCchCopyNW(lpReturnedString, nSize, L"\0\0", 2);
 			::SetLastError(ERROR_INSUFFICIENT_BUFFER);
 			return nSize - 2;
