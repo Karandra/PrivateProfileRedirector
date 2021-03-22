@@ -1,5 +1,9 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.5.1, 22.03.2021
+- Modified INI files are no longer written with double new lines.
+- Primary location to the log file is moved to the `My Games\[xSE]` (`My Games\Skyrim Special Edition\SKSE`, `My Games\Fallout4\F4SE` and similar) folder inside the user's profile directory.
+
 # Version 0.5, 25.01.2020
 - Added 'SaveOnWriteBuffer' option to accumulate changes to the same INI file before saving to disk to avoid excessive IO when many options are changed at once.
 - Added 'SaveOnProcessDetach' option to save changed files when game exits.
