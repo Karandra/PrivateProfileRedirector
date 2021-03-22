@@ -2439,7 +2439,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::Save(
         if (iSection->pComment) {
             if (bNeedNewLine) {
                 a_oOutput.Write(SI_NEWLINE_A);
-                a_oOutput.Write(SI_NEWLINE_A);
+                //a_oOutput.Write(SI_NEWLINE_A);
             }
             if (!OutputMultiLineText(a_oOutput, convert, iSection->pComment)) {
                 return SI_FAIL;
@@ -2449,7 +2449,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::Save(
 
         if (bNeedNewLine) {
             a_oOutput.Write(SI_NEWLINE_A);
-            a_oOutput.Write(SI_NEWLINE_A);
+            //a_oOutput.Write(SI_NEWLINE_A);
             bNeedNewLine = false;
         }
 
