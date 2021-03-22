@@ -8,6 +8,8 @@
 #include <detver.h>
 #pragma comment(lib, "detours.lib")
 
+#include <Shlobj.h>
+
 namespace PPR
 {
 	static Redirector* g_Instance = nullptr;
@@ -110,6 +112,38 @@ namespace PPR
 
 namespace PPR
 {
+	KxDynamicStringW Redirector::GetShellDirectory(const GUID& guid) const
+	{
+		wchar_t* pathBuffer = nullptr;
+		KxCallAtScopeExit atExit = [&]()
+		{
+			if (pathBuffer)
+			{
+				::CoTaskMemFree(pathBuffer);
+			}
+		};
+
+		if (SUCCEEDED(::SHGetKnownFolderPath(guid, KF_FLAG_DONT_VERIFY, nullptr, &pathBuffer)))
+		{
+			return pathBuffer;
+		}
+		return {};
+	}
+	KxDynamicStringW Redirector::GetGameUserProfileDirectory() const
+	{
+		KxDynamicStringW path = GetShellDirectory(FOLDERID_Documents);
+		if (!path.empty())
+		{
+			path += L"\\My Games\\";
+			path += xSE_USER_PROFILE_FOLDER_NAME_W;
+			path += L"\\";
+			path += xSE_FOLDER_NAME_W;
+
+			return path;
+		}
+		return {};
+	}
+
 	void Redirector::InitConfig()
 	{
 		// Load config
@@ -155,7 +189,17 @@ namespace PPR
 	}
 	bool Redirector::OpenLog()
 	{
-		_wfopen_s(&m_Log, L"Data\\" xSE_FOLDER_NAME_W L"\\Plugins\\PrivateProfileRedirector.log", L"w+b");
+		// Get the path to the user's profile directory and try to create the log there
+		KxDynamicStringW userPath = GetGameUserProfileDirectory();
+		userPath += L"\\PrivateProfileRedirector.log";
+
+		_wfopen_s(&m_Log, userPath.data(), L"w+b");
+		if (!m_Log)
+		{
+			// If failed, try to create the file in the game's directory
+			_wfopen_s(&m_Log, L"Data\\" xSE_FOLDER_NAME_W L"\\Plugins\\PrivateProfileRedirector.log", L"w+b");
+		}
+
 		if (m_Log)
 		{
 			Log(L"Log opened");

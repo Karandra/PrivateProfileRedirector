@@ -62,6 +62,9 @@ namespace PPR
 				fflush(m_Log);
 			}
 
+			KxDynamicStringW GetShellDirectory(const GUID& guid) const;
+			KxDynamicStringW GetGameUserProfileDirectory() const;
+
 			void InitConfig();
 			bool OpenLog();
 			void CloseLog();
