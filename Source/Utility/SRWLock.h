@@ -53,7 +53,8 @@ namespace PPR::Utility
 		Exclusive,
 	};
 
-	template<SRWLockerType t_LockerType, bool t_IsMoveable> class BasicSRWLocker final
+	template<SRWLockerType t_LockerType, bool t_IsMoveable>
+	class BasicSRWLocker final
 	{
 		public:
 			constexpr static bool IsShared() noexcept
