@@ -23,10 +23,10 @@
 #include <skse64/GameAPI.h>
 #include <skse64/ObScript.h>
 
-#pragma comment(lib, "skse64/x64/Release/skse64_1_5_97.lib")
-#pragma comment(lib, "skse64/x64/Release/skse64_common.lib")
+#pragma comment(lib, "skse64/x64/Release_Lib_VC142/skse64_1_5_97.lib")
+#pragma comment(lib, "skse64/x64/Release_VC142/skse64_common.lib")
 #pragma comment(lib, "skse64/x64/Release/skse64_loader_common.lib")
-#pragma comment(lib, "skse64/x64_v142/Release/common_vc14.lib")
+#pragma comment(lib, "skse64/x64_v142/Release_VC142/common_vc14.lib")
 
 #elif xSE_PLATFORM_SKSEVR
 
@@ -38,10 +38,10 @@
 #include <skse64/GameAPI.h>
 #include <skse64/ObScript.h>
 
-#pragma comment(lib, "skseVR/x64/Release/sksevr_1_4_15.lib")
-#pragma comment(lib, "skseVR/x64/Release/skse64_common.lib")
+#pragma comment(lib, "skseVR/x64/Release_Lib_VC142/sksevr_1_4_15.lib")
+#pragma comment(lib, "skseVR/x64/Release_VC142/skse64_common.lib")
 #pragma comment(lib, "skseVR/x64/Release/skse64_loader_common.lib")
-#pragma comment(lib, "skseVR/x64_v142/Release/common_vc14.lib")
+#pragma comment(lib, "skseVR/x64_v142/Release_VC142/common_vc14.lib")
 
 #elif xSE_PLATFORM_F4SE
 
@@ -57,6 +57,21 @@
 #pragma comment(lib, "f4se/x64/Release/f4se_common.lib")
 #pragma comment(lib, "f4se/x64/Release/f4se_loader_common.lib")
 #pragma comment(lib, "f4se/x64_vc11/Release/common_vc11.lib")
+
+#elif xSE_PLATFORM_F4SEVR
+
+#include <common/IPrefix.h>
+#include <f4se_common/f4se_version.h>
+#include <f4se_common/Relocation.h>
+#include <f4se_common/SafeWrite.h>
+#include <f4se/PluginAPI.h>
+#include <f4se/GameAPI.h>
+#include <f4se/ObScript.h>
+
+#pragma comment(lib, "f4sevr/x64/Release/f4sevr_1_2_72.lib")
+#pragma comment(lib, "f4sevr/x64/Release/f4se_common.lib")
+#pragma comment(lib, "f4sevr/x64/Release/f4se_loader_common.lib")
+#pragma comment(lib, "f4sevr/x64_vc11/Release/common_vc11.lib")
 
 #elif xSE_PLATFORM_NVSE
 

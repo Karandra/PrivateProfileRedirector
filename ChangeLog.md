@@ -1,5 +1,9 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.5.2, 24.03.2021
+- Updated to the latest xSE builds.
+- Added experimental Fallout 4 VR build.
+
 # Version 0.5.1, 22.03.2021
 - Modified INI files are no longer written with double new lines.
 - Primary location to the log file is moved to the `My Games\[xSE]` (`My Games\Skyrim Special Edition\SKSE`, `My Games\Fallout4\F4SE` and similar) folder inside the user's profile directory.

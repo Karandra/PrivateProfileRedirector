@@ -40,8 +40,9 @@ Bin/*
 Junk/*
 ScriptExtender/*
 
-Build/F4SE/*
-Build/NVSE/*
 Build/SKSE/*
 Build/SKSE64/*
 Build/SKSEVR/*
+Build/NVSE/*
+Build/F4SE/*
+Build/F4SEVR/*

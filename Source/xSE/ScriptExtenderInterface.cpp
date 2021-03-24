@@ -9,12 +9,10 @@
 
 #if xSE_PLATFORM_SKSE
 #include "ConsoleCommandOverrider/SKSE.h"
-#elif xSE_PLATFORM_SKSE64
+#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR
 #include "ConsoleCommandOverrider/SKSE64.h"
-#elif xSE_PLATFORM_F4SE
+#elif xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
 #include "ConsoleCommandOverrider/F4SE.h"
-#elif xSE_PLATFORM_SKSEVR
-#include "ConsoleCommandOverrider/SKSEVR.h"
 #endif
 
 //////////////////////////////////////////////////////////////////////////
@@ -111,7 +109,7 @@ namespace PPR
 
 	bool SEInterface::OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion)
 	{
-		m_CanUseSEFunctions = interfaceVersion == compiledVersion || Redirector::GetInstance().IsOptionEnabled(RedirectorOption::AllowSEVersionMismatch);
+		m_CanUseSEFunctions = interfaceVersion == compiledVersion || GetRedirector().IsOptionEnabled(RedirectorOption::AllowSEVersionMismatch);
 		return m_CanUseSEFunctions;
 	}
 	bool SEInterface::OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleform, xSE_MessagingInterface* messaging)
@@ -152,11 +150,9 @@ namespace PPR
 	{
 		#if xSE_PLATFORM_SKSE
 		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE>(*this);
-		#elif xSE_PLATFORM_SKSE64
+		#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR
 		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE64>(*this);
-		#elif xSE_PLATFORM_SKSEVR
-		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSEVR>(*this);
-		#elif xSE_PLATFORM_F4SE
+		#elif xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
 		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_F4SE>(*this);
 		#endif
 
@@ -189,7 +185,7 @@ namespace PPR
 									return QxGameEvent::EvtInputLoaded;
 								}
 
-								#if xSE_PLATFORM_F4SE
+								#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
 								case xSE_MessagingInterface::kMessage_GameDataReady:
 								{
 									return QxGameEvent::EvtDataLoaded;
@@ -207,7 +203,7 @@ namespace PPR
 									return QxGameEvent::EvtNewGame;
 								}
 
-								#if xSE_PLATFORM_F4SE
+								#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
 								case xSE_MessagingInterface::kMessage_PreSaveGame:
 								{
 									return QxGameEvent::EvtGameSave;
@@ -253,13 +249,13 @@ namespace PPR
 
 	void SEInterface::OnConsoleCommand(QxConsoleEvent& event)
 	{
-		const KxDynamicStringA commandName = event.GetCommandName();
+		auto commandName = event.GetCommandName();
 		if (commandName == "RefreshINI")
 		{
 			PrintConsole("Executing '%s'", commandName.c_str());
 
 			const size_t reloadedCount = Redirector::GetInstance().RefreshINI();
-			PrintConsole("Executing '%s' done, %u files reloaded.", commandName.c_str(), (unsigned int)reloadedCount);
+			PrintConsole("Executing '%s' done, %u files reloaded.", commandName.c_str(), static_cast<unsigned int>(reloadedCount));
 		}
 		else
 		{

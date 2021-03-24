@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Main defines
 //////////////////////////////////////////////////////////////////////////
-enum xSE_PlatfromGenerationEnum: int
+enum xSE_PlatfromGeneration: int
 {
 	xSE_PLATFORM_GENERATION_NONE,
 	xSE_PLATFORM_GENERATION_MWSE,
@@ -15,6 +15,7 @@ enum xSE_PlatfromGenerationEnum: int
 	xSE_PLATFORM_GENERATION_SKSE64,
 	xSE_PLATFORM_GENERATION_SKSEVR,
 	xSE_PLATFORM_GENERATION_F4SE,
+	xSE_PLATFORM_GENERATION_F4SEVR,
 };
 
 #if xSE_PLATFORM_MWSE
@@ -109,6 +110,18 @@ enum xSE_PlatfromGenerationEnum: int
 #define xSE_VERSION CURRENT_RELEASE_F4SE_STR
 #define xSE_PACKED_VERSION PACKED_F4SE_VERSION
 #define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_F4SE
+
+#define xSE_LOADFUNCTION F4SEPlugin_Load
+#define xSE_QUERYFUNCTION F4SEPlugin_Query
+
+#elif xSE_PLATFORM_F4SEVR
+
+#define xSE_NAME F4SEVR
+#define xSE_FOLDER_NAME F4SE
+#define xSE_USER_PROFILE_FOLDER_NAME Fallout4VR
+#define xSE_VERSION CURRENT_RELEASE_F4SE_STR
+#define xSE_PACKED_VERSION PACKED_F4SE_VERSION
+#define xSE_PLATFORM_GENERATION xSE_PLATFORM_GENERATION_F4SEVR
 
 #define xSE_LOADFUNCTION F4SEPlugin_Load
 #define xSE_QUERYFUNCTION F4SEPlugin_Query

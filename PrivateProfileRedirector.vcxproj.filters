@@ -147,9 +147,6 @@
     <ClInclude Include="Source\xSE\ConsoleCommandOverrider\SKSE64.h">
       <Filter>Code\xSE\ConsoleCommandOverrider</Filter>
     </ClInclude>
-    <ClInclude Include="Source\xSE\ConsoleCommandOverrider\SKSEVR.h">
-      <Filter>Code\xSE\ConsoleCommandOverrider</Filter>
-    </ClInclude>
     <ClInclude Include="Source\xSE\ConsoleCommandOverrider\F4SE.h">
       <Filter>Code\xSE\ConsoleCommandOverrider</Filter>
     </ClInclude>
@@ -205,9 +202,6 @@
       <Filter>Code\Qx\EventSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\xSE\ConsoleCommandOverrider\SKSE64.cpp">
-      <Filter>Code\xSE\ConsoleCommandOverrider</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\xSE\ConsoleCommandOverrider\SKSEVR.cpp">
       <Filter>Code\xSE\ConsoleCommandOverrider</Filter>
     </ClCompile>
     <ClCompile Include="Source\xSE\ConsoleCommandOverrider\F4SE.cpp">
