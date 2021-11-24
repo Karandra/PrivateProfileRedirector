@@ -47,20 +47,13 @@ namespace PPR
 
 			Utility::String::UnorderedMapWNoCase<std::unique_ptr<ConfigObject>> m_INIMap;
 			mutable SRWLock m_INIMapLock;
+			
 			FILE* m_Log = nullptr;
+			mutable SRWLock m_LogLock;
 
 		private:
-			void DoLog(KxDynamicStringRefA logString) const
-			{
-				auto logStringW = ConvertFromACP(logString);
-				DoLog(logStringW);
-			}
-			void DoLog(KxDynamicStringRefW logString) const
-			{
-				fputws(logString.data(), m_Log);
-				fputws(L"\r\n", m_Log);
-				fflush(m_Log);
-			}
+			void DoLog(KxDynamicStringRefA logString) const;
+			void DoLog(KxDynamicStringRefW logString) const;
 
 			KxDynamicStringW GetShellDirectory(const GUID& guid) const;
 			KxDynamicStringW GetGameUserProfileDirectory() const;
@@ -143,6 +136,21 @@ namespace PPR
 				return ConvertToACP(value.data(), value.length());
 			}
 			
+			void Log(KxDynamicStringRefA logString) const
+			{
+				if (m_Log)
+				{
+					DoLog(logString);
+				}
+			}
+			void Log(KxDynamicStringRefW logString) const
+			{
+				if (m_Log)
+				{
+					DoLog(logString);
+				}
+			}
+
 			template<class TChar, class... Args>
 			void Log(const TChar* format, Args&&... arg) const
 			{
@@ -150,7 +158,7 @@ namespace PPR
 				{
 					if (format)
 					{
-						if constexpr ((sizeof...(Args)) != 0)
+						if constexpr((sizeof...(Args)) != 0)
 						{
 							auto logString = KxBasicDynamicString<TChar, KxDynamicStringW::StaticStorageLength>::Format(format, std::forward<Args>(arg)...);
 							DoLog(logString);

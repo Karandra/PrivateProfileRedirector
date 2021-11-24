@@ -112,6 +112,20 @@ namespace PPR
 
 namespace PPR
 {
+	void Redirector::DoLog(KxDynamicStringRefA logString) const
+	{
+		auto logStringW = ConvertFromACP(logString);
+		DoLog(logStringW);
+	}
+	void Redirector::DoLog(KxDynamicStringRefW logString) const
+	{
+		ExclusiveSRWLocker lock(m_LogLock);
+
+		fwrite(logString.data(), sizeof(wchar_t), logString.size(), m_Log);
+		fputws(L"\n", m_Log);
+		fflush(m_Log);
+	}
+
 	KxDynamicStringW Redirector::GetShellDirectory(const GUID& guid) const
 	{
 		wchar_t* pathBuffer = nullptr;
