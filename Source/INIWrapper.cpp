@@ -104,14 +104,23 @@ namespace
 		return {};
 	}
 
-	KxDynamicStringW ToZSSTRZZ(const CSimpleIniW::TNamesDepend& valuesList, size_t maxSize, bool removeInlineComments)
+	KxDynamicStringW ToZSSTRZZ(const CSimpleIniW::TNamesDepend& valuesList, size_t maxSize, bool removeInlineComments, bool* truncated, size_t* count)
 	{
-		KxDynamicStringW result;
-		if (!valuesList.empty())
+		if (count)
 		{
-			for (const auto& value: valuesList)
+			*count = 0;
+		}
+
+		size_t addedCount = 0;
+		KxDynamicStringW result;
+		for (const auto& item: valuesList)
+		{
+			auto value = ExtractValueAndComment(item.pItem, removeInlineComments);
+			if (!value.empty())
 			{
-				result.append(ExtractValueAndComment(value.pItem, removeInlineComments));
+				addedCount++;
+
+				result.append(value);
 				result.append(1, L'\0');
 
 				if (result.length() >= maxSize)
@@ -119,6 +128,10 @@ namespace
 					break;
 				}
 			}
+		}
+
+		if (addedCount != 0)
+		{
 			result.append(1, L'\0');
 		}
 		else
@@ -126,8 +139,18 @@ namespace
 			result.append(2, L'\0');
 		}
 
-		if (maxSize != KxDynamicStringW::npos && result.length() > maxSize)
+		if (count)
 		{
+			*count = addedCount;
+		}
+
+		if (result.length() > maxSize)
+		{
+			if (truncated)
+			{
+				*truncated = true;
+			}
+
 			result.resize(maxSize);
 			if (maxSize >= 2)
 			{
@@ -318,13 +341,13 @@ namespace PPR
 		// Return count of added items
 		return sections.size();
 	}
-	KxDynamicStringW INIWrapper::GetSectionNamesZSSTRZZ(size_t maxSize) const
+	KxDynamicStringW INIWrapper::GetSectionNamesZSSTRZZ(size_t maxSize, bool* truncated, size_t* count) const
 	{
 		CSimpleIniW::TNamesDepend sections;
 		m_INI.GetAllSections(sections);
 		sections.sort(CSimpleIniW::Entry::LoadOrder());
 
-		return ToZSSTRZZ(sections, maxSize, m_Options & Options::RemoveInlineComments);
+		return ToZSSTRZZ(sections, maxSize, m_Options & Options::RemoveInlineComments, truncated, count);
 	}
 
 	size_t INIWrapper::GetKeyNames(KxDynamicStringRefW section, TStringRefVector& keyNames) const
@@ -345,7 +368,7 @@ namespace PPR
 		// Return count of added items
 		return keys.size();
 	}
-	KxDynamicStringW INIWrapper::GetKeyNamesZSSTRZZ(KxDynamicStringRefW section, size_t maxSize) const
+	KxDynamicStringW INIWrapper::GetKeyNamesZSSTRZZ(KxDynamicStringRefW section, size_t maxSize, bool* truncated, size_t* count) const
 	{
 		ArgsBuffer<1> argsBuffer;
 		ProcessArgument<0>(argsBuffer, section);
@@ -353,7 +376,7 @@ namespace PPR
 		CSimpleIniW::TNamesDepend keys;
 		m_INI.GetAllKeys(section.data(), keys);
 		keys.sort(CSimpleIniW::Entry::LoadOrder());
-		return ToZSSTRZZ(keys, maxSize, m_Options & Options::RemoveInlineComments);
+		return ToZSSTRZZ(keys, maxSize, m_Options & Options::RemoveInlineComments, truncated, count);
 	}
 
 	bool INIWrapper::DeleteSection(KxDynamicStringRefW section)

@@ -10,10 +10,12 @@
 
 namespace
 {
-	template<class T, class TChar> void CopyToBuffer(TChar* buffer, const T& data)
+	template<class T, class TChar>
+	void CopyToBuffer(TChar* buffer, const T& data)
 	{
 		std::memcpy(buffer, data.data(), data.size() * sizeof(TChar));
 	}
+	
 	const wchar_t* DataOrNull(const KxDynamicStringW& string)
 	{
 		return string.empty() ? nullptr : string.data();
@@ -61,7 +63,7 @@ namespace PPR::PrivateProfile
 
 		if (lpFileName)
 		{
-			if (lpReturnedString == nullptr || nSize <= 1)
+			if (!lpReturnedString || nSize < 2)
 			{
 				::SetLastError(ERROR_INSUFFICIENT_BUFFER);
 				return 0;
@@ -72,23 +74,43 @@ namespace PPR::PrivateProfile
 			const INIWrapper& ini = configObject.GetINI();
 
 			// Enum all sections
-			if (appName == nullptr)
+			if (!appName)
 			{
 				redirector.Log(L"[GetPrivateProfileStringW] Enum all sections of file '%s'", lpFileName);
 
-				KxDynamicStringW sections = ini.GetSectionNamesZSSTRZZ(nSize);
+				size_t count = 0;
+				bool truncated = false;
+				KxDynamicStringW sections = ini.GetSectionNamesZSSTRZZ(nSize, &truncated, &count);
+				redirector.Log(L"[GetPrivateProfileStringW] Enumerated '%zu' sections of '%zu' characters ('%zu' bytes), is truncated: %d",
+							   count,
+							   sections.length(),
+							   sections.length() * sizeof(wchar_t),
+							   static_cast<int>(truncated)
+				);
+				redirector.Log(sections);
+
 				StringCchCopyNW(lpReturnedString, nSize, sections.data(), sections.length());
-				return std::min<DWORD>(sections.length(), nSize);
+				return truncated ? nSize - 2 : std::min<DWORD>(sections.length(), nSize);
 			}
 
 			// Enum all keys in section
-			if (keyName == nullptr)
+			if (!keyName)
 			{
 				redirector.Log(L"[GetPrivateProfileStringW] Enum all keys in '%s' section of file '%s'", appName, lpFileName);
 
-				KxDynamicStringW keys = ini.GetKeyNamesZSSTRZZ(appName, nSize);
+				size_t count = 0;
+				bool truncated = false;
+				KxDynamicStringW keys = ini.GetKeyNamesZSSTRZZ(appName, nSize, &truncated, &count);
+				redirector.Log(L"[GetPrivateProfileStringW] Enumerated '%zu' keys of '%zu' characters ('%zu' bytes), is truncated: %d",
+							   count,
+							   keys.length(),
+							   keys.length() * sizeof(wchar_t),
+							   static_cast<int>(truncated)
+				);
+				redirector.Log(keys);
+
 				StringCchCopyNW(lpReturnedString, nSize, keys.data(), keys.length());
-				return std::min<DWORD>(keys.length(), nSize);
+				return truncated ? nSize - 2 : std::min<DWORD>(keys.length(), nSize);
 			}
 
 			if (auto value = ini.QueryValue(appName, keyName, defaultValue))
@@ -217,14 +239,23 @@ namespace PPR::PrivateProfile
 		auto lock = configObject.LockShared();
 		const INIWrapper& ini = configObject.GetINI();
 
-		KxDynamicStringW sectionNames = ini.GetSectionNamesZSSTRZZ(nSize);
+		size_t count = 0;
+		bool truncated = false;
+		KxDynamicStringW sectionNames = ini.GetSectionNamesZSSTRZZ(nSize, &truncated, &count);
+		redirector.Log(L"[GetPrivateProfileSectionNamesW] Enumerated '%zu' sections of '%zu' characters ('%zu' bytes), is truncated: %d",
+					   count,
+					   sectionNames.length(),
+					   sectionNames.length() * sizeof(wchar_t),
+					   static_cast<int>(truncated)
+		);
+		redirector.Log(sectionNames);
+
 		if (!sectionNames.empty())
 		{
 			if (sectionNames.length() <= nSize)
 			{
-				redirector.Log(L"Total length of section names: %zu", sectionNames.length());
 				CopyToBuffer(lpszReturnBuffer, sectionNames);
-				return sectionNames.length();
+				return sectionNames.length() - 1;
 			}
 			else
 			{
@@ -300,33 +331,51 @@ namespace PPR::PrivateProfile
 		auto lock = configObject.LockShared();
 		const INIWrapper& ini = configObject.GetINI();
 
-		redirector.Log(L"Key-value pairs for section '%s':", appName);
-
-		KxDynamicStringW result;
+		size_t count = 0;
+		bool truncated = false;
+		KxDynamicStringW keyValuePairs;
 		for (KxDynamicStringRefW keyName: ini.GetKeyNames(appName))
 		{
+			count++;
 			KxDynamicStringRefW value = ini.GetValue(appName, keyName);
 
-			result.append(keyName);
-			result.append(1, L'=');
-			result.append(value);
-			result.append(1, L'\000');
+			keyValuePairs.append(keyName);
+			keyValuePairs.append(1, L'=');
+			keyValuePairs.append(value);
+			keyValuePairs.append(1, L'\0');
 
-			redirector.Log(L"%s=%s", keyName.data(), value.data());
-			if (result.length() >= nSize)
+			if (keyValuePairs.length() >= nSize)
 			{
+				truncated = true;
 				break;
 			}
 		}
 
-		if (result.length() <= nSize)
+		if (count != 0)
 		{
-			CopyToBuffer(lpReturnedString, result);
-			return result.length();
+			keyValuePairs.append(1, L'\0');
 		}
 		else
 		{
-			redirector.Log(L"[GetPrivateProfileSectionW]: Buffer is not large enough to contain all key-value pairs, '%zu' required, only '%u' available.", result.length(), nSize);
+			keyValuePairs.append(2, L'\0');
+		}
+
+		redirector.Log(L"[GetPrivateProfileSectionW] Enumerated '%zu' key-value pairs of '%zu' characters ('%zu' bytes), is truncated: %d",
+					   count,
+					   keyValuePairs.length(),
+					   keyValuePairs.length() * sizeof(wchar_t),
+					   static_cast<int>(truncated)
+		);
+		redirector.Log(keyValuePairs);
+
+		if (!truncated)
+		{
+			CopyToBuffer(lpReturnedString, keyValuePairs);
+			return keyValuePairs.length() - 1;
+		}
+		else
+		{
+			redirector.Log(L"[GetPrivateProfileSectionW]: Buffer is not large enough to contain all key-value pairs, '%zu' required, only '%u' available.", keyValuePairs.length(), nSize);
 
 			StringCchCopyNW(lpReturnedString, nSize, L"\0\0", 2);
 			::SetLastError(ERROR_INSUFFICIENT_BUFFER);

@@ -3,6 +3,22 @@
 #include "String.h"
 #include "PrivateProfileRedirector.h"
 
+namespace
+{
+	std::optional<int64_t> DoToInteger(const KxDynamicStringW& stringValue, int base)
+	{
+		errno = 0;
+		wchar_t* endPtr = nullptr;
+
+		int64_t value = std::wcstoll(stringValue.data(), &endPtr, base);
+		if (endPtr && *endPtr == L'\0' && errno == 0)
+		{
+			return value;
+		}
+		return std::nullopt;
+	}
+}
+
 namespace PPR::Utility::String::Internal
 {
 	KxDynamicStringW ToCurrentCodePage(KxDynamicStringRefA value)
@@ -18,9 +34,9 @@ namespace PPR::Utility::String
 		if (!value.empty())
 		{
 			size_t count = 0;
-			for (size_t i = 0; i < value.size(); i++)
+			for (auto& i: value)
 			{
-				if (value[i] == c1 || value[i] == c2)
+				if (i == c1 || i == c2)
 				{
 					count++;
 				}
@@ -38,9 +54,9 @@ namespace PPR::Utility::String
 		if (!value.empty())
 		{
 			size_t count = 0;
-			for (size_t i = value.size() - 1; i != 0; i--)
+			for (auto it = value.rbegin(); it != value.rend(); ++it)
 			{
-				if (value[i] == c1 || value[i] == c2)
+				if (*it == c1 || *it == c2)
 				{
 					count++;
 				}
@@ -53,25 +69,7 @@ namespace PPR::Utility::String
 		}
 		return value;
 	}
-}
 
-namespace
-{
-	std::optional<int64_t> DoToInteger(const KxDynamicStringW& stringValue, int base)
-	{
-		errno = 0;
-		wchar_t* endPtr = nullptr;
-
-		int64_t value = std::wcstoll(stringValue.data(), &endPtr, base);
-		if (endPtr && *endPtr == L'\0' && errno == 0)
-		{
-			return value;
-		}
-		return std::nullopt;
-	}
-}
-namespace PPR::Utility::String
-{
 	std::optional<int64_t> ToInteger(KxDynamicStringRefW stringValue, int base)
 	{
 		auto MakeBuffer = [&stringValue](size_t offset = 0) -> KxDynamicStringW

@@ -59,7 +59,8 @@ namespace PPR::Utility::String::Internal
 namespace PPR::Utility::String
 {
 	// ==
-	template<class T> bool IsEqual(const T& v1, const T& v2)
+	template<class T>
+	bool IsEqual(const T& v1, const T& v2)
 	{
 		return v1 == v2;
 	}
@@ -91,13 +92,13 @@ namespace PPR::Utility::String
 {
 	KxDynamicStringRefW TrimCharsL(KxDynamicStringRefW value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2);
 	KxDynamicStringRefW TrimCharsR(KxDynamicStringRefW value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2);
+	
 	inline KxDynamicStringRefW TrimCharsLR(KxDynamicStringRefW value, KxDynamicStringW::TChar c1, KxDynamicStringW::TChar c2)
 	{
 		value = TrimCharsL(value, c1, c2);
 		value = TrimCharsR(value, c1, c2);
 		return value;
 	}
-	
 	inline KxDynamicStringRefW TrimSpaceCharsLR(KxDynamicStringRefW value)
 	{
 		return TrimCharsLR(value, L' ', L'\t');
@@ -106,10 +107,7 @@ namespace PPR::Utility::String
 	{
 		return TrimCharsLR(value, L'\"', L'\'');
 	}
-}
 
-namespace PPR::Utility::String
-{
 	std::optional<int64_t> ToInteger(KxDynamicStringRefW value, int base = 0);
 }
 
@@ -152,7 +150,8 @@ namespace PPR::Utility::String
 	struct StringHashNoCase
 	{
 		// From Boost
-		template<class T> static void hash_combine(size_t& seed, const T& v)
+		template<class T>
+		static void hash_combine(size_t& seed, const T& v)
 		{
 			std::hash<T> hasher;
 			seed ^= hasher(v) + size_t(0x9e3779b9u) + (seed << 6) + (seed >> 2);

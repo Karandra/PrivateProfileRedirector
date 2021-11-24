@@ -65,7 +65,7 @@ namespace PPR
 			bool SetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, KxDynamicStringRefW value);
 
 			size_t GetSectionNames(TStringRefVector& sectionNames) const;
-			KxDynamicStringW GetSectionNamesZSSTRZZ(size_t maxSize = KxDynamicStringW::npos) const;
+			KxDynamicStringW GetSectionNamesZSSTRZZ(size_t maxSize = KxDynamicStringW::npos, bool* truncated = nullptr, size_t* count = nullptr) const;
 			TStringRefVector GetSectionNames() const
 			{
 				std::vector<KxDynamicStringRefW> sectionNames;
@@ -74,7 +74,7 @@ namespace PPR
 			}
 
 			size_t GetKeyNames(KxDynamicStringRefW section, TStringRefVector& keyNames) const;
-			KxDynamicStringW GetKeyNamesZSSTRZZ(KxDynamicStringRefW section, size_t maxSize = KxDynamicStringW::npos) const;
+			KxDynamicStringW GetKeyNamesZSSTRZZ(KxDynamicStringRefW section, size_t maxSize = KxDynamicStringW::npos, bool* truncated = nullptr, size_t* count = nullptr) const;
 			TStringRefVector GetKeyNames(KxDynamicStringRefW section) const
 			{
 				std::vector<KxDynamicStringRefW> keyNames;
