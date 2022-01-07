@@ -136,6 +136,20 @@ namespace PPR
 				return ConvertToACP(value.data(), value.length());
 			}
 			
+			void Log(const char* logString) const
+			{
+				if (m_Log)
+				{
+					DoLog(logString);
+				}
+			}
+			void Log(const wchar_t* logString) const
+			{
+				if (m_Log)
+				{
+					DoLog(logString);
+				}
+			}
 			void Log(KxDynamicStringRefA logString) const
 			{
 				if (m_Log)

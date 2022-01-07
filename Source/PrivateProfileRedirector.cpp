@@ -13,9 +13,12 @@
 namespace PPR
 {
 	static Redirector* g_Instance = nullptr;
+
 	constexpr int g_VersionMajor = 0;
 	constexpr int g_VersionMinor = 5;
-	constexpr int g_VersionPatch = 2;
+	constexpr int g_VersionPatch = 3;
+	char g_VersionStringA[32] = {0};
+	wchar_t g_VersionStringW[32] = {0};
 
 	constexpr int g_SaveOnWriteBufferMin = 2;
 	constexpr int g_SaveOnWriteBufferMax = 2000;
@@ -55,7 +58,7 @@ namespace PPR
 	
 	const char* Redirector::GetLibraryVersionA()
 	{
-		static char ms_VersionA[16] = {0};
+		static char ms_VersionA[32] = {0};
 		if (*ms_VersionA == '\0')
 		{
 			sprintf_s(ms_VersionA, "%d.%d.%d", g_VersionMajor, g_VersionMinor, g_VersionPatch);
@@ -64,12 +67,11 @@ namespace PPR
 	}
 	const wchar_t* Redirector::GetLibraryVersionW()
 	{
-		static wchar_t ms_VersionW[16] = {0};
-		if (*ms_VersionW == L'\0')
+		if (*g_VersionStringW == L'\0')
 		{
-			swprintf_s(ms_VersionW, L"%d.%d.%d", g_VersionMajor, g_VersionMinor, g_VersionPatch);
+			swprintf_s(g_VersionStringW, L"%d.%d.%d", g_VersionMajor, g_VersionMinor, g_VersionPatch);
 		}
-		return ms_VersionW;
+		return g_VersionStringW;
 	}
 	int Redirector::GetLibraryVersionInt()
 	{
@@ -219,6 +221,8 @@ namespace PPR
 			Log(L"Log opened");
 			Log(L"%s v%s", GetLibraryNameW(), GetLibraryVersionW());
 			Log(L"Script Extender platform: %s v%s", xSE_NAME_W, xSE_VERSION_W);
+
+			return true;
 		}
 		return false;
 	}
@@ -235,20 +239,20 @@ namespace PPR
 	void Redirector::InitFunctions()
 	{
 		// PrivateProfile
-		m_Functions.PrivateProfile.GetStringA = GetPrivateProfileStringA;
-		m_Functions.PrivateProfile.GetStringW = GetPrivateProfileStringW;
+		m_Functions.PrivateProfile.GetStringA = ::GetPrivateProfileStringA;
+		m_Functions.PrivateProfile.GetStringW = ::GetPrivateProfileStringW;
 
-		m_Functions.PrivateProfile.GetIntA = GetPrivateProfileIntA;
-		m_Functions.PrivateProfile.GetIntW = GetPrivateProfileIntW;
+		m_Functions.PrivateProfile.GetIntA = ::GetPrivateProfileIntA;
+		m_Functions.PrivateProfile.GetIntW = ::GetPrivateProfileIntW;
 
-		m_Functions.PrivateProfile.GetSectionNamesA = GetPrivateProfileSectionNamesA;
-		m_Functions.PrivateProfile.GetSectionNamesW = GetPrivateProfileSectionNamesW;
+		m_Functions.PrivateProfile.GetSectionNamesA = ::GetPrivateProfileSectionNamesA;
+		m_Functions.PrivateProfile.GetSectionNamesW = ::GetPrivateProfileSectionNamesW;
 
-		m_Functions.PrivateProfile.GetSectionA = GetPrivateProfileSectionA;
-		m_Functions.PrivateProfile.GetSectionW = GetPrivateProfileSectionW;
+		m_Functions.PrivateProfile.GetSectionA = ::GetPrivateProfileSectionA;
+		m_Functions.PrivateProfile.GetSectionW = ::GetPrivateProfileSectionW;
 
-		m_Functions.PrivateProfile.WriteStringA = WritePrivateProfileStringA;
-		m_Functions.PrivateProfile.WriteStringW = WritePrivateProfileStringW;
+		m_Functions.PrivateProfile.WriteStringA = ::WritePrivateProfileStringA;
+		m_Functions.PrivateProfile.WriteStringW = ::WritePrivateProfileStringW;
 	}
 	void Redirector::OverrideFunctions()
 	{
@@ -334,8 +338,8 @@ namespace PPR
 	}
 	Redirector::~Redirector()
 	{
-		FunctionRedirector::Uninitialize();
 		RestoreFunctions();
+		FunctionRedirector::Uninitialize();
 
 		CloseLog();
 		g_Instance = nullptr;
@@ -360,11 +364,11 @@ namespace PPR
 		// Load the file
 		ExclusiveSRWLocker lock(m_INIMapLock);
 
-		auto& ini = m_INIMap.insert_or_assign(path, std::make_unique<ConfigObject>(path)).first->second;
-		ini->LoadFile();
+		auto& config = m_INIMap.insert_or_assign(path, std::make_unique<ConfigObject>(path)).first->second;
+		config->LoadFile();
 
-		Log(L"Attempt to access file: '%s' -> file object initialized. Exist on disk: %d", path.data(), ini->IsExistOnDisk());
-		return *ini;
+		Log(L"Attempt to access file: '%s' -> file object initialized. Exist on disk: %d", path.data(), config->IsExistOnDisk());
+		return *config;
 	}
 	void Redirector::SaveChnagedFiles(const wchar_t* message) const
 	{

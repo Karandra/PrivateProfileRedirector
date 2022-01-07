@@ -38,7 +38,7 @@ namespace PPR::FunctionRedirector::Internal
 			}
 			default:
 			{
-				redirector.Log(L"[%s]: %s -> <Unknown>", operation, info.Name);
+				redirector.Log(L"[%s]: %s -> <Unknown-%u>", operation, info.Name, status);
 				break;
 			}
 		};
@@ -75,7 +75,7 @@ namespace PPR::FunctionRedirector::Internal
 			}
 			default:
 			{
-				redirector.Log(L"[%s]: Unknown error", operation);
+				redirector.Log(L"[%s]: Unknown error '%u'", operation, status);
 				break;
 			}
 		};
