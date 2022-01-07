@@ -75,9 +75,7 @@ namespace PPR
 	}
 	int Redirector::GetLibraryVersionInt()
 	{
-		// 1.2.3 -> 1 * 100 + 2 * 10 + 3 * 1 = 123
-		// 0.1 -> (0 * 100) + (1 * 10) + (0 * 1) = 10
-		return (g_VersionMajor * 100) + (g_VersionMinor * 10) + (g_VersionPatch * 1);
+		return MakeFullVersion(g_VersionMajor, g_VersionMinor, g_VersionPatch);
 	}
 
 	bool Redirector::DllMain(HMODULE module, DWORD event)

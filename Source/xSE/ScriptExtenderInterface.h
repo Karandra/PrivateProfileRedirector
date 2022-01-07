@@ -7,7 +7,7 @@
 #include "Qx/EventSystem/Events/QxGameEvent.h"
 #include "Qx/EventSystem/Events/QxConsoleEvent.h"
 
-xSE_API(bool) xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info);
+xSE_API(bool) xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo);
 xSE_API(bool) xSE_LOADFUNCTION(const xSE_Interface* xSE);
 
 namespace PPR

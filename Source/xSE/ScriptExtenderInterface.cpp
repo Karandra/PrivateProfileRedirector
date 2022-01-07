@@ -9,22 +9,25 @@
 
 #if xSE_PLATFORM_SKSE
 #include "ConsoleCommandOverrider/SKSE.h"
-#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR
+#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE || xSE_PLATFORM_SKSEVR
 #include "ConsoleCommandOverrider/SKSE64.h"
 #elif xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
 #include "ConsoleCommandOverrider/F4SE.h"
 #endif
 
 //////////////////////////////////////////////////////////////////////////
-bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
+bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 {
 	using namespace PPR;
 	xSE_LOG("[" _CRT_STRINGIZE(xSE_QUERYFUNCTION) "] On query plugin info");
 
 	// Set info
-	info->infoVersion = PluginInfo::kInfoVersion;
-	info->name = Redirector::GetLibraryNameA();
-	info->version = Redirector::GetLibraryVersionInt();
+	if (pluginInfo)
+	{
+		pluginInfo->infoVersion = PluginInfo::kInfoVersion;
+		pluginInfo->name = Redirector::GetLibraryNameA();
+		pluginInfo->version = Redirector::GetLibraryVersionInt();
+	}
 
 	// Save handle
 	PluginHandle pluginHandle = xSE->GetPluginHandle();
@@ -35,7 +38,7 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* info)
 	if (!SEInterface::GetInstance().OnCheckVersion(interfaceVersion, compiledVersion))
 	{
 		xSE_LOG("This plugin might be incompatible with this version of " xSE_NAME_A);
-		xSE_LOG("Script extender interface version '%u', expected '%u'", (uint32_t)interfaceVersion, (uint32_t)compiledVersion);
+		xSE_LOG("Script extender interface version '%u', expected '%u'", static_cast<uint32_t>(interfaceVersion), static_cast<uint32_t>(compiledVersion));
 		xSE_LOG("Script extender functions will be disabled");
 
 		pluginHandle = kPluginHandle_Invalid;
@@ -84,10 +87,18 @@ bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 	using namespace PPR;
 	xSE_LOG("[" _CRT_STRINGIZE(xSE_LOADFUNCTION) "] On load plugin");
 
+	#if xSE_PLATFORM_SKSE64AE
+	if (!xSE_QUERYFUNCTION(xSE, nullptr))
+	{
+		return false;
+	}
+	#endif
+
 	SEInterface& instance = SEInterface::GetInstance();
 	if (instance.OnLoad())
 	{
 		Redirector::GetInstance().Log(L"[" xSE_NAME_A L"] %s %s loaded", Redirector::GetLibraryNameW(), Redirector::GetLibraryVersionW());
+		
 		#if xSE_HAS_SE_LOG
 		if (SEInterface::GetInstance().CanUseSEFunctions())
 		{
@@ -98,6 +109,20 @@ bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 	}
 	return false;
 }
+
+#if xSE_PLATFORM_SKSE64AE
+extern "C" __declspec(dllexport) constinit auto SKSEPlugin_Version = []() constexpr
+{
+	SKSEPluginVersionData versionData = {};
+	versionData.dataVersion = SKSEPluginVersionData::kVersion;
+	versionData.pluginVersion = PPR::MakeFullVersion(0, 5, 3);
+
+	std::ranges::copy("PrivateProfileRedirector", versionData.name);
+	std::ranges::copy("Karandra", versionData.author);
+
+	return versionData;
+}();
+#endif
 
 namespace PPR
 {
@@ -150,7 +175,7 @@ namespace PPR
 	{
 		#if xSE_PLATFORM_SKSE
 		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE>(*this);
-		#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR
+		#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE|| xSE_PLATFORM_SKSEVR
 		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE64>(*this);
 		#elif xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
 		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_F4SE>(*this);

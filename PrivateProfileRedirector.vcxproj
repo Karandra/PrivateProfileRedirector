@@ -427,7 +427,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimSEAE;$(ProjectDir)ScriptExtender\SkyrimSEAE\skse64;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
@@ -637,7 +637,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimSEAE;$(ProjectDir)ScriptExtender\SkyrimSEAE\skse64;$(SolutionDir)..\Detours\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
