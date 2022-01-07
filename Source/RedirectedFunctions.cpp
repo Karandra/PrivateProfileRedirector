@@ -405,6 +405,8 @@ namespace PPR::PrivateProfile
 		INIWrapper& ini = configObject.GetINI();
 
 		// This function will write value to the in-memory file.
+		const bool nativeWrite = redirector.IsOptionEnabled(RedirectorOption::NativeWrite);
+
 		// When 'NativeWrite' or 'WriteProtected' options are enabled, it will not flush updated file to the disk.
 		auto WriteStringToMemoryFile = [&](LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
 		{
@@ -420,24 +422,30 @@ namespace PPR::PrivateProfile
 			}
 
 			// Delete section
-			if (keyName == nullptr)
+			if (!keyName)
 			{
 				if (ini.DeleteSection(appName))
 				{
 					redirector.Log(L"[WritePrivateProfileStringW] Section '%s' deleted", appName);
-					configObject.OnWrite();
+					if (!nativeWrite)
+					{
+						configObject.OnWrite();
+					}
 					return true;
 				}
 				return false;
 			}
 
 			// Delete value
-			if (lpString == nullptr)
+			if (!lpString)
 			{
 				if (ini.DeleteKey(appName, keyName))
 				{
 					redirector.Log(L"[WritePrivateProfileStringW] Key '%s' in section '%s' deleted", keyName, appName);
-					configObject.OnWrite();
+					if (!nativeWrite)
+					{
+						configObject.OnWrite();
+					}
 					return true;
 				}
 				return false;
@@ -447,7 +455,10 @@ namespace PPR::PrivateProfile
 			if (ini.SetValue(appName, keyName, lpString))
 			{
 				redirector.Log(L"[WritePrivateProfileStringW] Assigned value '%s' to key '%s' in section '%s'", lpString, keyName, appName);
-				configObject.OnWrite();
+				if (!nativeWrite)
+				{
+					configObject.OnWrite();
+				}
 				return true;
 			}
 			return false;
@@ -455,7 +466,7 @@ namespace PPR::PrivateProfile
 		const bool memoryWriteSuccess = WriteStringToMemoryFile(appName, keyName, lpString, lpFileName);
 
 		// Call native function or proceed with our own implementation
-		if (redirector.IsOptionEnabled(RedirectorOption::NativeWrite))
+		if (nativeWrite)
 		{
 			redirector.Log(L"[WritePrivateProfileStringW]: Calling native 'WritePrivateProfileStringW'");
 			return redirector.GetFunctionTable().PrivateProfile.WriteStringW(appName, keyName, lpString, lpFileName);
