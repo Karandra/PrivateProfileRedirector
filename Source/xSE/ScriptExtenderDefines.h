@@ -5,7 +5,7 @@
 //////////////////////////////////////////////////////////////////////////
 // xSE_Interface
 //////////////////////////////////////////////////////////////////////////
-#if xSE_PLATFORM_SKSE || xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR
+#if xSE_PLATFORM_SKSE || xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE || xSE_PLATFORM_SKSEVR
 
 using xSE_Interface = struct SKSEInterface;
 #define xSE_INTERFACE_VERSION(xSE)	(xSE)->skseVersion
@@ -27,7 +27,7 @@ using xSE_Interface = void;
 //////////////////////////////////////////////////////////////////////////
 // xSE_ScaleformInterface
 //////////////////////////////////////////////////////////////////////////
-#if xSE_PLATFORM_SKSE || xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR
+#if xSE_PLATFORM_SKSE || xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE || xSE_PLATFORM_SKSEVR
 
 using xSE_ScaleformInterface = struct SKSEScaleformInterface;
 #define xSE_HAS_SCALEFORM_INTERFACE 1
@@ -44,7 +44,7 @@ using xSE_ScaleformInterface = void;
 //////////////////////////////////////////////////////////////////////////
 // xSE_MessagingInterface
 //////////////////////////////////////////////////////////////////////////
-#if xSE_PLATFORM_SKSE || xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR
+#if xSE_PLATFORM_SKSE || xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE || xSE_PLATFORM_SKSEVR
 
 using xSE_MessagingInterface = struct SKSEMessagingInterface;
 #define xSE_HAS_MESSAGING_INTERFACE 1
@@ -61,7 +61,7 @@ using xSE_MessagingInterface = void;
 //////////////////////////////////////////////////////////////////////////
 // Console command struct
 //////////////////////////////////////////////////////////////////////////
-#if xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSEVR || xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
+#if xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE || xSE_PLATFORM_SKSEVR || xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
 #define xSE_HAS_CONSOLE_COMMAND_INFO 1
 #endif
 

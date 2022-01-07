@@ -42,6 +42,7 @@ ScriptExtender/*
 
 Build/SKSE/*
 Build/SKSE64/*
+Build/SKSE64AE/*
 Build/SKSEVR/*
 Build/NVSE/*
 Build/F4SE/*
