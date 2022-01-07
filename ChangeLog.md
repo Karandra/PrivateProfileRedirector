@@ -1,5 +1,10 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.5.3, 07.01.2022
+- Fixed `GetPrivateProfileString`, `GetPrivateProfileSectionNames` and `GetPrivateProfileSection` for key and section names query.
+- Fixed `NativeWrite` option logic for `WritePrivateProfileStringW`.
+- Added thread synchronization to the logger function, changed line separator to `\n`.
+
 # Version 0.5.2, 24.03.2021
 - Updated to the latest xSE builds.
 - Added experimental Fallout 4 VR build.
