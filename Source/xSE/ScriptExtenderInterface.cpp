@@ -115,6 +115,7 @@ extern "C" __declspec(dllexport) constinit auto SKSEPlugin_Version = []() conste
 {
 	SKSEPluginVersionData versionData = {};
 	versionData.dataVersion = SKSEPluginVersionData::kVersion;
+	versionData.compatibleVersions[0] = RUNTIME_VERSION;
 	versionData.pluginVersion = PPR::MakeFullVersion(0, 5, 3);
 
 	std::ranges::copy("PrivateProfileRedirector", versionData.name);
