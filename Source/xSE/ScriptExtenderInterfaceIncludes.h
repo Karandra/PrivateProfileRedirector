@@ -29,7 +29,7 @@
 #if xSE_PLATFORM_SKSE64
 #pragma comment(lib, "skse64/x64/Release_Lib_VC142/skse64_1_5_97.lib")
 #elif xSE_PLATFORM_SKSE64AE
-#pragma comment(lib, "skse64/x64/Release_Lib_VC142/skse64.lib")
+#pragma comment(lib, "skse64/x64/Release_Lib_VC142/skse64_1_6_323.lib")
 #endif
 
 #elif xSE_PLATFORM_SKSEVR

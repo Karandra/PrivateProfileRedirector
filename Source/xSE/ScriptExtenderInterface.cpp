@@ -38,8 +38,8 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 	if (!SEInterface::GetInstance().OnCheckVersion(interfaceVersion, compiledVersion))
 	{
 		xSE_LOG("This plugin might be incompatible with this version of " xSE_NAME_A);
-		xSE_LOG("Script extender interface version '%u', expected '%u'", static_cast<uint32_t>(interfaceVersion), static_cast<uint32_t>(compiledVersion));
-		xSE_LOG("Script extender functions will be disabled");
+		xSE_LOG("Script Extender interface version '%u', expected '%u'", static_cast<uint32_t>(interfaceVersion), static_cast<uint32_t>(compiledVersion));
+		xSE_LOG("Script Extender functions will be disabled");
 
 		pluginHandle = kPluginHandle_Invalid;
 	}
@@ -115,7 +115,9 @@ extern "C" __declspec(dllexport) constinit auto SKSEPlugin_Version = []() conste
 {
 	SKSEPluginVersionData versionData = {};
 	versionData.dataVersion = SKSEPluginVersionData::kVersion;
-	versionData.compatibleVersions[0] = RUNTIME_VERSION;
+	versionData.compatibleVersions[0] = CURRENT_RELEASE_RUNTIME;
+	versionData.versionIndependence = SKSEPluginVersionData::kVersionIndependent_Signatures;
+	versionData.versionIndependenceEx = SKSEPluginVersionData::kVersionIndependentEx_NoStructUse;
 	versionData.pluginVersion = PPR::MakeFullVersion(0, 5, 3);
 
 	std::ranges::copy("PrivateProfileRedirector", versionData.name);
