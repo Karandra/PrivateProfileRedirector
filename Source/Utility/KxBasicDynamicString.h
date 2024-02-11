@@ -944,7 +944,7 @@ class KxBasicDynamicString
 			}
 			else
 			{
-				static_assert(false, "function 'KxBasicDynamicString::make_lower' is unavailable for this char type");
+				static_assert(sizeof(t_Char*) == 0, "function 'KxBasicDynamicString::make_lower' is unavailable for this char type");
 			}
 			return *this;
 		}
@@ -960,7 +960,7 @@ class KxBasicDynamicString
 			}
 			else
 			{
-				static_assert(false, "function 'KxBasicDynamicString::make_upper' is unavailable for this char type");
+				static_assert(sizeof(t_Char*) == 0, "function 'KxBasicDynamicString::make_upper' is unavailable for this char type");
 			}
 			return *this;
 		}
@@ -1071,7 +1071,7 @@ class KxBasicDynamicString
 			}
 			else
 			{
-				static_assert(false, "function 'KxBasicDynamicString::Format' is unavailable for this char type");
+				static_assert(sizeof(t_Char*) == 0, "function 'KxBasicDynamicString::Format' is unavailable for this char type");
 			}
 
 			if (count > 0)

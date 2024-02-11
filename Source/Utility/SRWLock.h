@@ -74,6 +74,7 @@ namespace PPR::Utility
 			SRWLock* m_Lock = nullptr;
 
 		public:
+			template<class T = void*>
 			BasicSRWLocker(SRWLock& lock) noexcept
 				:m_Lock(&lock)
 			{
@@ -87,7 +88,7 @@ namespace PPR::Utility
 				}
 				else
 				{
-					static_assert(false, "invalid locker type");
+					static_assert(sizeof(T*) == 0, "invalid locker type");
 				}
 			}
 			BasicSRWLocker(BasicSRWLocker&& other) noexcept
@@ -113,10 +114,6 @@ namespace PPR::Utility
 				{
 					m_Lock->ReleaseExclusive();
 				}
-				else
-				{
-					static_assert(false);
-				}
 			}
 			
 		public:
@@ -130,7 +127,7 @@ namespace PPR::Utility
 				}
 				else
 				{
-					static_assert(false, "this locker type is not movable");
+					static_assert(!t_IsMoveable, "this locker type is not movable");
 				}
 				return *this;
 			}
