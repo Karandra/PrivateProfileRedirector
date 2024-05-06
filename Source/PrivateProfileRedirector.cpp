@@ -3,11 +3,8 @@
 #include "RedirectedFunctions.h"
 #include "xSE/ScriptExtenderInterfaceIncludes.h"
 #include "xSE/ScriptExtenderInterface.h"
-
-#include <detours.h>
-#include <detver.h>
-#pragma comment(lib, "detours.lib")
-
+#include <detours/detours.h>
+#include <detours/detver.h>
 #include <Shlobj.h>
 
 namespace PPR

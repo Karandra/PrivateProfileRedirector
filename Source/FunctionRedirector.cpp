@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "FunctionRedirector.h"
 #include "PrivateProfileRedirector.h"
-#include <detours.h>
-#include <detver.h>
+#include <detours/detours.h>
+#include <detours/detver.h>
 
 namespace PPR::FunctionRedirector::Internal
 {

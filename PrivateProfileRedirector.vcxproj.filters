@@ -226,6 +226,9 @@
     <None Include="ChangeLog.md">
       <Filter>Resources</Filter>
     </None>
+    <None Include="README.md">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Build\PrivateProfileRedirector_preload.txt">
