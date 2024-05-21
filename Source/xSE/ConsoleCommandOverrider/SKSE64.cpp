@@ -7,11 +7,11 @@
 
 namespace PPR
 {
-	ObScriptCommand* ConsoleCommandOverrider_SKSE64::FindCommand(KxDynamicStringRefA fullName) const
+	ObScriptCommand* ConsoleCommandOverrider_SKSE64::FindCommand(const kxf::String& fullName) const
 	{
 		for (ObScriptCommand* command = g_firstConsoleCommand; command->opcode < kObScript_NumConsoleCommands + kObScript_ConsoleOpBase; ++command)
 		{
-			if (command->longName && KxDynamicStringRefA(command->longName) == fullName)
+			if (command->longName && command->longName == fullName)
 			{
 				return command;
 			}
@@ -24,7 +24,7 @@ namespace PPR
 		{
 			if (auto it = m_Commands.find(scriptData->opcode); it != m_Commands.end())
 			{
-				const ObScriptCommand& originalCommand = it->second.m_OriginalCommand;
+				const ObScriptCommand& originalCommand = it->second.OriginalCommand;
 
 				QxConsoleEvent event;
 				event.SetEventID(QxConsoleEvent::EvtCommand);
@@ -46,7 +46,7 @@ namespace PPR
 		return false;
 	}
 
-	bool ConsoleCommandOverrider_SKSE64::OverrideCommand(KxDynamicStringRefA commandName, KxDynamicStringRefA commandHelp)
+	bool ConsoleCommandOverrider_SKSE64::OverrideCommand(const kxf::String& commandName, const kxf::String& commandHelp)
 	{
 		if (ObScriptCommand* command = FindCommand(commandName))
 		{
@@ -54,8 +54,8 @@ namespace PPR
 			const CommandInfo& commandInfo = m_Commands.insert_or_assign(command->opcode, CommandInfo{*command, commandHelp}).first->second;
 
 			// Make new command
-			ObScriptCommand newCommand = commandInfo.m_OriginalCommand;
-			newCommand.helpText = commandInfo.m_HelpString.c_str();
+			ObScriptCommand newCommand = commandInfo.OriginalCommand;
+			newCommand.helpText = commandInfo.HelpString.utf8_str();
 			newCommand.execute = [](const ObScriptParam* paramInfo, ScriptData* scriptData, TESObjectREFR* thisObj, TESObjectREFR* containingObj, Script* scriptObj, ScriptLocals* locals, double& result, UInt32& opcodeOffset)
 			{
 				auto& instance = *SEInterface::GetInstance().GetConsoleCommandOverrider<ConsoleCommandOverrider_SKSE64>();
@@ -63,12 +63,12 @@ namespace PPR
 			};
 
 			SafeWriteBuf(reinterpret_cast<uintptr_t>(command), &newCommand, sizeof(newCommand));
-			xSE_LOG("Command '%s' is overridden successfully", command->longName);
+			xSE_LOG("Command '{}' is overridden successfully", command->longName);
 
 			return true;
 		}
 		
-		xSE_LOG("Can't find '%s' command to override", commandName.data());
+		xSE_LOG_WARNING("Can't find '{}' command to override", commandName);
 		return false;
 	}
 }

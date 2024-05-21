@@ -1,15 +1,13 @@
 #pragma once
 #include "stdafx.h"
-#include "Utility\SimpleINI.h"
-#include "Utility\KxOptionSet.h"
-#include "Utility\KxDynamicString.h"
-#include "Utility\EnumClassOperations.h"
+#include <kxf/Serialization/INI.h>
 
 namespace PPR
 {
 	enum class RedirectorOption: uint32_t
 	{
 		None = 0,
+
 		AllowSEVersionMismatch = 1 << 0,
 		WriteProtected = 1 << 1,
 		NativeWrite = 1 << 2,
@@ -17,12 +15,13 @@ namespace PPR
 		SaveOnThreadDetach = 1 << 4,
 		SaveOnProcessDetach = 1 << 5,
 		SaveOnGameSave = 1 << 6,
-		ProcessInlineComments = 1 << 7,
+		ProcessInlineComments = 1 << 7
 	};
-	PPR_AllowEnumCastOp(RedirectorOption);
-	PPR_AllowEnumBitwiseOp(RedirectorOption);
+}
 
-	using RedirectorOptionSet = KxOptionSet<RedirectorOption, RedirectorOption::SaveOnWrite|RedirectorOption::ProcessInlineComments>;
+namespace kxf
+{
+	KxFlagSet_Declare(PPR::RedirectorOption);
 }
 
 namespace PPR
@@ -30,41 +29,33 @@ namespace PPR
 	class RedirectorConfigLoader final
 	{
 		private:
-			CSimpleIniW m_Config;
-			RedirectorOptionSet& m_OptionSet;
-
-		private:
-			const wchar_t* DoGetOption(const wchar_t* section, const wchar_t* key, const wchar_t* defaultValue = nullptr) const;
-			int DoGetOptionInt(const wchar_t* section, const wchar_t* key, int defaultValue = 0) const;
+			kxf::INIDocument m_Config;
+			kxf::INIDocumentSection m_General;
+			kxf::FlagSet<RedirectorOption> m_OptionSet;
 
 		public:
-			RedirectorConfigLoader(RedirectorOptionSet& optionSet, KxDynamicStringRefW filePath);
+			RedirectorConfigLoader(std::unique_ptr<kxf::IInputStream> stream)
+			{
+				if (stream && m_Config.Load(*stream))
+				{
+					m_General = m_Config.QueryElement("General");
+				}
+			}
 			
 		public:
-			const wchar_t* GetString(const wchar_t* name, const wchar_t* defaultValue = nullptr) const
+			bool IsNull() const
 			{
-				return DoGetOption(L"General", name, defaultValue);
+				return m_Config.IsNull();
 			}
-			int GetInt(const wchar_t* name, int defaultValue = -1) const
+			kxf::FlagSet<RedirectorOption> GetOptions() const noexcept
 			{
-				return DoGetOptionInt(L"General", name, defaultValue);
-			}
-			bool GetBool(const wchar_t* name, bool defaultValue = false) const
-			{
-				return DoGetOptionInt(L"General", name, defaultValue);
+				return m_OptionSet;
 			}
 
-			bool LoadOption(RedirectorOption option, const wchar_t* name, RedirectorOption disableIf = RedirectorOption::None) const;
-
-		public:
-			void LogOption(int value, const wchar_t* name);
-			void LogOption(bool value, const wchar_t* name)
+			const kxf::INIDocumentSection& GetGeneral() const noexcept
 			{
-				LogOption((int)value, name);
+				return m_General;
 			}
-			void LogOption(RedirectorOption option, const wchar_t* name)
-			{
-				LogOption(m_OptionSet.IsEnabled(option), name);
-			}
+			bool LoadOption(RedirectorOption option, const wchar_t* name, RedirectorOption disableIf = RedirectorOption::None);
 	};
 }

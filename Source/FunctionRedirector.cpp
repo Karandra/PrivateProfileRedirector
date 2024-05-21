@@ -1,10 +1,19 @@
 #include "stdafx.h"
 #include "FunctionRedirector.h"
 #include "PrivateProfileRedirector.h"
+#include <kxf/Log/Categories.h>
 #include <detours/detours.h>
 #include <detours/detver.h>
 
-namespace PPR::FunctionRedirector::Internal
+namespace
+{
+	namespace LogCategory
+	{
+		KX_DefineLogCategory(Detours);
+	}
+}
+
+namespace PPR::FunctionRedirector::Private
 {
 	void LogOperation(uint32_t status, const wchar_t* operation, const FunctionInfo& info)
 	{
@@ -13,32 +22,32 @@ namespace PPR::FunctionRedirector::Internal
 		{
 			case NO_ERROR:
 			{
-				redirector.Log(L"[%s]: %s -> NO_ERROR", operation, info.Name);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: {} -> NO_ERROR", operation, info.Name);
 				break;
 			}
 			case ERROR_INVALID_BLOCK:
 			{
-				redirector.Log(L"[%s]: %s -> ERROR_INVALID_BLOCK", operation, info.Name);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: {} -> ERROR_INVALID_BLOCK", operation, info.Name);
 				break;
 			}
 			case ERROR_INVALID_HANDLE:
 			{
-				redirector.Log(L"[%s]: %s -> ERROR_INVALID_HANDLE", operation, info.Name);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: {} -> ERROR_INVALID_HANDLE", operation, info.Name);
 				break;
 			}
 			case ERROR_INVALID_OPERATION:
 			{
-				redirector.Log(L"[%s]: %s -> ERROR_INVALID_OPERATION", operation, info.Name);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: {} -> ERROR_INVALID_OPERATION", operation, info.Name);
 				break;
 			}
 			case ERROR_NOT_ENOUGH_MEMORY:
 			{
-				redirector.Log(L"[%s]: %s -> ERROR_NOT_ENOUGH_MEMORY", operation, info.Name);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: {} -> ERROR_NOT_ENOUGH_MEMORY", operation, info.Name);
 				break;
 			}
 			default:
 			{
-				redirector.Log(L"[%s]: %s -> <Unknown-%u>", operation, info.Name, status);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: {} -> <Unknown-{}>", operation, info.Name, status);
 				break;
 			}
 		};
@@ -50,32 +59,32 @@ namespace PPR::FunctionRedirector::Internal
 		{
 			case NO_ERROR:
 			{
-				redirector.Log(L"[%s]: NO_ERROR", operation);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: NO_ERROR", operation);
 				break;
 			}
 			case ERROR_INVALID_BLOCK:
 			{
-				redirector.Log(L"[%s]: ERROR_INVALID_BLOCK", operation);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: ERROR_INVALID_BLOCK", operation);
 				break;
 			}
 			case ERROR_INVALID_HANDLE:
 			{
-				redirector.Log(L"[%s]: ERROR_INVALID_HANDLE", operation);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: ERROR_INVALID_HANDLE", operation);
 				break;
 			}
 			case ERROR_INVALID_OPERATION:
 			{
-				redirector.Log(L"[%s]: ERROR_INVALID_OPERATION", operation);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: ERROR_INVALID_OPERATION", operation);
 				break;
 			}
 			case ERROR_NOT_ENOUGH_MEMORY:
 			{
-				redirector.Log(L"[%s]: ERROR_NOT_ENOUGH_MEMORY", operation);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: ERROR_NOT_ENOUGH_MEMORY", operation);
 				break;
 			}
 			default:
 			{
-				redirector.Log(L"[%s]: Unknown error '%u'", operation, status);
+				kxf::Log::InfoCategory(LogCategory::Detours, L"[{}]: Unknown error '{}'", operation, status);
 				break;
 			}
 		};

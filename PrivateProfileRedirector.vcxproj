@@ -365,8 +365,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Skyrim;$(ProjectDir)ScriptExtender\Skyrim\skse;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -395,8 +395,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\FalloutNV;$(ProjectDir)ScriptExtender\FalloutNV\nvse;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -425,8 +425,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimSE;$(ProjectDir)ScriptExtender\SkyrimSE\skse64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -455,8 +455,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimAE;$(ProjectDir)ScriptExtender\SkyrimAE\skse64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -485,8 +485,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Fallout4;$(ProjectDir)ScriptExtender\Fallout4\f4se;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -515,8 +515,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Fallout4VR;$(ProjectDir)ScriptExtender\Fallout4VR\f4sevr;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -545,8 +545,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>WIN32;NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimVR;$(ProjectDir)ScriptExtender\SkyrimVR\skseVR;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -575,8 +575,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Skyrim;$(ProjectDir)ScriptExtender\Skyrim\skse;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -605,8 +605,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\FalloutNV;$(ProjectDir)ScriptExtender\FalloutNV\nvse;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -635,8 +635,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimSE;$(ProjectDir)ScriptExtender\SkyrimSE\skse64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -665,8 +665,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimAE;$(ProjectDir)ScriptExtender\SkyrimAE\skse64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -695,8 +695,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Fallout4;$(ProjectDir)ScriptExtender\Fallout4\f4se;$(SolutionDir)..\\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -728,8 +728,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\Fallout4VR;$(ProjectDir)ScriptExtender\Fallout4VR\f4sevr;$(SolutionDir)..\\Detours\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -761,8 +761,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <PreprocessorDefinitions>NDEBUG;PRIVATEPROFILEREDIRECTOR_EXPORTS;_WINDOWS;_USRDLL;xSE_PLATFORM_$(Configuration);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source\;$(ProjectDir)ScriptExtender\SkyrimVR;$(ProjectDir)ScriptExtender\SkyrimVR\skseVR;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -782,12 +782,13 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Source\Common.h" />
+    <ClInclude Include="Source\CommonWinAPI.h" />
     <ClInclude Include="Source\ConfigObject.h" />
     <ClInclude Include="Source\FunctionRedirector.h" />
     <ClInclude Include="Source\INIWrapper.h" />
     <ClInclude Include="Source\PrivateProfileRedirector.h" />
     <ClInclude Include="Source\FunctionTable.h" />
-    <ClInclude Include="Source\Qx\ClientData.h" />
     <ClInclude Include="Source\Qx\EventSystem\CallWrapper.h" />
     <ClInclude Include="Source\Qx\EventSystem\Common.h" />
     <ClInclude Include="Source\Qx\EventSystem\Event.h" />
@@ -856,17 +857,6 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="Source\xSE\ScriptExtenderInterface.h" />
     <ClInclude Include="Source\xSE\ScriptExtenderInterfaceIncludes.h" />
     <ClInclude Include="Source\xSE\ScriptExtenderInterfaceNVSE.h" />
-    <ClInclude Include="Source\Utility\EnumClassOperations.h" />
-    <ClInclude Include="Source\Utility\KxBasicDynamicString.h" />
-    <ClInclude Include="Source\Utility\KxCallAtScopeExit.h" />
-    <ClInclude Include="Source\Utility\CriticalSection.h" />
-    <ClInclude Include="Source\Utility\KxDynamicString.h" />
-    <ClInclude Include="Source\Utility\KxOptionSet.h" />
-    <ClInclude Include="Source\Utility\KxWithOptions.h" />
-    <ClInclude Include="Source\Utility\LibraryHandle.h" />
-    <ClInclude Include="Source\Utility\SimpleINI.h" />
-    <ClInclude Include="Source\Utility\SRWLock.h" />
-    <ClInclude Include="Source\Utility\String.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -930,8 +920,6 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SKSE|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Source\xSE\ScriptExtenderInterface.cpp" />
-    <ClCompile Include="Source\Utility\KxDynamicString.cpp" />
-    <ClCompile Include="Source\Utility\String.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='SKSE|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NVSE|Win32'">Create</PrecompiledHeader>

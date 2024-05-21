@@ -1,6 +1,5 @@
 #pragma once
 #include "QxNotifyEvent.h"
-#include "Utility/KxDynamicString.h"
 
 class QxGameEvent: public QxNotifyEvent
 {
@@ -28,12 +27,12 @@ class QxGameEvent: public QxNotifyEvent
 		}
 
 	public:
-		KxDynamicStringA GetSaveFile() const
+		kxf::String GetSaveFile() const
 		{
 			const QxEventID id = GetEventID();
 			if (id == EvtGameSave || id == EvtGameLoad || id == EvtDeleteSavedGame)
 			{
-				return KxDynamicStringA(reinterpret_cast<const char*>(m_Data), m_Length);
+				return kxf::String::FromUTF8(reinterpret_cast<const char*>(m_Data), m_Length);
 			}
 			return {};
 		}

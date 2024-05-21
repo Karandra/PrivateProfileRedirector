@@ -16,17 +16,46 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////
+bool xSE_PRELOADFUNCTION(const xSE_Interface* xSE)
+{
+	xSE_LOG("[{}] On preload plugin", _CRT_STRINGIZE(xSE_PRELOADFUNCTION));
+
+	if (xSE)
+	{
+		xSE_LOG("Preloaded by Script Extender");
+	}
+	else
+	{
+		xSE_LOG("Preloaded by xSE PluginPreloader");
+	}
+	PPR::Redirector::GetInstance().DllMain(nullptr, DLL_PROCESS_ATTACH);
+
+	return true;
+}
 bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 {
 	using namespace PPR;
-	xSE_LOG("[" _CRT_STRINGIZE(xSE_QUERYFUNCTION) "] On query plugin info");
+	xSE_LOG("[{}] On query plugin info", _CRT_STRINGIZE(xSE_QUERYFUNCTION));
 
 	// Set info
 	if (pluginInfo)
 	{
+		struct PluginInfoData final
+		{
+			std::string Name;
+			uint32_t Version = 0;
+
+			PluginInfoData()
+			{
+				Name = Redirector::GetLibraryName().utf8_view();
+				Version = static_cast<uint32_t>(Redirector::GetLibraryVersion().ToInteger());
+			}
+		};
+		static const PluginInfoData data;
+
 		pluginInfo->infoVersion = PluginInfo::kInfoVersion;
-		pluginInfo->name = Redirector::GetLibraryNameA();
-		pluginInfo->version = Redirector::GetLibraryVersionInt();
+		pluginInfo->name = data.Name.c_str();
+		pluginInfo->version = data.Version;
 	}
 
 	// Save handle
@@ -37,9 +66,8 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 	constexpr auto compiledVersion = xSE_PACKED_VERSION;
 	if (!SEInterface::GetInstance().OnCheckVersion(interfaceVersion, compiledVersion))
 	{
-		xSE_LOG("This plugin might be incompatible with this version of " xSE_NAME_A);
-		xSE_LOG("Script Extender interface version '%u', expected '%u'", static_cast<uint32_t>(interfaceVersion), static_cast<uint32_t>(compiledVersion));
-		xSE_LOG("Script Extender functions will be disabled");
+		xSE_LOG_WARNING("This plugin might be incompatible with this version of {}", xSE_NAME_A);
+		xSE_LOG_WARNING("Script Extender interface version '{}', expected '{}', Script Extender functions will be disabled", interfaceVersion, compiledVersion);
 
 		pluginHandle = kPluginHandle_Invalid;
 	}
@@ -52,11 +80,11 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 		scaleform = static_cast<xSE_ScaleformInterface*>(xSE->QueryInterface(kInterface_Scaleform));
 		if (!scaleform)
 		{
-			xSE_LOG("Couldn't get scaleform interface");
+			xSE_LOG_WARNING("Couldn't get scaleform interface");
 		}
 		if (scaleform && scaleform->interfaceVersion < xSE_ScaleformInterface::kInterfaceVersion)
 		{
-			xSE_LOG("Scaleform interface too old (%d, expected %d)", (int)scaleform->interfaceVersion, (int)xSE_ScaleformInterface::kInterfaceVersion);
+			xSE_LOG_WARNING("Scaleform interface too old ({}, expected {})", scaleform->interfaceVersion, xSE_ScaleformInterface::kInterfaceVersion);
 			scaleform = nullptr;
 		}
 	}
@@ -70,11 +98,11 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 		messaging = static_cast<xSE_MessagingInterface*>(xSE->QueryInterface(kInterface_Messaging));
 		if (!messaging)
 		{
-			xSE_LOG("Couldn't get messaging interface");
+			xSE_LOG_WARNING("Couldn't get messaging interface");
 		}
 		if (messaging && messaging->interfaceVersion < xSE_MessagingInterface::kInterfaceVersion)
 		{
-			xSE_LOG("Messaging interface too old (%d, expected %d)", (int)messaging->interfaceVersion, (int)xSE_MessagingInterface::kInterfaceVersion);
+			xSE_LOG_WARNING("Messaging interface too old ({}, expected {})", messaging->interfaceVersion, xSE_MessagingInterface::kInterfaceVersion);
 			messaging = nullptr;
 		}
 	}
@@ -85,10 +113,10 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 {
 	using namespace PPR;
-	xSE_LOG("[" _CRT_STRINGIZE(xSE_LOADFUNCTION) "] On load plugin");
+	xSE_LOG("[{}] On load plugin", _CRT_STRINGIZE(xSE_LOADFUNCTION));
 
 	#if xSE_PLATFORM_SKSE64AE
-	if (!xSE_QUERYFUNCTION(xSE, nullptr))
+	if (PluginInfo pluginInfo; !xSE_QUERYFUNCTION(xSE, &pluginInfo))
 	{
 		return false;
 	}
@@ -97,14 +125,7 @@ bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 	SEInterface& instance = SEInterface::GetInstance();
 	if (instance.OnLoad())
 	{
-		Redirector::GetInstance().Log(L"[" xSE_NAME_A L"] %s %s loaded", Redirector::GetLibraryNameW(), Redirector::GetLibraryVersionW());
-		
-		#if xSE_HAS_SE_LOG
-		if (SEInterface::GetInstance().CanUseSEFunctions())
-		{
-			_MESSAGE("[" xSE_NAME_A "] %s %s loaded", Redirector::GetLibraryNameA(), Redirector::GetLibraryVersionA());
-		}
-		#endif
+		xSE_LOG(L"[{}] {} v{} loaded", xSE_NAME_A, Redirector::GetLibraryName(), Redirector::GetLibraryVersion().ToString());
 		return true;
 	}
 	return false;
@@ -118,7 +139,7 @@ extern "C" __declspec(dllexport) constinit auto SKSEPlugin_Version = []() conste
 	versionData.compatibleVersions[0] = CURRENT_RELEASE_RUNTIME;
 	versionData.versionIndependence = SKSEPluginVersionData::kVersionIndependent_Signatures;
 	versionData.versionIndependenceEx = SKSEPluginVersionData::kVersionIndependentEx_NoStructUse;
-	versionData.pluginVersion = PPR::MakeFullVersion(0, 5, 3);
+	versionData.pluginVersion = PPR::MakeFullVersion(0, 6, 0);
 
 	std::ranges::copy("PrivateProfileRedirector", versionData.name);
 	std::ranges::copy("Karandra", versionData.author);
@@ -127,9 +148,14 @@ extern "C" __declspec(dllexport) constinit auto SKSEPlugin_Version = []() conste
 }();
 #endif
 
+bool xSE_CAN_USE_SCRIPTEXTENDER() noexcept
+{
+	return PPR::SEInterface::GetInstance().CanUseSEFunctions();
+}
+
 namespace PPR
 {
-	SEInterface& SEInterface::GetInstance()
+	SEInterface& SEInterface::GetInstance() noexcept
 	{
 		static SEInterface ms_Instance;
 		return ms_Instance;
@@ -165,7 +191,7 @@ namespace PPR
 
 	bool SEInterface::DoPrintConsole(const char* string) const
 	{
-		GetRedirector().Log("Printed to console: %s", string);
+		xSE_LOG("Printed to console: '{}'", string);
 
 		#if !xSE_PLATFORM_NVSE
 		Console_Print("%s", string);
@@ -186,7 +212,7 @@ namespace PPR
 
 		if (m_ConsoleCommandOverrider)
 		{
-			m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", "[Redirector] Reloads INIs content from disk and calls original 'RefreshINI' after it");
+			m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", "[Redirector] Reloads INI files content from disk and calls the original 'RefreshINI' afterwards");
 		}
 	}
 	void SEInterface::InitGameMessageDispatcher()
@@ -280,14 +306,14 @@ namespace PPR
 		auto commandName = event.GetCommandName();
 		if (commandName == "RefreshINI")
 		{
-			PrintConsole("Executing '%s'", commandName.c_str());
+			PrintConsole("Executing '{}'", commandName);
 
 			const size_t reloadedCount = Redirector::GetInstance().RefreshINI();
-			PrintConsole("Executing '%s' done, %u files reloaded.", commandName.c_str(), static_cast<unsigned int>(reloadedCount));
+			PrintConsole("Executing '{}' done, {} files reloaded.", commandName, reloadedCount);
 		}
 		else
 		{
-			PrintConsole("Unknown command '%s'", commandName.c_str());
+			PrintConsole("Unknown command '{}'", commandName);
 		}
 
 		// Allow original console command to be called after
@@ -297,11 +323,11 @@ namespace PPR
 	{
 		auto saveFile = event.GetSaveFile();
 
-		GetRedirector().Log("Saving game: %s", saveFile.data());
-		GetRedirector().SaveChnagedFiles(L"On game save");
+		xSE_LOG("Saving game: {}", saveFile);
+		GetRedirector().SaveChangedFiles(L"On game save");
 	}
 
-	SEInterface::SEInterface()
+	SEInterface::SEInterface() noexcept
 		:m_PluginHandle(kPluginHandle_Invalid)
 	{
 	}

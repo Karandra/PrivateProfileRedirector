@@ -4,22 +4,13 @@
 #include "EventBuilder.h"
 #include "EventFilter.h"
 #include "CallWrapper.h"
-#include "Qx/ClientData.h"
-#include <vector>
-#include <variant>
+#include <kxf/Utility/TypeTraits.h>
 class QxEventFilter;
 class QxEventCallWrapper;
 
 class QxEvtHandler
 {
 	friend class QxCoreApplication;
-
-	public:
-		enum class CientDataType
-		{
-			Untyped = 0,
-			Object
-		};
 
 	protected:
 		using EventItem = Qx::EventSystem::EventItem;
@@ -38,9 +29,6 @@ class QxEvtHandler
 		// Event handler chain
 		QxEvtHandler* m_PrevHandler = nullptr;
 		QxEvtHandler* m_NextHandler = nullptr;
-
-		// Client data
-		std::variant<void*, std::unique_ptr<QxClientData>> m_ClientData;
 
 		// Enabled/disabled switch
 		bool m_IsEnabled = true;
@@ -118,14 +106,6 @@ class QxEvtHandler
 
 		void Unlink();
 		bool IsUnlinked() const;
-
-	public:
-		// User-supplied data
-		CientDataType GetClientDataType() const;
-		void* GetClientData() const;
-		QxClientData* GetClientObject() const;
-		void SetClientData(void* clientData);
-		void SetClientData(std::unique_ptr<QxClientData> clientData);
 
 	public:
 		// Bind free or static function

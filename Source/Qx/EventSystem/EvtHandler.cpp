@@ -355,40 +355,6 @@ bool QxEvtHandler::IsUnlinked() const
 	return m_PrevHandler == nullptr && m_NextHandler == nullptr;
 }
 
-QxEvtHandler::CientDataType QxEvtHandler::GetClientDataType() const
-{
-	auto clientData = std::get_if<std::unique_ptr<QxClientData>>(&m_ClientData);
-	if (clientData && clientData->get())
-	{
-		return CientDataType::Object;
-	}
-	return CientDataType::Untyped;
-}
-void* QxEvtHandler::GetClientData() const
-{
-	if (auto clientData = std::get_if<void*>(&m_ClientData))
-	{
-		return *clientData;
-	}
-	return nullptr;
-}
-QxClientData* QxEvtHandler::GetClientObject() const
-{
-	if (auto clientData = std::get_if<std::unique_ptr<QxClientData>>(&m_ClientData))
-	{
-		return clientData->get();
-	}
-	return nullptr;
-}
-void QxEvtHandler::SetClientData(void* clientData)
-{
-	m_ClientData = clientData;
-}
-void QxEvtHandler::SetClientData(std::unique_ptr<QxClientData> clientData)
-{
-	m_ClientData = std::move(clientData);
-}
-
 QxEvtHandler& QxEvtHandler::operator=(QxEvtHandler&& other)
 {
 	using Qx::Utility::ExchangeAndReset;
@@ -396,7 +362,6 @@ QxEvtHandler& QxEvtHandler::operator=(QxEvtHandler&& other)
 	m_EventTable = std::move(other.m_EventTable);
 	ExchangeAndReset(m_PrevHandler, other.m_PrevHandler, nullptr);
 	ExchangeAndReset(m_NextHandler, other.m_NextHandler, nullptr);
-	m_ClientData = std::move(other.m_ClientData);
 	ExchangeAndReset(m_IsEnabled, other.m_IsEnabled, true);
 
 	return *this;

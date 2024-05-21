@@ -27,12 +27,10 @@
 #pragma comment(lib, "skse64/x64/Release/skse64_1_5_97.lib")
 #pragma comment(lib, "skse64/x64_v143/Release/common_vc14.lib")
 #pragma comment(lib, "skse64/x64/Release/skse64_common.lib")
-#pragma comment(lib, "skse64/x64/Release/skse64_loader_common.lib")
 #elif xSE_PLATFORM_SKSE64AE
 #pragma comment(lib, "skse64/x64/Release_Lib_VC142/skse64_1_6_323.lib")
 #pragma comment(lib, "skse64/x64_v143/Release/common_vc14.lib")
 #pragma comment(lib, "skse64/x64/Release/skse64_common.lib")
-#pragma comment(lib, "skse64/x64/Release/skse64_loader_common.lib")
 #endif
 
 #elif xSE_PLATFORM_SKSEVR

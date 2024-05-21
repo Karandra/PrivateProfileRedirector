@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
-#include "Utility\KxDynamicString.h"
-#include "Utility\SRWLock.h"
+#include <kxf/Threading/ReadWriteLock.h>
+#include <kxf/Threading/LockGuard.h>
 #include "INIWrapper.h"
 
 namespace PPR
@@ -16,32 +16,32 @@ namespace PPR
 
 		private:
 			INIWrapper m_INI;
-			KxDynamicStringW m_Path;
+			kxf::FSPath m_Path;
 			size_t m_ChangesCount = 0;
 			bool m_ExistOnDisk = false;
 
-			SRWLock m_Lock;
+			kxf::ReadWriteLock m_Lock;
 
 		private:
 			bool LoadFile();
 			bool SaveFile();
 
 		public:
-			ConfigObject(KxDynamicStringRefW filePath)
-				:m_Path(filePath)
+			ConfigObject(kxf::FSPath filePath)
+				:m_Path(std::move(filePath))
 			{
 			}
 
 		public:
-			const INIWrapper& GetINI() const
+			const INIWrapper& GetINI() const noexcept
 			{
 				return m_INI;
 			}
-			INIWrapper& GetINI()
+			INIWrapper& GetINI() noexcept
 			{
 				return m_INI;
 			}
-			KxDynamicStringRefW GetFilePath() const
+			kxf::FSPath GetFilePath() const
 			{
 				return m_Path;
 			}
@@ -60,17 +60,17 @@ namespace PPR
 			}
 			void OnWrite();
 
-			SRWLock& GetLock()
+			kxf::ReadWriteLock& GetLock() noexcept
 			{
 				return m_Lock;
 			}
-			SharedSRWLocker LockShared()
+			auto LockShared() noexcept
 			{
-				return m_Lock;
+				return kxf::ReadLockGuard(m_Lock);
 			}
-			ExclusiveSRWLocker LockExclusive()
+			auto LockExclusive()
 			{
-				return m_Lock;
+				return kxf::WriteLockGuard(m_Lock);
 			}
 	};
 }

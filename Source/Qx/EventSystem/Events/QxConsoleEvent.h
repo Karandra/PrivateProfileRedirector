@@ -1,6 +1,5 @@
 #pragma once
 #include "Qx/EventSystem/Event.h"
-#include "Utility/KxDynamicString.h"
 
 class QxConsoleEvent: public QxEvent
 {
@@ -8,9 +7,9 @@ class QxConsoleEvent: public QxEvent
 		QxEVENT_MEMBER_DEFINE(QxConsoleEvent, Command);
 
 	private:
-		KxDynamicStringA m_CommandName;
-		KxDynamicStringA m_CommandAlias;
-		KxDynamicStringA m_CommandHelp;
+		kxf::String m_CommandName;
+		kxf::String m_CommandAlias;
+		kxf::String m_CommandHelp;
 
 		double m_Result = 0;
 
@@ -18,29 +17,29 @@ class QxConsoleEvent: public QxEvent
 		QxConsoleEvent() = default;
 
 	public:
-		KxDynamicStringA GetCommandName() const
+		kxf::String GetCommandName() const
 		{
 			return m_CommandName;
 		}
-		void SetCommandName(KxDynamicStringRefA name)
+		void SetCommandName(const kxf::String& name)
 		{
 			m_CommandName = name;
 		}
 
-		KxDynamicStringA GetCommandAlias() const
+		kxf::String GetCommandAlias() const
 		{
 			return m_CommandAlias;
 		}
-		void SetCommandAlias(KxDynamicStringRefA alias)
+		void SetCommandAlias(const kxf::String& alias)
 		{
 			m_CommandAlias = alias;
 		}
 		
-		KxDynamicStringA GetCommandHelp() const
+		kxf::String GetCommandHelp() const
 		{
 			return m_CommandName;
 		}
-		void SetCommandHelp(KxDynamicStringRefA help)
+		void SetCommandHelp(const kxf::String& help)
 		{
 			m_CommandHelp = help;
 		}

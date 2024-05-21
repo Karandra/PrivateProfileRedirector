@@ -1,12 +1,12 @@
 #pragma once
 #include "stdafx.h"
 #include "ScriptExtenderDefines.h"
-#include "Utility/KxDynamicString.h"
 #include "IConsoleCommandOverrider.h"
 #include "Qx/EventSystem/EvtHandler.h"
 #include "Qx/EventSystem/Events/QxGameEvent.h"
 #include "Qx/EventSystem/Events/QxConsoleEvent.h"
 
+xSE_API(bool) xSE_PRELOADFUNCTION(const xSE_Interface* xSE);
 xSE_API(bool) xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo);
 xSE_API(bool) xSE_LOADFUNCTION(const xSE_Interface* xSE);
 
@@ -21,11 +21,12 @@ namespace PPR
 	{
 		using PluginHandle = uint32_t;
 
+		friend bool ::xSE_PRELOADFUNCTION(const xSE_Interface*);
 		friend bool ::xSE_QUERYFUNCTION(const xSE_Interface*, PluginInfo*);
 		friend bool ::xSE_LOADFUNCTION(const xSE_Interface*);
 
 		public:
-			static SEInterface& GetInstance();
+			static SEInterface& GetInstance() noexcept;
 
 		private:
 			const xSE_Interface* m_XSE = nullptr;
@@ -49,7 +50,7 @@ namespace PPR
 			void OnGameSave(QxGameEvent& event);
 
 		private:
-			SEInterface();
+			SEInterface() noexcept;
 
 		public:
 			bool CanUseSEFunctions() const
@@ -78,25 +79,17 @@ namespace PPR
 			Redirector& GetRedirector() const;
 
 			template<class T>
-			T* GetConsoleCommandOverrider() const
+			requires(std::is_base_of_v<IConsoleCommandOverrider, T>)
+			T* GetConsoleCommandOverrider() const noexcept
 			{
-				static_assert(std::is_base_of_v<IConsoleCommandOverrider, T>);
-
 				return static_cast<T*>(m_ConsoleCommandOverrider.get());
 			}
 
-			template<class... Args>
-			void PrintConsole(const char* format, Args&&... arg) const
+			template<class TFormat, class... Args>
+			void PrintConsole(const TFormat& format, Args&&... arg) const
 			{
-				if constexpr ((sizeof...(Args)) != 0)
-				{
-					KxDynamicStringA buffer = KxDynamicStringA::Format(format, std::forward<Args>(arg)...);
-					DoPrintConsole(buffer.data());
-				}
-				else
-				{
-					DoPrintConsole(format);
-				}
+				auto formatted = kxf::Format(format, std::forward<Args>(arg)...);
+				DoPrintConsole(formatted.utf8_str());
 			}
 	};
 }
