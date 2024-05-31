@@ -2,8 +2,6 @@
 #include "F4SE.h"
 #include "PrivateProfileRedirector.h"
 #include "xSE/ScriptExtenderInterface.h"
-#include "Qx/EventSystem/EvtHandler.h"
-#include "Qx/EventSystem/Events/QxConsoleEvent.h"
 
 namespace PPR
 {
@@ -29,13 +27,12 @@ namespace PPR
 			{
 				const ObScriptCommand& originalCommand = it->second.OriginalCommand;
 
-				QxConsoleEvent event;
-				event.SetEventID(QxConsoleEvent::EvtCommand);
+				ConsoleEvent event;
 				event.SetCommandName(originalCommand.longName);
 				event.SetCommandAlias(originalCommand.shortName);
 				event.SetCommandHelp(originalCommand.helpText);
 
-				if (!m_EvtHandler.ProcessEvent(event) || event.IsSkipped())
+				if (!m_EvtHandler.ProcessEvent(event, ConsoleEvent::EvtCommand) || event.IsSkipped())
 				{
 					return originalCommand.execute(paramInfo, scriptData, thisObj, containingObj, scriptObj, locals, result, opcodeOffset);
 				}

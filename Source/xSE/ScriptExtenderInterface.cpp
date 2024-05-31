@@ -179,12 +179,9 @@ namespace PPR
 	{
 		if (CanUseSEFunctions())
 		{
-			InitConsoleCommandOverrider();
-			InitGameMessageDispatcher();
-
 			// Events
-			Bind(QxConsoleEvent::EvtCommand, &SEInterface::OnConsoleCommand, this);
-			Bind(QxGameEvent::EvtGameSave, &SEInterface::OnGameSave, this);
+			Bind(ConsoleEvent::EvtCommand, &SEInterface::OnConsoleCommand, this);
+			Bind(GameEvent::EvtGameSave, &SEInterface::OnGameSave, this);
 		}
 		return true;
 	}
@@ -202,106 +199,105 @@ namespace PPR
 	}
 	void SEInterface::InitConsoleCommandOverrider()
 	{
-		#if xSE_PLATFORM_SKSE
-		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE>(*this);
-		#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE|| xSE_PLATFORM_SKSEVR
-		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE64>(*this);
-		#elif xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
-		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_F4SE>(*this);
-		#endif
-
-		if (m_ConsoleCommandOverrider)
+		if (!m_ConsoleCommandOverrider)
 		{
-			m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", "[Redirector] Reloads INI files content from disk and calls the original 'RefreshINI' afterwards");
+			#if xSE_PLATFORM_SKSE
+			m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE>(*this);
+			#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE|| xSE_PLATFORM_SKSEVR
+			m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE64>(*this);
+			#elif xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
+			m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_F4SE>(*this);
+			#endif
+
+			if (m_ConsoleCommandOverrider)
+			{
+				m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", "[Redirector] Reloads INI files content from disk and calls the original 'RefreshINI' afterwards");
+			}
 		}
 	}
 	void SEInterface::InitGameMessageDispatcher()
 	{
 		#if xSE_HAS_MESSAGING_INTERFACE
-		if (m_Messaging)
+		if (m_Messaging && !m_GameEventListenerRegistered && GetRedirector().IsOptionEnabled(RedirectorOption::SaveOnGameSave))
 		{
-			if (GetRedirector().IsOptionEnabled(RedirectorOption::SaveOnGameSave))
+			m_GameEventListenerRegistered = m_Messaging->RegisterListener(m_PluginHandle, "SKSE", [](xSE_MessagingInterface::Message* msg)
 			{
-				m_Messaging->RegisterListener(m_PluginHandle, "SKSE", [](xSE_MessagingInterface::Message* msg)
+				if (msg)
 				{
-					if (msg)
+					auto MapEventID = [](uint32_t messageID) -> kxf::EventID
 					{
-						auto MapEventID = [](uint32_t messageID) -> QxEventID
+						switch (messageID)
 						{
-							switch (messageID)
+							case xSE_MessagingInterface::kMessage_PostPostLoad:
 							{
-								case xSE_MessagingInterface::kMessage_PostPostLoad:
-								{
-									return QxGameEvent::EvtPluginsLoaded;
-								}
-								case xSE_MessagingInterface::kMessage_InputLoaded:
-								{
-									return QxGameEvent::EvtInputLoaded;
-								}
+								return GameEvent::EvtPluginsLoaded;
+							}
+							case xSE_MessagingInterface::kMessage_InputLoaded:
+							{
+								return GameEvent::EvtInputLoaded;
+							}
 
-								#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
-								case xSE_MessagingInterface::kMessage_GameDataReady:
-								{
-									return QxGameEvent::EvtDataLoaded;
-								}
-								#else
-								case xSE_MessagingInterface::kMessage_DataLoaded:
-								{
-									return QxGameEvent::EvtDataLoaded;
-								}
-								#endif
+							#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
+							case xSE_MessagingInterface::kMessage_GameDataReady:
+							{
+								return GameEvent::EvtDataLoaded;
+							}
+							#else
+							case xSE_MessagingInterface::kMessage_DataLoaded:
+							{
+								return GameEvent::EvtDataLoaded;
+							}
+							#endif
 
 
-								case xSE_MessagingInterface::kMessage_NewGame:
-								{
-									return QxGameEvent::EvtNewGame;
-								}
+							case xSE_MessagingInterface::kMessage_NewGame:
+							{
+								return GameEvent::EvtNewGame;
+							}
 
-								#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
-								case xSE_MessagingInterface::kMessage_PreSaveGame:
-								{
-									return QxGameEvent::EvtGameSave;
-								}
-								case xSE_MessagingInterface::kMessage_PostSaveGame:
-								{
-									return QxGameEvent::EvtGameSaved;
-								}
-								#else
-								case xSE_MessagingInterface::kMessage_SaveGame:
-								{
-									return QxGameEvent::EvtGameSave;
-								}
-								#endif
+							#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
+							case xSE_MessagingInterface::kMessage_PreSaveGame:
+							{
+								return GameEvent::EvtGameSave;
+							}
+							case xSE_MessagingInterface::kMessage_PostSaveGame:
+							{
+								return GameEvent::EvtGameSaved;
+							}
+							#else
+							case xSE_MessagingInterface::kMessage_SaveGame:
+							{
+								return GameEvent::EvtGameSave;
+							}
+							#endif
 
-								case xSE_MessagingInterface::kMessage_PreLoadGame:
-								{
-									return QxGameEvent::EvtGameLoad;
-								}
-								case xSE_MessagingInterface::kMessage_PostLoadGame:
-								{
-									return QxGameEvent::EvtGameLoaded;
-								}
-								case xSE_MessagingInterface::kMessage_DeleteGame:
-								{
-									return QxGameEvent::EvtDeleteSavedGame;
-								}
-							};
-							return QxEvent::EvtNull;
+							case xSE_MessagingInterface::kMessage_PreLoadGame:
+							{
+								return GameEvent::EvtGameLoad;
+							}
+							case xSE_MessagingInterface::kMessage_PostLoadGame:
+							{
+								return GameEvent::EvtGameLoaded;
+							}
+							case xSE_MessagingInterface::kMessage_DeleteGame:
+							{
+								return GameEvent::EvtDeleteSavedGame;
+							}
 						};
-
-						QxEventID eventID = MapEventID(msg->type);
-						if (eventID != QxEvent::EvtNull)
-						{
-							SEInterface::GetInstance().ProcessEventEx<QxGameEvent>(eventID, msg->data, msg->dataLen).Do();
-						}
+						return kxf::IEvent::EvtNull;
+					};
+					if (auto eventID = MapEventID(msg->type))
+					{
+						GameEvent event(msg->data, msg->dataLen);
+						SEInterface::GetInstance().ProcessEvent(event, eventID);
 					}
-				});
-			}
+				}
+			});
 		}
 		#endif
 	}
 
-	void SEInterface::OnConsoleCommand(QxConsoleEvent& event)
+	void SEInterface::OnConsoleCommand(ConsoleEvent& event)
 	{
 		auto commandName = event.GetCommandName();
 		if (commandName == "RefreshINI")
@@ -319,7 +315,7 @@ namespace PPR
 		// Allow original console command to be called after
 		event.Skip();
 	}
-	void SEInterface::OnGameSave(QxGameEvent& event)
+	void SEInterface::OnGameSave(GameEvent& event)
 	{
 		auto saveFile = event.GetSaveFile();
 
@@ -327,6 +323,25 @@ namespace PPR
 		GetRedirector().SaveChangedFiles(L"On game save");
 	}
 
+	// IEvtHandler
+	bool SEInterface::OnDynamicBind(EventItem& eventItem)
+	{
+		if (CanUseSEFunctions())
+		{
+			auto id = eventItem.GetEventID();
+			if (id.IsSameEventClass<ConsoleEvent>())
+			{
+				InitConsoleCommandOverrider();
+			}
+			else if (id.IsSameEventClass<GameEvent>())
+			{
+				InitGameMessageDispatcher();
+			}
+		}
+
+		return EvtHandler::OnDynamicBind(eventItem);
+	}
+	
 	SEInterface::SEInterface() noexcept
 		:m_PluginHandle(kPluginHandle_Invalid)
 	{

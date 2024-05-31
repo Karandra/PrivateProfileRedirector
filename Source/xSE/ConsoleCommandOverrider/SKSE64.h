@@ -15,7 +15,7 @@ namespace PPR
 			};
 
 		private:
-			QxEvtHandler& m_EvtHandler;
+			kxf::IEvtHandler& m_EvtHandler;
 			std::unordered_map<uint32_t, CommandInfo> m_Commands;
 
 		private:
@@ -23,7 +23,7 @@ namespace PPR
 			bool OnCommand(const ObScriptParam* paramInfo, ScriptData* scriptData, TESObjectREFR* thisObj, TESObjectREFR* containingObj, Script* scriptObj, ScriptLocals* locals, double& result, UInt32& opcodeOffset);
 		
 		public:
-			ConsoleCommandOverrider_SKSE64(QxEvtHandler& evtHandler)
+			ConsoleCommandOverrider_SKSE64(kxf::IEvtHandler& evtHandler)
 				:m_EvtHandler(evtHandler)
 			{
 			}

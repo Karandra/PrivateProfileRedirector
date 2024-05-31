@@ -2,9 +2,9 @@
 #include "stdafx.h"
 #include "ScriptExtenderDefines.h"
 #include "IConsoleCommandOverrider.h"
-#include "Qx/EventSystem/EvtHandler.h"
-#include "Qx/EventSystem/Events/QxGameEvent.h"
-#include "Qx/EventSystem/Events/QxConsoleEvent.h"
+#include "GameEvent.h"
+#include "ConsoleEvent.h"
+#include <kxf/EventSystem/EvtHandler.h>
 
 xSE_API(bool) xSE_PRELOADFUNCTION(const xSE_Interface* xSE);
 xSE_API(bool) xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo);
@@ -17,7 +17,7 @@ namespace PPR
 
 namespace PPR
 {
-	class SEInterface final: public QxEvtHandler
+	class SEInterface final: public kxf::EvtHandler
 	{
 		using PluginHandle = uint32_t;
 
@@ -36,6 +36,7 @@ namespace PPR
 			bool m_CanUseSEFunctions = false;
 
 			std::unique_ptr<IConsoleCommandOverrider> m_ConsoleCommandOverrider;
+			bool m_GameEventListenerRegistered = false;
 
 		private:
 			bool OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion);
@@ -46,8 +47,12 @@ namespace PPR
 			void InitConsoleCommandOverrider();
 			void InitGameMessageDispatcher();
 
-			void OnConsoleCommand(QxConsoleEvent& event);
-			void OnGameSave(QxGameEvent& event);
+			void OnConsoleCommand(ConsoleEvent& event);
+			void OnGameSave(GameEvent& event);
+
+		protected:
+			// IEvtHandler
+			bool OnDynamicBind(EventItem& eventItem) override;
 
 		private:
 			SEInterface() noexcept;

@@ -1,5 +1,6 @@
 #pragma once
-class QxEvtHandler;
+#include <kxf/EventSystem/IEvtHandler.h>
+#include "ConsoleEvent.h"
 
 namespace PPR
 {
