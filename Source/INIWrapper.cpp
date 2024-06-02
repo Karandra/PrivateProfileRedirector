@@ -34,61 +34,21 @@ namespace
 		}
 		return false;
 	}
-
-	size_t FindCommentStart(const kxf::String& value)
-	{
-		if (!value.empty())
-		{
-			for (size_t i = value.size() - 1; i != 0; i--)
-			{
-				const wchar_t c = value[i];
-				if (c == L';' || c == L'#')
-				{
-					return i;
-				}
-			}
-		}
-		return kxf::String::npos;
-	};
-	kxf::String ExtractValueAndComment(kxf::String source, kxf::String* comment = nullptr)
-	{
-		if (!source.empty())
-		{
-			const size_t anchor = FindCommentStart(source);
-			if (anchor != kxf::String::npos)
-			{
-				if (comment && source.length() > anchor)
-				{
-					*comment = source.SubMid(anchor + 1);
-				}
-
-				source.Truncate(anchor);
-			}
-		}
-		return source;
-	}
 }
 
 namespace PPR
 {
 	std::optional<kxf::String> INIWrapper::ExtractValue(kxf::String value) const
 	{
-		if (m_Options.Contains(Options::RemoveInlineComments))
-		{
-			return ExtractValueAndComment(std::move(value));
-		}
-		else
-		{
-			return std::move(value);
-		}
+		return std::move(value);
 	}
 
-	bool INIWrapper::Load(const kxf::FSPath& path, kxf::FlagSet<Options> options)
+	bool INIWrapper::Load(const kxf::FSPath& path, kxf::FlagSet<kxf::INIDocumentOption> options)
 	{
 		KX_SCOPEDLOG_ARGS(path.GetFullPath(), options);
 
-		m_Options = options;
-		m_INI.SetOptions(kxf::INIDocumentOption::Quotes);
+		m_INI.ClearNode();
+		m_INI.SetOptions(options);
 
 		auto fileStream = kxf::NativeFileSystem().OpenToRead(path, kxf::IOStreamDisposition::OpenExisting, kxf::IOStreamShare::Read);
 		if (fileStream)

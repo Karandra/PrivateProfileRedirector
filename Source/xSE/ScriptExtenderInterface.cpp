@@ -329,11 +329,11 @@ namespace PPR
 		if (CanUseSEFunctions())
 		{
 			auto id = eventItem.GetEventID();
-			if (id.IsSameEventClass<ConsoleEvent>())
+			if (id.IsOfEventClass<ConsoleEvent>())
 			{
 				InitConsoleCommandOverrider();
 			}
-			else if (id.IsSameEventClass<GameEvent>())
+			else if (id.IsOfEventClass<GameEvent>())
 			{
 				InitGameMessageDispatcher();
 			}

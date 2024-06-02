@@ -11,8 +11,7 @@ namespace PPR
 			enum class Options: uint32_t
 			{
 				None = 0,
-				RemoveInlineComments = 1 << 0,
-				WithBOM = 1 << 1
+				WithBOM = 1u << 1
 			};
 			enum class Encoding
 			{
@@ -167,7 +166,7 @@ namespace PPR
 				return m_Options;
 			}
 
-			bool Load(const kxf::FSPath& path, kxf::FlagSet<Options> options = {});
+			bool Load(const kxf::FSPath& path, kxf::FlagSet<kxf::INIDocumentOption> options);
 			bool Save(const kxf::FSPath& path, Encoding encoding = Encoding::None);
 
 			std::optional<kxf::String> QueryValue(const kxf::String& section, const kxf::String& key) const

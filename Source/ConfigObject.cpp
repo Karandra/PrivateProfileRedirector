@@ -9,8 +9,10 @@ namespace PPR
 		Redirector& instance = Redirector::GetInstance();
 
 		// Set loading options
-		kxf::FlagSet<Options> options;
-		options.Add(Options::RemoveInlineComments, instance.IsOptionEnabled(RedirectorOption::ProcessInlineComments));
+		kxf::FlagSet<kxf::INIDocumentOption> options;
+		options.Add(kxf::INIDocumentOption::Quotes);
+		options.Add(kxf::INIDocumentOption::IgnoreCase);
+		options.Mod(kxf::INIDocumentOption::InlineComments, instance.IsOptionEnabled(RedirectorOption::ProcessInlineComments));
 
 		if (m_INI.Load(m_Path, options))
 		{
