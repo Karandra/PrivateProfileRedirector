@@ -8,7 +8,6 @@
 #include <kxf/System/ShellOperations.h>
 #include <detours/detours.h>
 #include <detours/detver.h>
-#include <Shlobj.h>
 
 namespace
 {
@@ -28,11 +27,15 @@ namespace PPR
 
 	kxf::String Redirector::GetLibraryName()
 	{
-		return "PrivateProfileRedirector";
+		return kxf::StringViewOf(ProjectName);
+	}
+	kxf::String Redirector::GetLibraryAuthor()
+	{
+		return kxf::StringViewOf(ProjectAuthor);
 	}
 	kxf::Version Redirector::GetLibraryVersion()
 	{
-		return {0, 6, 0};
+		return {VersionMajor, VersionMinor, VersionPatch};
 	}
 
 	bool Redirector::DllMain(HMODULE module, DWORD event)
@@ -92,6 +95,7 @@ namespace PPR
 			OpenLog(*logLevel);
 		}
 		KX_SCOPEDLOG_FUNC;
+		KX_SCOPEDLOG.Info().Format("{} v{} by {} loaded", Redirector::GetLibraryName(), Redirector::GetLibraryVersion().ToString(), GetLibraryAuthor());
 		KX_SCOPEDLOG.Info()
 			KX_SCOPEDLOG_VALUE_AS(m_PluginFS, m_PluginFS.GetLookupDirectory().GetFullPath())
 			KX_SCOPEDLOG_VALUE_AS(m_ConfigFS, m_ConfigFS.GetLookupDirectory().GetFullPath());
@@ -148,7 +152,7 @@ namespace PPR
 
 			if (stream)
 			{
-				kxf::ScopedLoggerGlobalContext::Initialize(std::make_shared<kxf::ScopedLoggerSingleFileContext>(std::move(stream)));
+				kxf::ScopedLoggerGlobalContext::Initialize(std::make_shared<kxf::ScopedLoggerSingleFileContext>(std::move(stream)), logLevel);
 
 				kxf::Log::Info("{} v{}", GetLibraryName(), GetLibraryVersion().ToString());
 				kxf::Log::Info(L"Script Extender platform: {} [0x{:08x}]", xSE_NAME_W, static_cast<uint32_t>(xSE_PACKED_VERSION));

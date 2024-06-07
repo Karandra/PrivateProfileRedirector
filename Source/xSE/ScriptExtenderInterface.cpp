@@ -1,10 +1,6 @@
 #include "stdafx.h"
 #include "ScriptExtenderInterface.h"
 #include "PrivateProfileRedirector.h"
-
-#pragma warning(disable: 4005) // macro redefinition
-#pragma warning(disable: 4244) // conversion from 'x' to 'y', possible loss of data
-#pragma warning(disable: 4267) // conversion from 'size_t' to 'y', possible loss of data
 #include "ScriptExtenderInterfaceIncludes.h"
 
 #if xSE_PLATFORM_SKSE
@@ -48,7 +44,7 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 			PluginInfoData()
 			{
 				Name = Redirector::GetLibraryName().utf8_view();
-				Version = static_cast<uint32_t>(Redirector::GetLibraryVersion().ToInteger());
+				Version = PPR::VersionFull;
 			}
 		};
 		static const PluginInfoData data;
@@ -115,7 +111,7 @@ bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 	using namespace PPR;
 	xSE_LOG("[{}] On load plugin", _CRT_STRINGIZE(xSE_LOADFUNCTION));
 
-	#if xSE_PLATFORM_SKSE64AE
+	#if xSE_PLATFORM_SKSE64AE || xSE_PLATFORM_F4SE
 	if (PluginInfo pluginInfo; !xSE_QUERYFUNCTION(xSE, &pluginInfo))
 	{
 		return false;
@@ -125,7 +121,7 @@ bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 	SEInterface& instance = SEInterface::GetInstance();
 	if (instance.OnLoad())
 	{
-		xSE_LOG(L"[{}] {} v{} loaded", xSE_NAME_A, Redirector::GetLibraryName(), Redirector::GetLibraryVersion().ToString());
+		xSE_LOG(L"[{}] {} v{} by {} loaded", xSE_NAME_A, Redirector::GetLibraryName(), Redirector::GetLibraryVersion().ToString(), Redirector::GetLibraryAuthor());
 		return true;
 	}
 	return false;
@@ -139,10 +135,25 @@ extern "C" __declspec(dllexport) constinit auto SKSEPlugin_Version = []() conste
 	versionData.compatibleVersions[0] = CURRENT_RELEASE_RUNTIME;
 	versionData.versionIndependence = SKSEPluginVersionData::kVersionIndependent_Signatures;
 	versionData.versionIndependenceEx = SKSEPluginVersionData::kVersionIndependentEx_NoStructUse;
-	versionData.pluginVersion = PPR::MakeFullVersion(0, 6, 0);
+	versionData.pluginVersion = PPR::VersionFull;
 
-	std::ranges::copy("PrivateProfileRedirector", versionData.name);
-	std::ranges::copy("Karandra", versionData.author);
+	std::ranges::copy(PPR::ProjectName, versionData.name);
+	std::ranges::copy(PPR::ProjectAuthor, versionData.author);
+
+	return versionData;
+}();
+#elif xSE_PLATFORM_F4SE
+extern "C" __declspec(dllexport) constinit auto F4SEPlugin_Version = []() constexpr
+{
+	F4SEPluginVersionData versionData = {};
+	versionData.dataVersion = F4SEPluginVersionData::kVersion;
+	versionData.compatibleVersions[0] = CURRENT_RELEASE_RUNTIME;
+	versionData.addressIndependence = F4SEPluginVersionData::kAddressIndependence_Signatures;
+	versionData.structureIndependence = F4SEPluginVersionData::kStructureIndependence_NoStructs|F4SEPluginVersionData::kStructureIndependence_1_10_980Layout;
+	versionData.pluginVersion = PPR::VersionFull;
+
+	std::ranges::copy(PPR::ProjectName, versionData.name);
+	std::ranges::copy(PPR::ProjectAuthor, versionData.author);
 
 	return versionData;
 }();
@@ -220,7 +231,8 @@ namespace PPR
 		#if xSE_HAS_MESSAGING_INTERFACE
 		if (m_Messaging && !m_GameEventListenerRegistered && GetRedirector().IsOptionEnabled(RedirectorOption::SaveOnGameSave))
 		{
-			m_GameEventListenerRegistered = m_Messaging->RegisterListener(m_PluginHandle, "SKSE", [](xSE_MessagingInterface::Message* msg)
+			auto senderName = xSE_FOLDER_NAME_A;
+			m_GameEventListenerRegistered = m_Messaging->RegisterListener(m_PluginHandle, senderName, [](xSE_MessagingInterface::Message* msg)
 			{
 				if (msg)
 				{
@@ -293,6 +305,15 @@ namespace PPR
 					}
 				}
 			});
+
+			if (m_GameEventListenerRegistered)
+			{
+				xSE_LOG("Game event listener registered successfully for sender: '{}'", senderName);
+			}
+			else
+			{
+				xSE_LOG_WARNING("Failed to register game event listener for sender: '{}'", senderName);
+			}
 		}
 		#endif
 	}

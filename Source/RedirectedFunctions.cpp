@@ -321,6 +321,7 @@ namespace PPR::PrivateProfile
 				{
 					KX_SCOPEDLOG.Trace(logCategory).Format("Section '{}' deleted", appName);
 					configObject.OnWrite();
+
 					return true;
 				}
 				return false;
@@ -332,6 +333,8 @@ namespace PPR::PrivateProfile
 				if (ini.DeleteKey(INIWrapper::EncodingTo(appName, converter), INIWrapper::EncodingTo(keyName, converter)))
 				{
 					KX_SCOPEDLOG.Trace(logCategory).Format("Key '{}' in section '{}' deleted", keyName, appName);
+					configObject.OnWrite();
+
 					return true;
 				}
 				return false;
@@ -341,6 +344,8 @@ namespace PPR::PrivateProfile
 			if (ini.SetValue(appName, keyName, lpString))
 			{
 				KX_SCOPEDLOG.Trace(logCategory).Format("Assigned value '{}' to key '{}' in section '{}'", lpString, keyName, appName);
+				configObject.OnWrite();
+
 				return true;
 			}
 			return false;

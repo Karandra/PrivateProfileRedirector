@@ -13,13 +13,6 @@
 namespace PPR
 {
 	class SEInterface;
-
-	constexpr int MakeFullVersion(int major, int minor, int patch) noexcept
-	{
-		// 1.2.3 -> 1 * 100 + 2 * 10 + 3 * 1 = 123
-		// 0.1 -> (0 * 100) + (1 * 10) + (0 * 1) = 10
-		return (major * 100) + (minor * 10) + (patch * 1);
-	}
 }
 
 namespace PPR
@@ -33,6 +26,7 @@ namespace PPR
 			static Redirector& GetInstance();
 			
 			static kxf::String GetLibraryName();
+			static kxf::String GetLibraryAuthor();
 			static kxf::Version GetLibraryVersion();
 
 			static bool DllMain(HMODULE module, DWORD event);

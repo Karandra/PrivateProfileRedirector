@@ -72,7 +72,7 @@ namespace PPR
 			{
 				if (m_ChangesCount >= *bufferSize)
 				{
-					kxf::Log::InfoCategory("SaveOnWrite", "Changes count for '{}' reached buffer capacity ({}), flushing changes. Empty file: '{}'", m_Path.GetFullPath(), *bufferSize, (int)m_INI.IsEmpty());
+					kxf::Log::InfoCategory("SaveOnWrite", "Changes count for '{}' reached buffer capacity ({}), flushing changes. Is empty file: {}", m_Path.GetFullPath(), *bufferSize, m_INI.IsEmpty());
 				}
 				else
 				{
@@ -82,7 +82,7 @@ namespace PPR
 			}
 			else
 			{
-				kxf::Log::InfoCategory("SaveOnWrite", "Saving file on write: '{}', empty file: '{}'", m_Path.GetFullPath(), m_INI.IsEmpty());
+				kxf::Log::InfoCategory("SaveOnWrite", "Saving file on write: '{}', is empty file: {}", m_Path.GetFullPath(), m_INI.IsEmpty());
 			}
 			SaveFile();
 		}

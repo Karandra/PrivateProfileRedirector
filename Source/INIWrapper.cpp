@@ -19,7 +19,7 @@ namespace
 	{
 		if (buffer.GetBufferSize() >= std::size(bom))
 		{
-			return std::memcmp(buffer.GetBufferStart(), bom, std::size(bom));
+			return std::memcmp(buffer.GetBufferStart(), bom, std::size(bom)) == 0;
 		}
 		return false;
 	}
@@ -60,6 +60,8 @@ namespace PPR
 				fileStream = {};
 
 				auto& buffer = memoryStream.GetStreamBuffer();
+				buffer.Rewind();
+
 				auto LoadUTF8 = [&]()
 				{
 					m_Encoding = Encoding::UTF8;
