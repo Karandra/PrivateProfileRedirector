@@ -25,27 +25,34 @@ namespace
 	}
 
 	template<class TChar>
-	HRESULT StringCopyBuffer(TChar* dst, size_t dstSize, const TChar* src, size_t srcLength) noexcept
+	HRESULT StringCopyBuffer(TChar* dst, size_t dstSize, const TChar* src, size_t srcSize) noexcept
 	{
 		if (dst && src)
 		{
-			size_t toCopySize = std::min(dstSize, srcLength);
-			if (toCopySize == 0)
+			size_t copySize = std::min(dstSize, srcSize);
+			if (copySize == 0)
 			{
 				return STRSAFE_E_INSUFFICIENT_BUFFER;
 			}
 
-			std::memcpy(dst, src, toCopySize * sizeof(TChar));
-			if (dstSize > srcLength)
+			std::memcpy(dst, src, copySize * sizeof(TChar));
+			if (dstSize > srcSize)
 			{
 				// Null-terminate at the position past copied data
-				dst[srcLength] = 0;
+				dst[srcSize] = 0;
+				return S_OK;
+			}
+			else if (dstSize == srcSize && dst[dstSize - 1] == 0)
+			{
+				// There's no need to null-terminate anything as the copied data
+				// is already null-terminated. This way we can return S_OK here
+				// instead of STRSAFE_E_INSUFFICIENT_BUFFER
 				return S_OK;
 			}
 			else
 			{
 				// Replace the last copied character with the null-terminator
-				dst[toCopySize - 1] = 0;
+				dst[copySize - 1] = 0;
 				return STRSAFE_E_INSUFFICIENT_BUFFER;
 			}
 		}
