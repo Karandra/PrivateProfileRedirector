@@ -222,7 +222,7 @@ namespace PPR
 
 			if (m_ConsoleCommandOverrider)
 			{
-				m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", "[Redirector] Reloads INI files content from disk and calls the original 'RefreshINI' afterwards");
+				m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", kxf::Format("[{}] Reloads INI files content from disk and calls the original 'RefreshINI' afterwards", kxf::StringViewOf(PPR::ProjectName)));
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ConfigObject.h"
 #include "PrivateProfileRedirector.h"
+#include <kxf/System/Win32Error.h>
 
 namespace PPR
 {
@@ -23,7 +24,10 @@ namespace PPR
 		}
 		else
 		{
-			m_ExistOnDisk = false;
+			auto lastError = kxf::Win32Error::GetLastError();
+			m_ExistOnDisk = kxf::NativeFileSystem().FileExist(m_Path);
+			kxf::Log::Error("Failed to load file '{}', Exist on disk: {}, {}", m_Path.GetFullPath(), m_ExistOnDisk, lastError);
+
 			return false;
 		}
 	}
@@ -52,7 +56,14 @@ namespace PPR
 
 			return true;
 		}
-		return false;
+		else
+		{
+			auto lastError = kxf::Win32Error::GetLastError();
+			m_ExistOnDisk = kxf::NativeFileSystem().FileExist(m_Path);
+			kxf::Log::Error("Failed to save file '{}', Exist on disk: {}, {}", m_Path.GetFullPath(), m_ExistOnDisk, lastError);
+
+			return false;
+		}
 	}
 
 	void ConfigObject::OnWrite()

@@ -181,6 +181,7 @@ namespace PPR
 
 				if (addSignature)
 				{
+					KX_SCOPEDLOG.Info() << "Writing BOM";
 					fileStream->Write(BOM_UTF8, std::size(BOM_UTF8));
 				}
 				
@@ -198,6 +199,7 @@ namespace PPR
 				auto content = m_INI.Save();
 				if (addSignature)
 				{
+					KX_SCOPEDLOG.Info() << "Writing BOM";
 					fileStream->Write(BOM_UTF16_LE, std::size(BOM_UTF16_LE));
 				}
 
@@ -216,6 +218,7 @@ namespace PPR
 				auto content = m_INI.Save();
 				if (addSignature)
 				{
+					KX_SCOPEDLOG.Info() << "Writing BOM";
 					fileStream->Write(BOM_UTF32_LE, std::size(BOM_UTF32_LE));
 				}
 
