@@ -114,13 +114,13 @@ namespace PPR
 		config.LoadOption(RedirectorOption::SaveOnProcessDetach, L"SaveOnProcessDetach", RedirectorOption::NativeWrite);
 		config.LoadOption(RedirectorOption::SaveOnGameSave, L"SaveOnGameSave", RedirectorOption::NativeWrite);
 		config.LoadOption(RedirectorOption::ProcessInlineComments, L"ProcessInlineComments");
+		m_Options = config.GetOptions();
 
 		m_SaveOnWriteBuffer = config.GetGeneral().GetAttributeInt(L"SaveOnWriteBuffer", m_SaveOnWriteBuffer);
-		if (!m_Options.Contains(RedirectorOption::SaveOnWrite) || std::clamp(m_SaveOnWriteBuffer, 2, 2000) != m_SaveOnWriteBuffer)
+		if (!m_Options.Contains(RedirectorOption::SaveOnWrite) || std::clamp(m_SaveOnWriteBuffer, 2, 4096) != m_SaveOnWriteBuffer)
 		{
 			m_SaveOnWriteBuffer = 0;
 		}
-		m_Options = config.GetOptions();
 
 		auto encodingConverter = std::make_unique<kxf::NativeEncodingConverter>(config.GetGeneral().GetAttributeInt(L"CodePage", CP_ACP));
 
