@@ -110,7 +110,7 @@ namespace PPR::PrivateProfile
 		// Enum all keys in the section
 		if (!keyName)
 		{
-			KX_SCOPEDLOG.Trace(logCategory).Format("Enum all keys in '{}' section of file '{}'", lpFileName);
+			KX_SCOPEDLOG.Trace(logCategory).Format("Enum all keys in '{}' section of file '{}'", keyName, lpFileName);
 
 			size_t count = 0;
 			bool truncated = false;
@@ -350,7 +350,7 @@ namespace PPR::PrivateProfile
 			}
 			return false;
 		};
-		const bool memoryWriteSuccess = WriteStringToMemoryFile(appName, keyName, lpString, lpFileName);
+		bool memoryWriteSuccess = WriteStringToMemoryFile(appName, keyName, lpString, lpFileName);
 
 		if (redirector.IsOptionEnabled(RedirectorOption::NativeWrite))
 		{
@@ -359,7 +359,7 @@ namespace PPR::PrivateProfile
 				KX_SCOPEDLOG.Trace(logCategory).Format("Calling native 'WritePrivateProfileStringA'");
 				return redirector.GetFunctionTable().PrivateProfile.WriteStringA(appName, keyName, lpString, lpFileName);
 			}
-			else if constexpr (std::is_same_v<TChar, wchar_t>)
+			else if constexpr(std::is_same_v<TChar, wchar_t>)
 			{
 				KX_SCOPEDLOG.Trace(logCategory).Format("Calling native 'WritePrivateProfileStringW'");
 				return redirector.GetFunctionTable().PrivateProfile.WriteStringW(appName, keyName, lpString, lpFileName);
