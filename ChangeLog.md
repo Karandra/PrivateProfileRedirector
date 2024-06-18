@@ -1,5 +1,12 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.6, 18.06.2024
+- Updated to the latest xSE binaries, added Fallout 4 NG update support.
+- Expanded possible range for `SaveOnWriteBuffer` option to [2, 4096] and set it to 512 by default.
+- The `EnableLog` option replaced by `LogLevel`. Default log level set to `Information` level so the mod would still log initialization process.
+- Rewritten using [KxFramework](https://github.com/Karandra/KxFramework) and general refactoring.
+- !!! This update led to a lot of changes to INI processing features. Most were reimplemented to conform known specifications and assumtions based on the mod scope (Bethesda games and their mods), but the new implementation may differ from the old versions behavior. The new behavior is, hopefully, more correct.
+
 # Version 0.5.3, 07.01.2022
 - Fixed `GetPrivateProfileString`, `GetPrivateProfileSectionNames` and `GetPrivateProfileSection` for key and section names query.
 - Fixed `NativeWrite` option logic for `WritePrivateProfileStringW`.
@@ -11,7 +18,7 @@
 
 # Version 0.5.1, 22.03.2021
 - Modified INI files are no longer written with double new lines.
-- Primary location to the log file is moved to the `My Games\[xSE]` (`My Games\Skyrim Special Edition\SKSE`, `My Games\Fallout4\F4SE` and similar) folder inside the user's profile directory.
+- Primary location to the log file is moved to the `My Games\[Game]\[xSE]` (`My Games\Skyrim Special Edition\SKSE`, `My Games\Fallout4\F4SE` and similar) folder inside the user's profile directory.
 
 # Version 0.5, 25.01.2020
 - Added 'SaveOnWriteBuffer' option to accumulate changes to the same INI file before saving to disk to avoid excessive IO when many options are changed at once.
