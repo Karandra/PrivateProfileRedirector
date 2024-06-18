@@ -2,8 +2,6 @@
 #include "SKSE.h"
 #include "PrivateProfileRedirector.h"
 #include "xSE/ScriptExtenderInterface.h"
-#include "Qx/EventSystem/EvtHandler.h"
-#include "Qx/EventSystem/Events/QxConsoleEvent.h"
 
 namespace
 {
@@ -17,21 +15,21 @@ namespace
 			T* m_End = nullptr;
 
 		public:
-			AddressRange(size_t begin, size_t end)
+			constexpr AddressRange(size_t begin, size_t end) noexcept
 				:m_Begin(reinterpret_cast<T*>(begin)), m_End(reinterpret_cast<T*>(end))
 			{
 			}
 
 		public:
-			T* begin() const
+			constexpr T* begin() const noexcept
 			{
 				return m_Begin;
 			}
-			T* end() const
+			constexpr T* end() const noexcept
 			{
 				return m_End;
 			}
-			size_t size() const
+			constexpr size_t size() const noexcept
 			{
 				return m_End - m_Begin;
 			}
@@ -44,11 +42,11 @@ namespace
 
 namespace PPR
 {
-	ObScriptCommand* ConsoleCommandOverrider_SKSE::FindCommand(KxDynamicStringRefA fullName) const
+	ObScriptCommand* ConsoleCommandOverrider_SKSE::FindCommand(const kxf::String& fullName) const
 	{
 		for (ObScriptCommand& command: g_ConsoleCommandsRange)
 		{
-			if (command.longName && KxDynamicStringRefA(command.longName) == fullName)
+			if (command.longName && command.longName == fullName)
 			{
 				return &command;
 			}
@@ -64,15 +62,14 @@ namespace PPR
 
 			if (auto it = m_Commands.find(opcode); it != m_Commands.end())
 			{
-				const ObScriptCommand& originalCommand = it->second.m_OriginalCommand;
+				const ObScriptCommand& originalCommand = it->second.OriginalCommand;
 
-				QxConsoleEvent event;
-				event.SetEventID(QxConsoleEvent::EvtCommand);
+				ConsoleEvent event;
 				event.SetCommandName(originalCommand.longName);
 				event.SetCommandAlias(originalCommand.shortName);
 				event.SetCommandHelp(originalCommand.helpText);
 
-				if (!m_EvtHandler.ProcessEvent(event) || event.IsSkipped())
+				if (!m_EvtHandler.ProcessEvent(event, ConsoleEvent::EvtCommand) || event.IsSkipped())
 				{
 					return originalCommand.execute(paramInfo, scriptData, thisObj, containingObj, scriptObj, locals, result, opcodeOffset);
 				}
@@ -89,7 +86,7 @@ namespace PPR
 		return false;
 	}
 
-	bool ConsoleCommandOverrider_SKSE::OverrideCommand(KxDynamicStringRefA commandName, KxDynamicStringRefA commandHelp)
+	bool ConsoleCommandOverrider_SKSE::OverrideCommand(const kxf::String& commandName, const kxf::String& commandHelp)
 	{
 		if (ObScriptCommand* command = FindCommand(commandName))
 		{
@@ -97,8 +94,8 @@ namespace PPR
 			const CommandInfo& commandInfo = m_Commands.insert_or_assign(command->opcode, CommandInfo{*command, commandHelp}).first->second;
 
 			// Make new command
-			ObScriptCommand newCommand = commandInfo.m_OriginalCommand;
-			newCommand.helpText = commandInfo.m_HelpString.c_str();
+			ObScriptCommand newCommand = commandInfo.OriginalCommand;
+			newCommand.helpText = commandInfo.HelpString.utf8_str();
 			newCommand.execute = [](ParamInfo* paramInfo, void* scriptData, TESObjectREFR* thisObj, TESObjectREFR* containingObj, Script* scriptObj, ScriptLocals* locals, double* result, UInt32* opcodeOffset)
 			{
 				auto& instance = *SEInterface::GetInstance().GetConsoleCommandOverrider<ConsoleCommandOverrider_SKSE>();
@@ -106,12 +103,12 @@ namespace PPR
 			};
 
 			SafeWriteBuf(reinterpret_cast<uintptr_t>(command), &newCommand, sizeof(newCommand));
-			xSE_LOG("Command '%s' is overridden successfully", command->longName);
+			xSE_LOG("Command '{}' is overridden successfully", command->longName);
 
 			return true;
 		}
 
-		xSE_LOG("Can't find '%s' command to override", commandName.data());
+		xSE_LOG_WARNING("Can't find '{}' command to override", commandName);
 		return false;
 	}
 }

@@ -1,96 +1,219 @@
 #pragma once
 #include "stdafx.h"
-#include "Utility/SimpleINI.h"
-#include "Utility/KxDynamicString.h"
-#include "Utility/EnumClassOperations.h"
+#include <kxf/Serialization/INI.h>
+#include <kxf/Core/IEncodingConverter.h>
 
 namespace PPR
 {
 	class INIWrapper final
 	{
 		public:
-			using TStringRefVector = std::vector<KxDynamicStringRefW>;
-
-			enum class Options
+			enum class Options: uint32_t
 			{
 				None = 0,
-				RemoveInlineComments = 1 << 0,
-				WithBOM = 1 << 1,
+				WithBOM = 1u << 1
 			};
 			enum class Encoding
 			{
-				Auto = 0,
+				None = -1,
+				Auto,
+
 				UTF8,
 				UTF16LE,
+				UTF16BE,
+				UTF32LE,
+				UTF32BE
 			};
 
+			template<class TChar>
+			static auto EncodingFrom(const kxf::String& str, kxf::IEncodingConverter& converter)
+			{
+				if constexpr(std::is_same_v<TChar, char>)
+				{
+					return converter.ToMultiByte(kxf::StringViewOf(str));
+				}
+				else if constexpr(std::is_same_v<TChar, wchar_t>)
+				{
+					return str.wc_view();
+				}
+				else
+				{
+					static_assert(sizeof(TChar*) == 0, "invalid type");
+				}
+			}
+
+			static kxf::String EncodingTo(const char* str, kxf::IEncodingConverter& converter)
+			{
+				if (str)
+				{
+					return converter.ToWideChar(str);
+				}
+				return {};
+			}
+			static kxf::String EncodingTo(const wchar_t* str, kxf::IEncodingConverter& converter)
+			{
+				if (str)
+				{
+					return str;
+				}
+				return {};
+			}
+
+			template<class TChar, class TFunc>
+			requires(std::is_invocable_r_v<kxf::CallbackCommand, TFunc, std::basic_string<TChar>&, const kxf::String&>)
+			static std::basic_string<TChar> CreateZSSTRZZ(TFunc&& func, const std::vector<kxf::String>& items, size_t maxSize, bool* truncated, size_t* count)
+			{
+				kxf::Utility::SetIfNotNull(count, 0);
+				kxf::Utility::SetIfNotNull(truncated, false);
+
+				if (maxSize == 0)
+				{
+					return {};
+				}
+
+				size_t addedCount = 0;
+				std::basic_string<TChar> buffer;
+				buffer.reserve(maxSize <= 8192 ? maxSize : 0);
+
+				for (const kxf::String& item: items)
+				{
+					kxf::CallbackCommand result = std::invoke(func, buffer, item);
+					if (result == kxf::CallbackCommand::Continue || result == kxf::CallbackCommand::Discard)
+					{
+						if (result == kxf::CallbackCommand::Continue)
+						{
+							addedCount++;
+							buffer.append(1, 0);
+						}
+
+						if (buffer.length() >= maxSize)
+						{
+							break;
+						}
+					}
+					else if (result == kxf::CallbackCommand::Terminate)
+					{
+						break;
+					}
+				}
+				buffer.append(addedCount != 0 ? 1 : 2, 0);
+
+				kxf::Utility::SetIfNotNull(count, addedCount);
+				if (TruncateZSSTRZZ(buffer, maxSize))
+				{
+					kxf::Utility::SetIfNotNull(truncated, true);
+				}
+				return buffer;
+			}
+			
 		private:
-			CSimpleIniW m_INI;
-			Options m_Options = Options::None;
+			template<class TChar>
+			static bool TruncateZSSTRZZ(std::basic_string<TChar>& buffer, size_t maxSize)
+			{
+				if (buffer.length() > maxSize)
+				{
+					buffer.resize(maxSize);
+					if (maxSize >= 2)
+					{
+						buffer[maxSize - 2] = 0;
+					}
+					if (maxSize >= 1)
+					{
+						buffer[maxSize - 1] = 0;
+					}
+
+					return true;
+				}
+				return false;
+			}
+
+			template<class TChar>
+			static std::basic_string<TChar> ToZSSTRZZ(const std::vector<kxf::String>& items, size_t maxSize, bool* truncated, size_t* count, kxf::IEncodingConverter& converter)
+			{
+				return CreateZSSTRZZ<TChar>([&](std::basic_string<TChar>& buffer, const kxf::String& item)
+				{
+					if (!item.empty())
+					{
+						buffer.append(EncodingFrom<TChar>(item, converter));
+						return kxf::CallbackCommand::Continue;
+					}
+					return kxf::CallbackCommand::Discard;
+				}, items, maxSize, truncated, count);
+			}
 
 		private:
-			bool LoadUTF8(FILE* stream, size_t fileSize);
-			bool LoadUTF16LE(FILE* stream, size_t fileSize);
+			kxf::INIDocument m_INI;
+			kxf::FlagSet<Options> m_Options;
+			Encoding m_Encoding = Encoding::None;
 
-			KxDynamicStringRefW ExtractValue(KxDynamicStringRefW value) const;
+		private:
+			std::optional<kxf::String> ExtractValue(kxf::String value) const;
 
 		public:
-			INIWrapper()
-				:m_INI(false, false, true)
+			INIWrapper() = default;
+
+		public:
+			bool IsEmpty() const noexcept
 			{
-				m_INI.SetSpaces(false);
+				return m_INI.IsNull();
+			}
+			Encoding GetEncoding() const noexcept
+			{
+				return m_Encoding;
+			}
+			kxf::FlagSet<Options> GetOptions() const noexcept
+			{
+				return m_Options;
+			}
+
+			bool Load(const kxf::FSPath& path, kxf::FlagSet<kxf::INIDocumentOption> options);
+			bool Save(const kxf::FSPath& path, Encoding encoding = Encoding::None);
+
+			std::optional<kxf::String> QueryValue(const kxf::String& section, const kxf::String& key) const
+			{
+				if (auto value = m_INI.IniQueryValue(section, key))
+				{
+					return ExtractValue(std::move(*value));
+				}
+				return {};
+			}
+			kxf::String GetValue(const kxf::String& section, const kxf::String& key, kxf::String defaultValue = {}) const
+			{
+				auto value = QueryValue(section, key);
+				return value ? std::move(*value) : std::move(defaultValue);
+			}
+			bool SetValue(const kxf::String& section, const kxf::String& key, const kxf::String& value)
+			{
+				return m_INI.IniSetValue(section, key, value);
+			}
+
+			std::vector<kxf::String> GetSectionNames() const;
+			std::vector<kxf::String> GetKeyNames(const kxf::String& section) const;
+			bool DeleteSection(const kxf::String& section)
+			{
+				return m_INI.RemoveSection(section);
+			}
+			bool DeleteKey(const kxf::String& section, const kxf::String& key)
+			{
+				return m_INI.RemoveValue(section, key);
 			}
 
 		public:
-			bool IsEmpty() const
+			template<class TChar>
+			std::basic_string<TChar> GetSectionNamesZSSTRZZ(kxf::IEncodingConverter& converter, size_t maxSize = kxf::String::npos, bool* truncated = nullptr, size_t* count = nullptr) const
 			{
-				return m_INI.IsEmpty();
-			}
-			bool Load(KxDynamicStringRefW path, Options options = Options::None, Encoding encoding = Encoding::Auto);
-			bool Save(KxDynamicStringRefW path, Options options = Options::None, Encoding encoding = Encoding::Auto);
-
-			std::optional<KxDynamicStringRefW> QueryValue(KxDynamicStringRefW section, KxDynamicStringRefW key) const;
-			std::optional<KxDynamicStringRefW> QueryValue(KxDynamicStringRefW section, KxDynamicStringRefW key, const wchar_t* defaultValue) const;
-			std::optional<KxDynamicStringRefW> QueryValue(KxDynamicStringRefW section, KxDynamicStringRefW key, KxDynamicStringRefW defaultValue) const
-			{
-				auto value = QueryValue(section, key);
-				return value ? value : defaultValue;
+				return ToZSSTRZZ<TChar>(GetSectionNames(), maxSize, truncated, count, converter);
 			}
 
-			KxDynamicStringRefW GetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, KxDynamicStringRefW defaultValue = {}) const
+			template<class TChar>
+			std::basic_string<TChar> GetKeyNamesZSSTRZZ(kxf::IEncodingConverter& converter, const kxf::String& section, size_t maxSize = kxf::String::npos, bool* truncated = nullptr, size_t* count = nullptr) const
 			{
-				auto value = QueryValue(section, key);
-				return value ? *value : defaultValue;
+				return ToZSSTRZZ<TChar>(GetKeyNames(section), maxSize, truncated, count, converter);
 			}
-			bool SetValue(KxDynamicStringRefW section, KxDynamicStringRefW key, KxDynamicStringRefW value);
-
-			size_t GetSectionNames(TStringRefVector& sectionNames) const;
-			KxDynamicStringW GetSectionNamesZSSTRZZ(size_t maxSize = KxDynamicStringW::npos, bool* truncated = nullptr, size_t* count = nullptr) const;
-			TStringRefVector GetSectionNames() const
-			{
-				std::vector<KxDynamicStringRefW> sectionNames;
-				GetSectionNames(sectionNames);
-				return sectionNames;
-			}
-
-			size_t GetKeyNames(KxDynamicStringRefW section, TStringRefVector& keyNames) const;
-			KxDynamicStringW GetKeyNamesZSSTRZZ(KxDynamicStringRefW section, size_t maxSize = KxDynamicStringW::npos, bool* truncated = nullptr, size_t* count = nullptr) const;
-			TStringRefVector GetKeyNames(KxDynamicStringRefW section) const
-			{
-				std::vector<KxDynamicStringRefW> keyNames;
-				GetKeyNames(section, keyNames);
-				return keyNames;
-			}
-
-			bool DeleteSection(KxDynamicStringRefW section);
-			bool DeleteKey(KxDynamicStringRefW section, KxDynamicStringRefW key);
 	};
 }
 
-namespace PPR
+namespace kxf
 {
-	PPR_AllowEnumCastOp(INIWrapper::Options);
-	PPR_AllowEnumBitwiseOp(INIWrapper::Options);
-
-	PPR_AllowEnumCastOp(INIWrapper::Encoding);
+	KxFlagSet_Declare(PPR::INIWrapper::Options);
 }

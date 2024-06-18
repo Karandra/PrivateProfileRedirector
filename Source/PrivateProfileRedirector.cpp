@@ -3,25 +3,15 @@
 #include "RedirectedFunctions.h"
 #include "xSE/ScriptExtenderInterfaceIncludes.h"
 #include "xSE/ScriptExtenderInterface.h"
+#include <kxf/Core/EncodingConverter/NativeEncodingConverter.h>
+#include <kxf/Log/ScopedLoggerContext.h>
+#include <kxf/System/ShellOperations.h>
+#include <detours/detours.h>
+#include <detours/detver.h>
 
-#include <detours.h>
-#include <detver.h>
-#pragma comment(lib, "detours.lib")
-
-#include <Shlobj.h>
-
-namespace PPR
+namespace
 {
-	static Redirector* g_Instance = nullptr;
-
-	constexpr int g_VersionMajor = 0;
-	constexpr int g_VersionMinor = 5;
-	constexpr int g_VersionPatch = 3;
-	char g_VersionStringA[32] = {0};
-	wchar_t g_VersionStringW[32] = {0};
-
-	constexpr int g_SaveOnWriteBufferMin = 2;
-	constexpr int g_SaveOnWriteBufferMax = 2000;
+	std::unique_ptr<PPR::Redirector> g_Instance;
 }
 
 namespace PPR
@@ -34,48 +24,18 @@ namespace PPR
 	{
 		return *g_Instance;
 	}
-	Redirector& Redirector::CreateInstance()
-	{
-		DestroyInstance();
-		new Redirector();
 
-		return *g_Instance;
-	}
-	void Redirector::DestroyInstance()
+	kxf::String Redirector::GetLibraryName()
 	{
-		delete g_Instance;
-		g_Instance = nullptr;
+		return kxf::StringViewOf(ProjectName);
 	}
-
-	const char* Redirector::GetLibraryNameA()
+	kxf::String Redirector::GetLibraryAuthor()
 	{
-		return "PrivateProfileRedirector";
+		return kxf::StringViewOf(ProjectAuthor);
 	}
-	const wchar_t* Redirector::GetLibraryNameW()
+	kxf::Version Redirector::GetLibraryVersion()
 	{
-		return L"PrivateProfileRedirector";
-	}
-	
-	const char* Redirector::GetLibraryVersionA()
-	{
-		static char ms_VersionA[32] = {0};
-		if (*ms_VersionA == '\0')
-		{
-			sprintf_s(ms_VersionA, "%d.%d.%d", g_VersionMajor, g_VersionMinor, g_VersionPatch);
-		}
-		return ms_VersionA;
-	}
-	const wchar_t* Redirector::GetLibraryVersionW()
-	{
-		if (*g_VersionStringW == L'\0')
-		{
-			swprintf_s(g_VersionStringW, L"%d.%d.%d", g_VersionMajor, g_VersionMinor, g_VersionPatch);
-		}
-		return g_VersionStringW;
-	}
-	int Redirector::GetLibraryVersionInt()
-	{
-		return MakeFullVersion(g_VersionMajor, g_VersionMinor, g_VersionPatch);
+		return {VersionMajor, VersionMinor, VersionPatch};
 	}
 
 	bool Redirector::DllMain(HMODULE module, DWORD event)
@@ -84,14 +44,22 @@ namespace PPR
 		{
 			case DLL_PROCESS_ATTACH:
 			{
-				CreateInstance();
+				if (!g_Instance)
+				{
+					g_Instance = std::make_unique<PPR::Redirector>();
+					kxf::Log::Info("Created PPR::Redirector instance");
+				}
+				else
+				{
+					kxf::Log::Warning("An instance of PPR::Redirector already exists");
+				}
 				break;
 			}
 			case DLL_THREAD_DETACH:
 			{
 				if (g_Instance && g_Instance->IsOptionEnabled(RedirectorOption::SaveOnThreadDetach))
 				{
-					g_Instance->SaveChnagedFiles(L"On thread detach");
+					g_Instance->SaveChangedFiles(L"On thread detach");
 				}
 				break;
 			}
@@ -99,74 +67,42 @@ namespace PPR
 			{
 				if (g_Instance && g_Instance->IsOptionEnabled(RedirectorOption::SaveOnProcessDetach))
 				{
-					g_Instance->SaveChnagedFiles(L"On process detach");
+					g_Instance->SaveChangedFiles(L"On process detach");
 				}
-				DestroyInstance();
+				g_Instance = {};
 
 				break;
 			}
 		};
 		return true;
 	}
-}
-
-namespace PPR
-{
-	void Redirector::DoLog(KxDynamicStringRefA logString) const
-	{
-		auto logStringW = ConvertFromACP(logString);
-		DoLog(logStringW);
-	}
-	void Redirector::DoLog(KxDynamicStringRefW logString) const
-	{
-		ExclusiveSRWLocker lock(m_LogLock);
-
-		fwrite(logString.data(), sizeof(wchar_t), logString.size(), m_Log);
-		fputws(L"\n", m_Log);
-		fflush(m_Log);
-	}
-
-	KxDynamicStringW Redirector::GetShellDirectory(const GUID& guid) const
-	{
-		wchar_t* pathBuffer = nullptr;
-		KxCallAtScopeExit atExit = [&]()
-		{
-			if (pathBuffer)
-			{
-				::CoTaskMemFree(pathBuffer);
-			}
-		};
-
-		if (SUCCEEDED(::SHGetKnownFolderPath(guid, KF_FLAG_DONT_VERIFY, nullptr, &pathBuffer)))
-		{
-			return pathBuffer;
-		}
-		return {};
-	}
-	KxDynamicStringW Redirector::GetGameUserProfileDirectory() const
-	{
-		KxDynamicStringW path = GetShellDirectory(FOLDERID_Documents);
-		if (!path.empty())
-		{
-			path += L"\\My Games\\";
-			path += xSE_USER_PROFILE_FOLDER_NAME_W;
-			path += L"\\";
-			path += xSE_FOLDER_NAME_W;
-
-			return path;
-		}
-		return {};
-	}
 
 	void Redirector::InitConfig()
 	{
+		m_PluginFS.SetLookupDirectory(kxf::NativeFileSystem::GetCurrentModuleRootDirectory());
+		m_ConfigFS.SetLookupDirectory(kxf::Shell::GetKnownDirectory(kxf::KnownDirectoryID::Documents) / "My Games" / xSE_CONFIG_FOLDER_NAME_W / xSE_FOLDER_NAME_W);
+
 		// Load config
-		RedirectorConfigLoader config(m_Options, L"Data\\" xSE_FOLDER_NAME_W "\\Plugins\\PrivateProfileRedirector.ini");
+		RedirectorConfigLoader config(m_PluginFS.OpenToRead("PrivateProfileRedirector.ini"));
 
 		// Open log
-		if (config.GetBool(L"EnableLog"))
+		if (auto enableLog = config.GetGeneral().QueryAttributeBool(L"EnableLog"); enableLog == true)
 		{
-			OpenLog();
+			OpenLog(kxf::LogLevel::Unknown);
+		}
+		else if (auto logLevel = config.GetGeneral().QueryAttributeInt<kxf::LogLevel>(L"LogLevel"))
+		{
+			OpenLog(*logLevel);
+		}
+		KX_SCOPEDLOG_FUNC;
+		KX_SCOPEDLOG.Info().Format("{} v{} by {} loaded", Redirector::GetLibraryName(), Redirector::GetLibraryVersion().ToString(), GetLibraryAuthor());
+		KX_SCOPEDLOG.Info()
+			KX_SCOPEDLOG_VALUE_AS(m_PluginFS, m_PluginFS.GetLookupDirectory().GetFullPath())
+			KX_SCOPEDLOG_VALUE_AS(m_ConfigFS, m_ConfigFS.GetLookupDirectory().GetFullPath());
+
+		if (config.IsNull())
+		{
+			KX_SCOPEDLOG.Warning().Format("Failed to load config file, using default options");
 		}
 
 		// Load options
@@ -178,64 +114,59 @@ namespace PPR
 		config.LoadOption(RedirectorOption::SaveOnProcessDetach, L"SaveOnProcessDetach", RedirectorOption::NativeWrite);
 		config.LoadOption(RedirectorOption::SaveOnGameSave, L"SaveOnGameSave", RedirectorOption::NativeWrite);
 		config.LoadOption(RedirectorOption::ProcessInlineComments, L"ProcessInlineComments");
-		m_ANSICodePage = config.GetInt(L"ANSICodePage", m_ANSICodePage);
-		m_SaveOnWriteBuffer = config.GetInt(L"SaveOnWriteBuffer", m_SaveOnWriteBuffer);
+		m_Options = config.GetOptions();
 
-		// Correct options
-		if (m_SaveOnWriteBuffer < g_SaveOnWriteBufferMin || m_SaveOnWriteBuffer > g_SaveOnWriteBufferMax || !m_Options.IsEnabled(RedirectorOption::SaveOnWrite))
+		m_SaveOnWriteBuffer = config.GetGeneral().GetAttributeInt(L"SaveOnWriteBuffer", m_SaveOnWriteBuffer);
+		if (!m_Options.Contains(RedirectorOption::SaveOnWrite) || std::clamp(m_SaveOnWriteBuffer, 2, 4096) != m_SaveOnWriteBuffer)
 		{
 			m_SaveOnWriteBuffer = 0;
 		}
 
+		auto encodingConverter = std::make_unique<kxf::NativeEncodingConverter>(config.GetGeneral().GetAttributeInt(L"CodePage", CP_ACP));
+
 		// Print options
-		Log(L"Loaded options:");
-		config.LogOption(m_Log != nullptr, L"EnableLog");
-		config.LogOption(RedirectorOption::AllowSEVersionMismatch, L"AllowSEVersionMismatch");
-		config.LogOption(RedirectorOption::WriteProtected, L"WriteProtected");
-		config.LogOption(RedirectorOption::NativeWrite, L"NativeWrite");
-		config.LogOption(RedirectorOption::SaveOnWrite, L"SaveOnWrite");
-		config.LogOption(RedirectorOption::SaveOnThreadDetach, L"SaveOnThreadDetach");
-		config.LogOption(RedirectorOption::SaveOnProcessDetach, L"SaveOnProcessDetach");
-		config.LogOption(RedirectorOption::SaveOnGameSave, L"SaveOnGameSave");
-		config.LogOption(RedirectorOption::ProcessInlineComments, L"ProcessInlineComments");
-		config.LogOption(m_ANSICodePage, L"ANSICodePage");
-		config.LogOption(m_SaveOnWriteBuffer, L"SaveOnWriteBuffer");
+		KX_SCOPEDLOG.Info().Format("LogLevel: {} -> {}", kxf::ScopedLoggerGlobalContext::GetInstance().GetLogLevel(), kxf::Log::IsEnabled());
+		KX_SCOPEDLOG.Info().Format("AllowSEVersionMismatch: {}", m_Options.Contains(RedirectorOption::AllowSEVersionMismatch));
+		KX_SCOPEDLOG.Info().Format("WriteProtected: {}", m_Options.Contains(RedirectorOption::WriteProtected));
+		KX_SCOPEDLOG.Info().Format("NativeWrite: {}", m_Options.Contains(RedirectorOption::NativeWrite));
+		KX_SCOPEDLOG.Info().Format("SaveOnWrite: {}", m_Options.Contains(RedirectorOption::SaveOnWrite));
+		KX_SCOPEDLOG.Info().Format("SaveOnThreadDetach: {}", m_Options.Contains(RedirectorOption::SaveOnThreadDetach));
+		KX_SCOPEDLOG.Info().Format("SaveOnProcessDetach: {}", m_Options.Contains(RedirectorOption::SaveOnProcessDetach));
+		KX_SCOPEDLOG.Info().Format("SaveOnGameSave: {}", m_Options.Contains(RedirectorOption::SaveOnGameSave));
+		KX_SCOPEDLOG.Info().Format("ProcessInlineComments: {}", m_Options.Contains(RedirectorOption::ProcessInlineComments));
+		KX_SCOPEDLOG.Info().Format("SaveOnWriteBuffer: {}", m_SaveOnWriteBuffer);
+		KX_SCOPEDLOG.Info().Format("CodePage: '{}'/{}", encodingConverter->GetEncodingName(), encodingConverter->GetCodePage());
+
+		m_EncodingConverter = std::move(encodingConverter);
+		KX_SCOPEDLOG.SetSuccess();
 	}
-	bool Redirector::OpenLog()
+	bool Redirector::OpenLog(kxf::LogLevel logLevel)
 	{
-		// Get the path to the user's profile directory and try to create the log there
-		KxDynamicStringW userPath = GetGameUserProfileDirectory();
-		userPath += L"\\PrivateProfileRedirector.log";
-
-		_wfopen_s(&m_Log, userPath.data(), L"w+b");
-		if (!m_Log)
+		if (kxf::ToInt(logLevel) > 0)
 		{
-			// If failed, try to create the file in the game's directory
-			_wfopen_s(&m_Log, L"Data\\" xSE_FOLDER_NAME_W L"\\Plugins\\PrivateProfileRedirector.log", L"w+b");
-		}
+			auto stream = m_ConfigFS.OpenToWrite("PrivateProfileRedirector.log");
+			if (!stream)
+			{
+				stream = m_PluginFS.OpenToWrite("PrivateProfileRedirector.log");
+			}
 
-		if (m_Log)
-		{
-			Log(L"Log opened");
-			Log(L"%s v%s", GetLibraryNameW(), GetLibraryVersionW());
-			Log(L"Script Extender platform: %s v%s", xSE_NAME_W, xSE_VERSION_W);
+			if (stream)
+			{
+				kxf::ScopedLoggerGlobalContext::Initialize(std::make_shared<kxf::ScopedLoggerSingleFileContext>(std::move(stream)), logLevel);
 
-			return true;
+				kxf::Log::Info("{} v{}", GetLibraryName(), GetLibraryVersion().ToString());
+				kxf::Log::Info(L"Script Extender platform: {} [0x{:08x}]", xSE_NAME_W, static_cast<uint32_t>(xSE_PACKED_VERSION));
+
+				return true;
+			}
 		}
 		return false;
-	}
-	void Redirector::CloseLog()
-	{
-		if (m_Log)
-		{
-			Log(L"Log closed");
-			fclose(m_Log);
-			m_Log = nullptr;
-		}
 	}
 
 	void Redirector::InitFunctions()
 	{
+		KX_SCOPEDLOG_FUNC;
+
 		// PrivateProfile
 		m_Functions.PrivateProfile.GetStringA = ::GetPrivateProfileStringA;
 		m_Functions.PrivateProfile.GetStringW = ::GetPrivateProfileStringW;
@@ -251,9 +182,12 @@ namespace PPR
 
 		m_Functions.PrivateProfile.WriteStringA = ::WritePrivateProfileStringA;
 		m_Functions.PrivateProfile.WriteStringW = ::WritePrivateProfileStringW;
+
+		KX_SCOPEDLOG.SetSuccess();
 	}
 	void Redirector::OverrideFunctions()
 	{
+		KX_SCOPEDLOG_FUNC;
 		#define AttachFunctionN(name)	FunctionRedirector::AttachFunction(&m_Functions.PrivateProfile.##name, &PrivateProfile::##name, L#name)
 
 		// 1
@@ -284,9 +218,11 @@ namespace PPR
 		});
 
 		#undef AttachFunctionN
+		KX_SCOPEDLOG.SetSuccess();
 	}
 	void Redirector::RestoreFunctions()
 	{
+		KX_SCOPEDLOG_FUNC;
 		#define DetachFunctionN(name)	FunctionRedirector::DetachFunction(&m_Functions.PrivateProfile.##name, &PrivateProfile::##name, L#name)
 
 		// 1
@@ -317,13 +253,11 @@ namespace PPR
 		});
 
 		#undef DetachFunctionN
+		KX_SCOPEDLOG.SetSuccess();
 	}
 
 	Redirector::Redirector()
-		:m_InitialThreadID(::GetCurrentThreadId())
 	{
-		g_Instance = this;
-
 		// Load config
 		InitConfig();
 
@@ -336,76 +270,91 @@ namespace PPR
 	}
 	Redirector::~Redirector()
 	{
+		KX_SCOPEDLOG_FUNC;
+
 		RestoreFunctions();
 		FunctionRedirector::Uninitialize();
 
-		CloseLog();
-		g_Instance = nullptr;
+		KX_SCOPEDLOG.SetSuccess();
 	}
 
-	SEInterface& Redirector::GetSEInterface() const
+	SEInterface& Redirector::GetSEInterface() const noexcept
 	{
 		return SEInterface::GetInstance();
 	}
 
-	ConfigObject& Redirector::GetOrLoadFile(KxDynamicStringRefW path)
+	ConfigObject& Redirector::GetOrLoadFile(const kxf::String& filePath)
 	{
 		// Get loaded file
-		if (SharedSRWLocker lock(m_INIMapLock); true)
+		if (kxf::ReadLockGuard lock(m_INIMapLock); !m_INIMap.empty())
 		{
-			if (auto it = m_INIMap.find(path); it != m_INIMap.end())
+			if (auto it = m_INIMap.find(filePath); it != m_INIMap.end())
 			{
 				return *it->second;
 			}
 		}
 
 		// Load the file
-		ExclusiveSRWLocker lock(m_INIMapLock);
+		KX_SCOPEDLOG_ARGS(filePath);
+		kxf::WriteLockGuard lock(m_INIMapLock);
 
-		auto& config = m_INIMap.insert_or_assign(path, std::make_unique<ConfigObject>(path)).first->second;
+		auto& config = m_INIMap.insert_or_assign(filePath, std::make_unique<ConfigObject>(filePath)).first->second;
 		config->LoadFile();
 
-		Log(L"Attempt to access file: '%s' -> file object initialized. Exist on disk: %d", path.data(), config->IsExistOnDisk());
+		KX_SCOPEDLOG.Info().Format("Attempt to access file: '{}' -> file object initialized. Exist on disk: {}", filePath, config->IsExistOnDisk());
+		
+		KX_SCOPEDLOG.SetSuccess();
 		return *config;
 	}
-	void Redirector::SaveChnagedFiles(const wchar_t* message) const
+	size_t Redirector::SaveChangedFiles(const wchar_t* message) const
 	{
-		Log(L"Saving files: %s", message);
-
-		SharedSRWLocker mapLock(m_INIMapLock);
+		KX_SCOPEDLOG_ARGS(message);
 
 		size_t changedCount = 0;
-		for (const auto& [path, config]: m_INIMap)
+		if (kxf::ReadLockGuard lock(m_INIMapLock); !m_INIMap.empty())
 		{
-			auto lock = config->LockExclusive();
+			for (const auto& [path, config]: m_INIMap)
+			{
+				auto lock = config->LockExclusive();
 
-			if (config->HasChanges())
-			{
-				changedCount++;
-				config->SaveFile();
-				Log(L"File saved: '%s', Is empty: %d", path.data(), (int)config->IsEmpty());
+				if (config->HasChanges())
+				{
+					if (config->SaveFile())
+					{
+						changedCount++;
+						KX_SCOPEDLOG.Info().Format("File saved: '{}', is empty: {}", path, config->IsEmpty());
+					}
+				}
+				else
+				{
+					KX_SCOPEDLOG.Info().Format("No changes: '{}', is empty: {}", path, config->IsEmpty());
+				}
 			}
-			else
-			{
-				Log(L"No changes: '%s', Is empty: %d", path.data(), (int)config->IsEmpty());
-			}
+			KX_SCOPEDLOG.Info().Format("All changed files saved. Total: {}, Changed: {}", m_INIMap.size(), changedCount);
 		}
-		Log(L"All changed files saved. Total: %zu, Changed: %zu", m_INIMap.size(), changedCount);
+
+		KX_SCOPEDLOG.LogReturn(changedCount);
+		return changedCount;
 	}
 	size_t Redirector::RefreshINI()
 	{
-		Log(L"Executing 'RefreshINI'");
-		ExclusiveSRWLocker mapLock(m_INIMapLock);
+		KX_SCOPEDLOG_FUNC;
 
-		for (const auto& [path, config]: m_INIMap)
+		size_t count = 0;
+		if (kxf::WriteLockGuard lock(m_INIMapLock); !m_INIMap.empty())
 		{
-			Log(L"Reloading '%s'", path.data());
-			
-			auto lock = config->LockExclusive();
-			config->LoadFile();
+			for (const auto& [path, config]: m_INIMap)
+			{
+				KX_SCOPEDLOG.Info().Format(L"Reloading '{}'", path);
+
+				auto lock = config->LockExclusive();
+				config->LoadFile();
+				count++;
+			}
+			KX_SCOPEDLOG.Info().Format(L"Executing 'RefreshINI' done, {} files reloaded", m_INIMap.size());
 		}
 
-		Log(L"Executing 'RefreshINI' done, %zu files reloaded.", m_INIMap.size());
-		return m_INIMap.size();
+		KX_SCOPEDLOG.LogReturn(count);
+		return count;
 	}
 }

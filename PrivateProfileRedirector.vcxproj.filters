@@ -8,24 +8,12 @@
     <Filter Include="Code\xSE">
       <UniqueIdentifier>{57b08a04-a4a6-4158-9545-bcc203a02920}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Utility">
-      <UniqueIdentifier>{57f912be-12f4-44b9-bd34-6ba680dda8ae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Resources\Utility">
       <UniqueIdentifier>{681ea3ad-ef1e-4577-a6ac-4182e65ed129}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Qx">
-      <UniqueIdentifier>{87830748-708a-4f0e-b83a-48bd89958247}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Qx\EventSystem">
-      <UniqueIdentifier>{7065a296-6ba7-4f06-8496-db933488912b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Code\Qx\EventSystem\Events">
-      <UniqueIdentifier>{f16bf61b-55ed-416d-8ac6-d1a6e4047e0e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\xSE\ConsoleCommandOverrider">
       <UniqueIdentifier>{7193ec96-b0b7-465f-b415-fbe9d1b8575c}</UniqueIdentifier>
@@ -35,39 +23,6 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\CriticalSection.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\EnumClassOperations.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxBasicDynamicString.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxCallAtScopeExit.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxDynamicString.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxOptionSet.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\KxWithOptions.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\LibraryHandle.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\SimpleINI.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\SRWLock.h">
-      <Filter>Code\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\String.h">
-      <Filter>Code\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Source\xSE\ScriptExtenderInterfaceNVSE.h">
       <Filter>Code\xSE</Filter>
@@ -105,42 +60,6 @@
     <ClInclude Include="Source\RedirectedFunctions.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\CallWrapper.h">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\Common.h">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\Event.h">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\EventBuilder.h">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\EventFilter.h">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\EventItem.h">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\EvtHandler.h">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\ClientData.h">
-      <Filter>Code\Qx</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\Utility.h">
-      <Filter>Code\Qx</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\Events\QxIdleEvent.h">
-      <Filter>Code\Qx\EventSystem\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\Events\QxNotifyEvent.h">
-      <Filter>Code\Qx\EventSystem\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\Events\QxConsoleEvent.h">
-      <Filter>Code\Qx\EventSystem\Events</Filter>
-    </ClInclude>
     <ClInclude Include="Source\xSE\IConsoleCommandOverrider.h">
       <Filter>Code\xSE</Filter>
     </ClInclude>
@@ -153,8 +72,17 @@
     <ClInclude Include="Source\xSE\ConsoleCommandOverrider\SKSE.h">
       <Filter>Code\xSE\ConsoleCommandOverrider</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Qx\EventSystem\Events\QxGameEvent.h">
-      <Filter>Code\Qx\EventSystem\Events</Filter>
+    <ClInclude Include="Source\Common.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CommonWinAPI.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\xSE\ConsoleEvent.h">
+      <Filter>Code\xSE</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\xSE\GameEvent.h">
+      <Filter>Code\xSE</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -162,12 +90,6 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Source\Utility\KxDynamicString.cpp">
-      <Filter>Code\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Utility\String.cpp">
-      <Filter>Code\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="Source\RedirectedFunctions.cpp">
       <Filter>Code</Filter>
     </ClCompile>
@@ -188,18 +110,6 @@
     </ClCompile>
     <ClCompile Include="Source\xSE\ScriptExtenderInterface.cpp">
       <Filter>Code\xSE</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Qx\EventSystem\Event.cpp">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Qx\EventSystem\EventBuilder.cpp">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Qx\EventSystem\EventItem.cpp">
-      <Filter>Code\Qx\EventSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Qx\EventSystem\EvtHandler.cpp">
-      <Filter>Code\Qx\EventSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\xSE\ConsoleCommandOverrider\SKSE64.cpp">
       <Filter>Code\xSE\ConsoleCommandOverrider</Filter>
@@ -226,15 +136,13 @@
     <None Include="ChangeLog.md">
       <Filter>Resources</Filter>
     </None>
+    <None Include="README.md">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Build\PrivateProfileRedirector_preload.txt">
       <Filter>Resources</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="Source\Utility\KxBasicDynamicString.natvis">
-      <Filter>Resources\Utility</Filter>
-    </Natvis>
   </ItemGroup>
 </Project>

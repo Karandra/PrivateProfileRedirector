@@ -1,10 +1,6 @@
 #include "stdafx.h"
 #include "ScriptExtenderInterface.h"
 #include "PrivateProfileRedirector.h"
-
-#pragma warning(disable: 4005) // macro redefinition
-#pragma warning(disable: 4244) // conversion from 'x' to 'y', possible loss of data
-#pragma warning(disable: 4267) // conversion from 'size_t' to 'y', possible loss of data
 #include "ScriptExtenderInterfaceIncludes.h"
 
 #if xSE_PLATFORM_SKSE
@@ -16,17 +12,46 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////
+bool xSE_PRELOADFUNCTION(const xSE_Interface* xSE)
+{
+	xSE_LOG("[{}] On preload plugin", _CRT_STRINGIZE(xSE_PRELOADFUNCTION));
+
+	if (xSE)
+	{
+		xSE_LOG("Preloaded by Script Extender");
+	}
+	else
+	{
+		xSE_LOG("Preloaded by xSE PluginPreloader");
+	}
+	PPR::Redirector::GetInstance().DllMain(nullptr, DLL_PROCESS_ATTACH);
+
+	return true;
+}
 bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 {
 	using namespace PPR;
-	xSE_LOG("[" _CRT_STRINGIZE(xSE_QUERYFUNCTION) "] On query plugin info");
+	xSE_LOG("[{}] On query plugin info", _CRT_STRINGIZE(xSE_QUERYFUNCTION));
 
 	// Set info
 	if (pluginInfo)
 	{
+		struct PluginInfoData final
+		{
+			std::string Name;
+			uint32_t Version = 0;
+
+			PluginInfoData()
+			{
+				Name = Redirector::GetLibraryName().utf8_view();
+				Version = PPR::VersionFull;
+			}
+		};
+		static const PluginInfoData data;
+
 		pluginInfo->infoVersion = PluginInfo::kInfoVersion;
-		pluginInfo->name = Redirector::GetLibraryNameA();
-		pluginInfo->version = Redirector::GetLibraryVersionInt();
+		pluginInfo->name = data.Name.c_str();
+		pluginInfo->version = data.Version;
 	}
 
 	// Save handle
@@ -37,9 +62,8 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 	constexpr auto compiledVersion = xSE_PACKED_VERSION;
 	if (!SEInterface::GetInstance().OnCheckVersion(interfaceVersion, compiledVersion))
 	{
-		xSE_LOG("This plugin might be incompatible with this version of " xSE_NAME_A);
-		xSE_LOG("Script Extender interface version '%u', expected '%u'", static_cast<uint32_t>(interfaceVersion), static_cast<uint32_t>(compiledVersion));
-		xSE_LOG("Script Extender functions will be disabled");
+		xSE_LOG_WARNING("This plugin might be incompatible with this version of {}", xSE_NAME_A);
+		xSE_LOG_WARNING("Script Extender interface version '{}', expected '{}', Script Extender functions will be disabled", interfaceVersion, compiledVersion);
 
 		pluginHandle = kPluginHandle_Invalid;
 	}
@@ -52,11 +76,11 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 		scaleform = static_cast<xSE_ScaleformInterface*>(xSE->QueryInterface(kInterface_Scaleform));
 		if (!scaleform)
 		{
-			xSE_LOG("Couldn't get scaleform interface");
+			xSE_LOG_WARNING("Couldn't get scaleform interface");
 		}
 		if (scaleform && scaleform->interfaceVersion < xSE_ScaleformInterface::kInterfaceVersion)
 		{
-			xSE_LOG("Scaleform interface too old (%d, expected %d)", (int)scaleform->interfaceVersion, (int)xSE_ScaleformInterface::kInterfaceVersion);
+			xSE_LOG_WARNING("Scaleform interface too old ({}, expected {})", scaleform->interfaceVersion, xSE_ScaleformInterface::kInterfaceVersion);
 			scaleform = nullptr;
 		}
 	}
@@ -70,11 +94,11 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 		messaging = static_cast<xSE_MessagingInterface*>(xSE->QueryInterface(kInterface_Messaging));
 		if (!messaging)
 		{
-			xSE_LOG("Couldn't get messaging interface");
+			xSE_LOG_WARNING("Couldn't get messaging interface");
 		}
 		if (messaging && messaging->interfaceVersion < xSE_MessagingInterface::kInterfaceVersion)
 		{
-			xSE_LOG("Messaging interface too old (%d, expected %d)", (int)messaging->interfaceVersion, (int)xSE_MessagingInterface::kInterfaceVersion);
+			xSE_LOG_WARNING("Messaging interface too old ({}, expected {})", messaging->interfaceVersion, xSE_MessagingInterface::kInterfaceVersion);
 			messaging = nullptr;
 		}
 	}
@@ -85,10 +109,10 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 {
 	using namespace PPR;
-	xSE_LOG("[" _CRT_STRINGIZE(xSE_LOADFUNCTION) "] On load plugin");
+	xSE_LOG("[{}] On load plugin", _CRT_STRINGIZE(xSE_LOADFUNCTION));
 
-	#if xSE_PLATFORM_SKSE64AE
-	if (!xSE_QUERYFUNCTION(xSE, nullptr))
+	#if xSE_PLATFORM_SKSE64AE || xSE_PLATFORM_F4SE
+	if (PluginInfo pluginInfo; !xSE_QUERYFUNCTION(xSE, &pluginInfo))
 	{
 		return false;
 	}
@@ -97,14 +121,7 @@ bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 	SEInterface& instance = SEInterface::GetInstance();
 	if (instance.OnLoad())
 	{
-		Redirector::GetInstance().Log(L"[" xSE_NAME_A L"] %s %s loaded", Redirector::GetLibraryNameW(), Redirector::GetLibraryVersionW());
-		
-		#if xSE_HAS_SE_LOG
-		if (SEInterface::GetInstance().CanUseSEFunctions())
-		{
-			_MESSAGE("[" xSE_NAME_A "] %s %s loaded", Redirector::GetLibraryNameA(), Redirector::GetLibraryVersionA());
-		}
-		#endif
+		xSE_LOG(L"[{}] {} v{} by {} loaded", xSE_NAME_A, Redirector::GetLibraryName(), Redirector::GetLibraryVersion().ToString(), Redirector::GetLibraryAuthor());
 		return true;
 	}
 	return false;
@@ -118,18 +135,38 @@ extern "C" __declspec(dllexport) constinit auto SKSEPlugin_Version = []() conste
 	versionData.compatibleVersions[0] = CURRENT_RELEASE_RUNTIME;
 	versionData.versionIndependence = SKSEPluginVersionData::kVersionIndependent_Signatures;
 	versionData.versionIndependenceEx = SKSEPluginVersionData::kVersionIndependentEx_NoStructUse;
-	versionData.pluginVersion = PPR::MakeFullVersion(0, 5, 3);
+	versionData.pluginVersion = PPR::VersionFull;
 
-	std::ranges::copy("PrivateProfileRedirector", versionData.name);
-	std::ranges::copy("Karandra", versionData.author);
+	std::ranges::copy(PPR::ProjectName, versionData.name);
+	std::ranges::copy(PPR::ProjectAuthor, versionData.author);
+
+	return versionData;
+}();
+#elif xSE_PLATFORM_F4SE
+extern "C" __declspec(dllexport) constinit auto F4SEPlugin_Version = []() constexpr
+{
+	F4SEPluginVersionData versionData = {};
+	versionData.dataVersion = F4SEPluginVersionData::kVersion;
+	versionData.compatibleVersions[0] = CURRENT_RELEASE_RUNTIME;
+	versionData.addressIndependence = F4SEPluginVersionData::kAddressIndependence_Signatures;
+	versionData.structureIndependence = F4SEPluginVersionData::kStructureIndependence_NoStructs|F4SEPluginVersionData::kStructureIndependence_1_10_980Layout;
+	versionData.pluginVersion = PPR::VersionFull;
+
+	std::ranges::copy(PPR::ProjectName, versionData.name);
+	std::ranges::copy(PPR::ProjectAuthor, versionData.author);
 
 	return versionData;
 }();
 #endif
 
+bool xSE_CAN_USE_SCRIPTEXTENDER() noexcept
+{
+	return PPR::SEInterface::GetInstance().CanUseSEFunctions();
+}
+
 namespace PPR
 {
-	SEInterface& SEInterface::GetInstance()
+	SEInterface& SEInterface::GetInstance() noexcept
 	{
 		static SEInterface ms_Instance;
 		return ms_Instance;
@@ -153,19 +190,16 @@ namespace PPR
 	{
 		if (CanUseSEFunctions())
 		{
-			InitConsoleCommandOverrider();
-			InitGameMessageDispatcher();
-
 			// Events
-			Bind(QxConsoleEvent::EvtCommand, &SEInterface::OnConsoleCommand, this);
-			Bind(QxGameEvent::EvtGameSave, &SEInterface::OnGameSave, this);
+			Bind(ConsoleEvent::EvtCommand, &SEInterface::OnConsoleCommand, this);
+			Bind(GameEvent::EvtGameSave, &SEInterface::OnGameSave, this);
 		}
 		return true;
 	}
 
 	bool SEInterface::DoPrintConsole(const char* string) const
 	{
-		GetRedirector().Log("Printed to console: %s", string);
+		xSE_LOG("Printed to console: '{}'", string);
 
 		#if !xSE_PLATFORM_NVSE
 		Console_Print("%s", string);
@@ -176,132 +210,160 @@ namespace PPR
 	}
 	void SEInterface::InitConsoleCommandOverrider()
 	{
-		#if xSE_PLATFORM_SKSE
-		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE>(*this);
-		#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE|| xSE_PLATFORM_SKSEVR
-		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE64>(*this);
-		#elif xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
-		m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_F4SE>(*this);
-		#endif
-
-		if (m_ConsoleCommandOverrider)
+		if (!m_ConsoleCommandOverrider)
 		{
-			m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", "[Redirector] Reloads INIs content from disk and calls original 'RefreshINI' after it");
+			#if xSE_PLATFORM_SKSE
+			m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE>(*this);
+			#elif xSE_PLATFORM_SKSE64 || xSE_PLATFORM_SKSE64AE|| xSE_PLATFORM_SKSEVR
+			m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE64>(*this);
+			#elif xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
+			m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_F4SE>(*this);
+			#endif
+
+			if (m_ConsoleCommandOverrider)
+			{
+				m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", kxf::Format("[{}] Reloads INI files content from disk and calls the original 'RefreshINI' afterwards", kxf::StringViewOf(PPR::ProjectName)));
+			}
 		}
 	}
 	void SEInterface::InitGameMessageDispatcher()
 	{
 		#if xSE_HAS_MESSAGING_INTERFACE
-		if (m_Messaging)
+		if (m_Messaging && !m_GameEventListenerRegistered && GetRedirector().IsOptionEnabled(RedirectorOption::SaveOnGameSave))
 		{
-			if (GetRedirector().IsOptionEnabled(RedirectorOption::SaveOnGameSave))
+			auto senderName = xSE_FOLDER_NAME_A;
+			m_GameEventListenerRegistered = m_Messaging->RegisterListener(m_PluginHandle, senderName, [](xSE_MessagingInterface::Message* msg)
 			{
-				m_Messaging->RegisterListener(m_PluginHandle, "SKSE", [](xSE_MessagingInterface::Message* msg)
+				if (msg)
 				{
-					if (msg)
+					auto MapEventID = [](uint32_t messageID) -> kxf::EventID
 					{
-						auto MapEventID = [](uint32_t messageID) -> QxEventID
+						switch (messageID)
 						{
-							switch (messageID)
+							case xSE_MessagingInterface::kMessage_PostPostLoad:
 							{
-								case xSE_MessagingInterface::kMessage_PostPostLoad:
-								{
-									return QxGameEvent::EvtPluginsLoaded;
-								}
-								case xSE_MessagingInterface::kMessage_InputLoaded:
-								{
-									return QxGameEvent::EvtInputLoaded;
-								}
+								return GameEvent::EvtPluginsLoaded;
+							}
+							case xSE_MessagingInterface::kMessage_InputLoaded:
+							{
+								return GameEvent::EvtInputLoaded;
+							}
 
-								#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
-								case xSE_MessagingInterface::kMessage_GameDataReady:
-								{
-									return QxGameEvent::EvtDataLoaded;
-								}
-								#else
-								case xSE_MessagingInterface::kMessage_DataLoaded:
-								{
-									return QxGameEvent::EvtDataLoaded;
-								}
-								#endif
+							#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
+							case xSE_MessagingInterface::kMessage_GameDataReady:
+							{
+								return GameEvent::EvtDataLoaded;
+							}
+							#else
+							case xSE_MessagingInterface::kMessage_DataLoaded:
+							{
+								return GameEvent::EvtDataLoaded;
+							}
+							#endif
 
 
-								case xSE_MessagingInterface::kMessage_NewGame:
-								{
-									return QxGameEvent::EvtNewGame;
-								}
+							case xSE_MessagingInterface::kMessage_NewGame:
+							{
+								return GameEvent::EvtNewGame;
+							}
 
-								#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
-								case xSE_MessagingInterface::kMessage_PreSaveGame:
-								{
-									return QxGameEvent::EvtGameSave;
-								}
-								case xSE_MessagingInterface::kMessage_PostSaveGame:
-								{
-									return QxGameEvent::EvtGameSaved;
-								}
-								#else
-								case xSE_MessagingInterface::kMessage_SaveGame:
-								{
-									return QxGameEvent::EvtGameSave;
-								}
-								#endif
+							#if xSE_PLATFORM_F4SE || xSE_PLATFORM_F4SEVR
+							case xSE_MessagingInterface::kMessage_PreSaveGame:
+							{
+								return GameEvent::EvtGameSave;
+							}
+							case xSE_MessagingInterface::kMessage_PostSaveGame:
+							{
+								return GameEvent::EvtGameSaved;
+							}
+							#else
+							case xSE_MessagingInterface::kMessage_SaveGame:
+							{
+								return GameEvent::EvtGameSave;
+							}
+							#endif
 
-								case xSE_MessagingInterface::kMessage_PreLoadGame:
-								{
-									return QxGameEvent::EvtGameLoad;
-								}
-								case xSE_MessagingInterface::kMessage_PostLoadGame:
-								{
-									return QxGameEvent::EvtGameLoaded;
-								}
-								case xSE_MessagingInterface::kMessage_DeleteGame:
-								{
-									return QxGameEvent::EvtDeleteSavedGame;
-								}
-							};
-							return QxEvent::EvtNull;
+							case xSE_MessagingInterface::kMessage_PreLoadGame:
+							{
+								return GameEvent::EvtGameLoad;
+							}
+							case xSE_MessagingInterface::kMessage_PostLoadGame:
+							{
+								return GameEvent::EvtGameLoaded;
+							}
+							case xSE_MessagingInterface::kMessage_DeleteGame:
+							{
+								return GameEvent::EvtDeleteSavedGame;
+							}
 						};
-
-						QxEventID eventID = MapEventID(msg->type);
-						if (eventID != QxEvent::EvtNull)
-						{
-							SEInterface::GetInstance().ProcessEventEx<QxGameEvent>(eventID, msg->data, msg->dataLen).Do();
-						}
+						return kxf::IEvent::EvtNull;
+					};
+					if (auto eventID = MapEventID(msg->type))
+					{
+						GameEvent event(msg->data, msg->dataLen);
+						SEInterface::GetInstance().ProcessEvent(event, eventID);
 					}
-				});
+				}
+			});
+
+			if (m_GameEventListenerRegistered)
+			{
+				xSE_LOG("Game event listener registered successfully for sender: '{}'", senderName);
+			}
+			else
+			{
+				xSE_LOG_WARNING("Failed to register game event listener for sender: '{}'", senderName);
 			}
 		}
 		#endif
 	}
 
-	void SEInterface::OnConsoleCommand(QxConsoleEvent& event)
+	void SEInterface::OnConsoleCommand(ConsoleEvent& event)
 	{
 		auto commandName = event.GetCommandName();
 		if (commandName == "RefreshINI")
 		{
-			PrintConsole("Executing '%s'", commandName.c_str());
+			PrintConsole("Executing '{}'", commandName);
 
 			const size_t reloadedCount = Redirector::GetInstance().RefreshINI();
-			PrintConsole("Executing '%s' done, %u files reloaded.", commandName.c_str(), static_cast<unsigned int>(reloadedCount));
+			PrintConsole("Executing '{}' done, {} files reloaded.", commandName, reloadedCount);
 		}
 		else
 		{
-			PrintConsole("Unknown command '%s'", commandName.c_str());
+			PrintConsole("Unknown command '{}'", commandName);
 		}
 
 		// Allow original console command to be called after
 		event.Skip();
 	}
-	void SEInterface::OnGameSave(QxGameEvent& event)
+	void SEInterface::OnGameSave(GameEvent& event)
 	{
 		auto saveFile = event.GetSaveFile();
 
-		GetRedirector().Log("Saving game: %s", saveFile.data());
-		GetRedirector().SaveChnagedFiles(L"On game save");
+		xSE_LOG("Saving game: {}", saveFile);
+		GetRedirector().SaveChangedFiles(L"On game save");
 	}
 
-	SEInterface::SEInterface()
+	// IEvtHandler
+	bool SEInterface::OnDynamicBind(EventItem& eventItem)
+	{
+		if (CanUseSEFunctions())
+		{
+			auto id = eventItem.GetEventID();
+			if (id.IsOfEventClass<ConsoleEvent>())
+			{
+				InitConsoleCommandOverrider();
+			}
+			else if (id.IsOfEventClass<GameEvent>())
+			{
+				InitGameMessageDispatcher();
+			}
+		}
+
+		return EvtHandler::OnDynamicBind(eventItem);
+	}
+	
+	SEInterface::SEInterface() noexcept
 		:m_PluginHandle(kPluginHandle_Invalid)
 	{
 	}

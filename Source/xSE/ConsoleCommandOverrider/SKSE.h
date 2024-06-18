@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "xSE\IConsoleCommandOverrider.h"
 #include "xSE\ScriptExtenderInterfaceIncludes.h"
-#include "Utility/KxDynamicString.h"
 
 namespace PPR
 {
@@ -12,25 +11,25 @@ namespace PPR
 			using ObScriptCommand = ::CommandInfo;
 			struct CommandInfo
 			{
-				ObScriptCommand m_OriginalCommand;
-				KxDynamicStringA m_HelpString;
+				ObScriptCommand OriginalCommand;
+				kxf::String HelpString;
 			};
 
 		private:
-			QxEvtHandler& m_EvtHandler;
+			kxf::IEvtHandler& m_EvtHandler;
 			std::unordered_map<uint32_t, CommandInfo> m_Commands;
 
 		private:
-			ObScriptCommand* FindCommand(KxDynamicStringRefA fullName) const;
+			ObScriptCommand* FindCommand(const kxf::String& fullName) const;
 			bool OnCommand(ParamInfo* paramInfo, void* scriptData, TESObjectREFR* thisObj, TESObjectREFR* containingObj, Script* scriptObj, ScriptLocals* locals, double* result, UInt32* opcodeOffset);
 		
 		public:
-			ConsoleCommandOverrider_SKSE(QxEvtHandler& evtHandler)
+			ConsoleCommandOverrider_SKSE(kxf::IEvtHandler& evtHandler)
 				:m_EvtHandler(evtHandler)
 			{
 			}
 
 		public:
-			bool OverrideCommand(KxDynamicStringRefA commandName, KxDynamicStringRefA commandHelp) override;
+			bool OverrideCommand(const kxf::String& commandName, const kxf::String& commandHelp) override;
 	};
 }

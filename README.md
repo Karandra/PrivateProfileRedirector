@@ -11,16 +11,16 @@ When the game, ENB or something else calls `GetPrivateProfileString` first time 
 
 
 # Requirements
-- Skyrim LE: SKSE, [SKSE Plugin Preloader](https://www.nexusmods.com/skyrim/mods/75795).
-- Skyrim SE: SKSE64, [SSE Engine Fixes](https://www.nexusmods.com/skyrimspecialedition/mods/17230).
-- Fallout 4: F4SE, [xSE PluginPreloader](https://github.com/KerberX/xSE-PluginPreloader).
+- Skyrim LE: [SKSE](https://skse.silverlock.org), [SKSE Plugin Preloader](https://www.nexusmods.com/skyrim/mods/75795).
+- Skyrim SE/AE/VR: [SKSE64](https://skse.silverlock.org), [SSE Engine Fixes](https://www.nexusmods.com/skyrimspecialedition/mods/17230).
+- Fallout 4/VR: [F4SE](https://f4se.silverlock.org), [xSE PluginPreloader](https://github.com/KerberX/xSE-PluginPreloader).
 
 # Download page
 - [Skyrim LE](https://www.nexusmods.com/skyrim/mods/92725)
-- [Skyrim SE](https://www.nexusmods.com/skyrimspecialedition/mods/18860)
-- [Fallout 4](https://www.nexusmods.com/fallout4/mods/33947)
+- [Skyrim SE/AE/VR](https://www.nexusmods.com/skyrimspecialedition/mods/18860)
+- [Fallout 4/VR](https://www.nexusmods.com/fallout4/mods/33947)
 
-# Covered functions
+# Covered WinAPI functions
 - GetPrivateProfileStringA
 - GetPrivateProfileStringW
 - WritePrivateProfileStringA
@@ -42,7 +42,13 @@ Plugin can be configures in its own INI file, each parameter is described inside
 **Q:** Will this work with MO/NMM/Vortex/Kortex (yeah, I had to mention it) or any other mod manager?  
 **A:** It was tested with MO2 and Kortex and no problems was found. Vortex and NMM have not been tested yet but are expected to work just fine. I can't say anything about compatibility with other mod managers.  
 
-MO1 is Not compatible, Mo1 uses those same functions this plugin hooks to inject the BSA list into the INI settings and a bunch of other stuff. This plugin interferes with that making Mo1 not work correctly. MO1 already has some optimizations in place for this problem so this mod is not really needed that much for MO1 users. 
+Mod Organizer 1 is Not compatible, MO1 uses those same functions this plugin hooks to inject the BSA list into the INI settings and a bunch of other stuff. This plugin interferes with that making MO1 not work correctly. MO1 already has some optimizations in place for this problem so this mod is not really needed that much for MO1 users. 
 
 **Q:** I installed it and game crashes at startup.  
 **A:** Enable log in config file and reproduce your crash. Go to Data\SKSE\Plugins, look for file PrivateProfileRedirector.log, zip it, upload it somewhere and post a link to it in your issue report. Log file can be more that 100 MB, so don't upload it as is, be sure to compress it.
+
+# Building
+To build this project from sources you'll need:
+- Visual Studio 2022.
+- The source code for all supported xSE projects you want to buuld it for (NVSE is preset and builds, but isn't supported).
+- [KxFramework](https://github.com/Karandra/KxFramework) and [Microsoft Detours](https://github.com/microsoft/Detours). Both can be installed through VCPkg.

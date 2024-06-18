@@ -1,6 +1,6 @@
 #pragma once
-#include "Utility/KxDynamicString.h"
-class QxEvtHandler;
+#include <kxf/EventSystem/IEvtHandler.h>
+#include "ConsoleEvent.h"
 
 namespace PPR
 {
@@ -10,6 +10,6 @@ namespace PPR
 			virtual ~IConsoleCommandOverrider() = default;
 
 		public:
-			virtual bool OverrideCommand(KxDynamicStringRefA commandName, KxDynamicStringRefA commandHelp) = 0;
+			virtual bool OverrideCommand(const kxf::String& commandName, const kxf::String& commandHelp) = 0;
 	};
 }

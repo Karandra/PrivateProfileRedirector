@@ -1,157 +1,189 @@
 #include "stdafx.h"
 #include "RedirectedFunctions.h"
 #include "PrivateProfileRedirector.h"
+#include <kxf/Log/Categories.h>
+#include <kxf/System/Win32Error.h>
 #include <strsafe.h>
-#pragma warning(disable: 4267) // conversion from 'x' to 'y', possible loss of data
-#pragma warning(disable: 4244) // ~
 
 #undef PPR_API
 #define PPR_API(retType) retType WINAPI
 
 namespace
 {
-	template<class T, class TChar>
-	void CopyToBuffer(TChar* buffer, const T& data)
+	namespace LogCategory
 	{
-		std::memcpy(buffer, data.data(), data.size() * sizeof(TChar));
+		KX_DefineLogCategory(GetPrivateProfileStringA);
+		KX_DefineLogCategory(GetPrivateProfileStringW);
+		KX_DefineLogCategory(GetPrivateProfileIntA);
+		KX_DefineLogCategory(GetPrivateProfileIntW);
+		KX_DefineLogCategory(GetPrivateProfileSectionNamesA);
+		KX_DefineLogCategory(GetPrivateProfileSectionNamesW);
+		KX_DefineLogCategory(GetPrivateProfileSectionA);
+		KX_DefineLogCategory(GetPrivateProfileSectionW);
+		KX_DefineLogCategory(WritePrivateProfileStringA);
+		KX_DefineLogCategory(WritePrivateProfileStringW);
 	}
-	
-	const wchar_t* DataOrNull(const KxDynamicStringW& string)
+
+	template<class TChar>
+	HRESULT StringCopyBuffer(TChar* dst, size_t dstSize, const TChar* src, size_t srcSize) noexcept
 	{
-		return string.empty() ? nullptr : string.data();
+		if (dst && src)
+		{
+			size_t copySize = std::min(dstSize, srcSize);
+			if (copySize == 0)
+			{
+				return STRSAFE_E_INSUFFICIENT_BUFFER;
+			}
+
+			std::memcpy(dst, src, copySize * sizeof(TChar));
+			if (dstSize > srcSize)
+			{
+				// Null-terminate at the position past copied data
+				dst[srcSize] = 0;
+				return S_OK;
+			}
+			else if (dstSize == srcSize && dst[dstSize - 1] == 0)
+			{
+				// There's no need to null-terminate anything as the copied data
+				// is already null-terminated. This way we can return S_OK here
+				// instead of STRSAFE_E_INSUFFICIENT_BUFFER
+				return S_OK;
+			}
+			else
+			{
+				// Replace the last copied character with the null-terminator
+				dst[copySize - 1] = 0;
+				return STRSAFE_E_INSUFFICIENT_BUFFER;
+			}
+		}
+		return STRSAFE_E_INVALID_PARAMETER;
 	}
 }
 
 namespace PPR::PrivateProfile
 {
-	PPR_API(DWORD) GetStringA(LPCSTR appName, LPCSTR keyName, LPCSTR defaultValue, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
+	template<class TChar>
+	DWORD GetStringT(kxf::StringView logCategory, const TChar* appName, const TChar* keyName, const TChar* defaultValue, TChar* lpReturnedString, DWORD nSize, const TChar* lpFileName)
 	{
-		Redirector& redirector = Redirector::GetInstance();
+		KX_SCOPEDLOG_AUTO;
+		KX_SCOPEDLOG.Trace(logCategory).Format("Section: '{}', Key: '{}', Default: '{}', Buffer size: '{}', Path: '{}'", appName, keyName, defaultValue, nSize, lpFileName);
 
-		KxDynamicStringW appNameW = redirector.ConvertFromACP(appName);
-		KxDynamicStringW keyNameW = redirector.ConvertFromACP(keyName);
-		KxDynamicStringW defaultValueW = redirector.ConvertFromACP(defaultValue);
-		KxDynamicStringW lpFileNameW = redirector.ConvertFromACP(lpFileName);
-
-		redirector.Log(L"[GetPrivateProfileStringA] Redirecting to 'GetPrivateProfileStringW'");
-
-		KxDynamicStringW lpReturnedStringW;
-		lpReturnedStringW.resize(nSize + 1);
-
-		const DWORD length = GetStringW(DataOrNull(appNameW),
-										DataOrNull(keyNameW),
-										DataOrNull(defaultValueW),
-										lpReturnedStringW.data(),
-										nSize,
-										DataOrNull(lpFileNameW)
-		);
-		if (length != 0)
+		if (!lpFileName)
 		{
-			KxDynamicStringA result = redirector.ConvertToACP(lpReturnedStringW.data(), length);
-			StringCchCopyNA(lpReturnedString, nSize, result.data(), result.length());
+			::SetLastError(ERROR_FILE_NOT_FOUND);
+			return 0;
+		}
+		if (!lpReturnedString || nSize < 2)
+		{
+			::SetLastError(ERROR_INSUFFICIENT_BUFFER);
+			return 0;
+		}
+
+		Redirector& redirector = Redirector::GetInstance();
+		kxf::IEncodingConverter& converter = redirector.GetEncodingConverter();
+		ConfigObject& configObject = redirector.GetOrLoadFile(INIWrapper::EncodingTo(lpFileName, converter));
+		auto lock = configObject.LockShared();
+		const INIWrapper& ini = configObject.GetINI();
+
+		// Enum all sections
+		if (!appName)
+		{
+			KX_SCOPEDLOG.Trace(logCategory).Format("Enum all sections of file '{}'", lpFileName);
+
+			size_t count = 0;
+			bool truncated = false;
+			auto sections = ini.GetSectionNamesZSSTRZZ<TChar>(converter, nSize, &truncated, &count);
+			KX_SCOPEDLOG.Trace(logCategory).Format("Enumerated {} sections of {} characters ({} bytes), is truncated: {}",
+												   count,
+												   sections.length(),
+												   sections.length() * sizeof(TChar),
+												   truncated
+			);
+			KX_SCOPEDLOG.Trace(logCategory).Format("Sections: '{}'", sections);
+
+			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, sections.data(), sections.length());
+			if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
+			{
+				KX_SCOPEDLOG.Warning(logCategory).Log("STRSAFE_E_INSUFFICIENT_BUFFER");
+				return nSize - 2;
+			}
+			else if (truncated)
+			{
+				return nSize - 2;
+			}
+			return sections.length() - 1;
+		}
+
+		// Enum all keys in the section
+		if (!keyName)
+		{
+			KX_SCOPEDLOG.Trace(logCategory).Format("Enum all keys in '{}' section of file '{}'", keyName, lpFileName);
+
+			size_t count = 0;
+			bool truncated = false;
+			auto keys = ini.GetKeyNamesZSSTRZZ<TChar>(converter, INIWrapper::EncodingTo(appName, converter), nSize, &truncated, &count);
+			KX_SCOPEDLOG.Trace(logCategory).Format("Enumerated {} keys of {} characters ({} bytes), is truncated: {}",
+												   count,
+												   keys.length(),
+												   keys.length() * sizeof(TChar),
+												   truncated
+			);
+			KX_SCOPEDLOG.Trace(logCategory).Format("Keys: '{}'", keys);
+
+			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, keys.data(), keys.length());
+			if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
+			{
+				KX_SCOPEDLOG.Warning(logCategory).Log("STRSAFE_E_INSUFFICIENT_BUFFER");
+				return nSize - 2;
+			}
+			else if (truncated)
+			{
+				return nSize - 2;
+			}
+			return keys.length() - 1;
+		}
+
+		// Get the value
+		if (auto value = ini.QueryValue(INIWrapper::EncodingTo(appName, converter), INIWrapper::EncodingTo(keyName, converter)))
+		{
+			KX_SCOPEDLOG.Trace(logCategory).Format("Value found: '{}'", *value);
+
+			auto valueRef = INIWrapper::EncodingFrom<TChar>(*value, converter);
+			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, valueRef.data(), valueRef.length());
+			if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
+			{
+				KX_SCOPEDLOG.Trace(logCategory).Log("STRSAFE_E_INSUFFICIENT_BUFFER");
+				return nSize - 1;
+			}
+			return valueRef.length();
+		}
+		else if (defaultValue)
+		{
+			KX_SCOPEDLOG.Trace(logCategory).Format("Couldn't find the requested data, returning default: '{}'", defaultValue);
+
+			auto length = std::char_traits<TChar>::length(defaultValue);
+			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, defaultValue, length);
+			if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
+			{
+				return nSize - 1;
+			}
+			return length;
 		}
 		else
 		{
-			StringCchCopyNA(lpReturnedString, nSize, "", 1);
+			KX_SCOPEDLOG.Trace(logCategory).Format("Couldn't find the requested data, returning empty string", defaultValue);
+
+			TChar c = 0;
+			StringCopyBuffer(lpReturnedString, nSize, &c, 1);
+			return 0;
 		}
-		return length;
-	}
-	PPR_API(DWORD) GetStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR defaultValue, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
-	{
-		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[GetPrivateProfileStringW] Section: '%s', Key: '%s', Default: '%s', Buffer size: '%u', Path: '%s'", appName, keyName, defaultValue, nSize, lpFileName);
-
-		if (lpFileName)
-		{
-			if (!lpReturnedString || nSize < 2)
-			{
-				::SetLastError(ERROR_INSUFFICIENT_BUFFER);
-				return 0;
-			}
-
-			ConfigObject& configObject = redirector.GetOrLoadFile(lpFileName);
-			auto lock = configObject.LockShared();
-			const INIWrapper& ini = configObject.GetINI();
-
-			// Enum all sections
-			if (!appName)
-			{
-				redirector.Log(L"[GetPrivateProfileStringW] Enum all sections of file '%s'", lpFileName);
-
-				size_t count = 0;
-				bool truncated = false;
-				KxDynamicStringW sections = ini.GetSectionNamesZSSTRZZ(nSize, &truncated, &count);
-				redirector.Log(L"[GetPrivateProfileStringW] Enumerated '%zu' sections of '%zu' characters ('%zu' bytes), is truncated: %d",
-							   count,
-							   sections.length(),
-							   sections.length() * sizeof(wchar_t),
-							   static_cast<int>(truncated)
-				);
-				redirector.Log(sections);
-
-				StringCchCopyNW(lpReturnedString, nSize, sections.data(), sections.length());
-				return truncated ? nSize - 2 : std::min<DWORD>(sections.length(), nSize);
-			}
-
-			// Enum all keys in section
-			if (!keyName)
-			{
-				redirector.Log(L"[GetPrivateProfileStringW] Enum all keys in '%s' section of file '%s'", appName, lpFileName);
-
-				size_t count = 0;
-				bool truncated = false;
-				KxDynamicStringW keys = ini.GetKeyNamesZSSTRZZ(appName, nSize, &truncated, &count);
-				redirector.Log(L"[GetPrivateProfileStringW] Enumerated '%zu' keys of '%zu' characters ('%zu' bytes), is truncated: %d",
-							   count,
-							   keys.length(),
-							   keys.length() * sizeof(wchar_t),
-							   static_cast<int>(truncated)
-				);
-				redirector.Log(keys);
-
-				StringCchCopyNW(lpReturnedString, nSize, keys.data(), keys.length());
-				return truncated ? nSize - 2 : std::min<DWORD>(keys.length(), nSize);
-			}
-
-			if (auto value = ini.QueryValue(appName, keyName, defaultValue))
-			{
-				redirector.Log(L"[GetPrivateProfileStringW] Value found: '%s'", value->data());
-
-				StringCchCopyNW(lpReturnedString, nSize, value->data(), value->length());
-				return std::min<DWORD>(value->length(), nSize);
-			}
-			else
-			{
-				redirector.Log(L"[GetPrivateProfileStringW] Couldn't find requested data, returning default: '<null>'");
-
-				StringCchCopyNW(lpReturnedString, nSize, L"", 1);
-				return 0;
-			}
-		}
-
-		SetLastError(ERROR_FILE_NOT_FOUND);
-		return 0;
 	}
 
-	PPR_API(UINT) GetIntA(LPCSTR appName, LPCSTR keyName, INT defaultValue, LPCSTR lpFileName)
+	template<class TChar>
+	UINT GetIntT(kxf::StringView logCategory, const TChar* appName, const TChar* keyName, INT defaultValue, const TChar* lpFileName)
 	{
-		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[GetPrivateProfileIntA] Redirecting to 'GetPrivateProfileIntW'");
-
-		KxDynamicStringW appNameW = redirector.ConvertFromACP(appName);
-		KxDynamicStringW keyNameW = redirector.ConvertFromACP(keyName);
-		KxDynamicStringW lpFileNameW = redirector.ConvertFromACP(lpFileName);
-
-		return GetIntW(DataOrNull(appNameW),
-					   DataOrNull(keyNameW),
-					   defaultValue,
-					   DataOrNull(lpFileNameW)
-		);
-	}
-	PPR_API(UINT) GetIntW(LPCWSTR appName, LPCWSTR keyName, INT defaultValue, LPCWSTR lpFileName)
-	{
-		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[GetPrivateProfileIntW] Section: '%s', Key: '%s', Default: '%d', Path: '%s'", appName, keyName, defaultValue, lpFileName);
+		KX_SCOPEDLOG_AUTO;
+		KX_SCOPEDLOG.Trace(logCategory).Format("Section: '{}', Key: '{}', Default: '{}', Path: '{}'", appName, keyName, defaultValue, lpFileName);
 
 		if (!lpFileName)
 		{
@@ -164,251 +196,114 @@ namespace PPR::PrivateProfile
 			return defaultValue;
 		}
 
-		ConfigObject& configObject = redirector.GetOrLoadFile(lpFileName);
+		Redirector& redirector = Redirector::GetInstance();
+		kxf::IEncodingConverter& converter = redirector.GetEncodingConverter();
+
+		ConfigObject& configObject = redirector.GetOrLoadFile(INIWrapper::EncodingTo(lpFileName, converter));
 		auto lock = configObject.LockShared();
 
-		if (auto value = configObject.GetINI().QueryValue(appName, keyName))
+		if (auto value = configObject.GetINI().QueryValue(INIWrapper::EncodingTo(appName, converter), INIWrapper::EncodingTo(keyName, converter)))
 		{
-			if (auto intValue = Utility::String::ToInteger(*value))
+			if (auto intValue = value->ToInteger<INT>(-1))
 			{
-				redirector.Log(L"[GetPrivateProfileIntW] ValueString: '%s', ValueInt: '%d'", value->data(), (int)*intValue);
+				KX_SCOPEDLOG.Trace(logCategory).Format("String '{}' converted to an integer: '{}'", *value, *intValue);
 				return *intValue;
 			}
 			else
 			{
-				redirector.Log(L"[GetPrivateProfileIntW] Couldn't convert string '%s' to integer value", value->data());
+				KX_SCOPEDLOG.Trace(logCategory).Format("Couldn't convert string '{}' to an integer, returning default: {}", *value, defaultValue);
 				return defaultValue;
 			}
 		}
 
-		redirector.Log(L"[GetPrivateProfileIntW] Couldn't find requested data, returning default: '%d'", defaultValue);
+		KX_SCOPEDLOG.Trace(logCategory).Format("Couldn't find the requested data, returning default: '{}'", defaultValue);
 		return defaultValue;
 	}
 
-	PPR_API(DWORD) GetSectionNamesA(LPSTR lpszReturnBuffer, DWORD nSize, LPCSTR lpFileName)
+	template<class TChar>
+	DWORD GetSectionNamesT(kxf::StringView logCategory, TChar* lpszReturnBuffer, DWORD nSize, const TChar* lpFileName)
 	{
-		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[GetPrivateProfileSectionNamesA] Redirecting to 'GetPrivateProfileSectionNamesW'");
-
-		if (lpszReturnBuffer == nullptr || nSize <= 2)
-		{
-			if (lpszReturnBuffer)
-			{
-				*lpszReturnBuffer = '\0';
-			}
-			return 0;
-		}
-
-		KxDynamicStringW lpFileNameW = redirector.ConvertFromACP(lpFileName);
-		KxDynamicStringW lpszReturnBufferW;
-		lpszReturnBufferW.resize(nSize);
-
-		const DWORD length = GetSectionNamesW(lpszReturnBufferW.data(), nSize, DataOrNull(lpFileNameW));
-		if (length <= nSize)
-		{
-			KxDynamicStringA result = redirector.ConvertToACP(lpszReturnBufferW.data(), length);
-			StringCchCopyNA(lpszReturnBuffer, nSize, result.data(), result.length());
-		}
-		else
-		{
-			StringCchCopyNA(lpszReturnBuffer, nSize, "", 1);
-		}
-		return length;
+		return GetStringT<TChar>(logCategory, nullptr, nullptr, nullptr, lpszReturnBuffer, nSize, lpFileName);
 	}
-	PPR_API(DWORD) GetSectionNamesW(LPWSTR lpszReturnBuffer, DWORD nSize, LPCWSTR lpFileName)
-	{
-		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[GetPrivateProfileSectionNamesW]: Buffer size: '%u', Path: '%s'", nSize, lpFileName);
 
-		if (lpszReturnBuffer == nullptr || nSize <= 2)
-		{
-			::SetLastError(ERROR_INSUFFICIENT_BUFFER);
-			if (lpszReturnBuffer)
-			{
-				*lpszReturnBuffer = L'\0';
-			}
-			return 0;
-		}
+	template<class TChar>
+	DWORD GetSectionT(kxf::StringView logCategory, const TChar* appName, TChar* lpReturnedString, DWORD nSize, const TChar* lpFileName)
+	{
+		KX_SCOPEDLOG_AUTO;
+		KX_SCOPEDLOG.Trace(logCategory).Format("Section: '{}', Buffer size: '{}', Path: '{}'", appName, nSize, lpFileName);
+
 		if (!lpFileName)
 		{
 			::SetLastError(ERROR_FILE_NOT_FOUND);
 			return 0;
 		}
+		if (!appName)
+		{
+			::SetLastError(ERROR_INVALID_PARAMETER);
+			return 0;
+		}
+		if (!lpReturnedString || nSize < 2)
+		{
+			::SetLastError(ERROR_INSUFFICIENT_BUFFER);
+			return 0;
+		}
 
-		ConfigObject& configObject = redirector.GetOrLoadFile(lpFileName);
+		Redirector& redirector = Redirector::GetInstance();
+		kxf::IEncodingConverter& converter = redirector.GetEncodingConverter();
+
+		ConfigObject& configObject = redirector.GetOrLoadFile(INIWrapper::EncodingTo(lpFileName, converter));
 		auto lock = configObject.LockShared();
 		const INIWrapper& ini = configObject.GetINI();
 
-		size_t count = 0;
-		bool truncated = false;
-		KxDynamicStringW sectionNames = ini.GetSectionNamesZSSTRZZ(nSize, &truncated, &count);
-		redirector.Log(L"[GetPrivateProfileSectionNamesW] Enumerated '%zu' sections of '%zu' characters ('%zu' bytes), is truncated: %d",
-					   count,
-					   sectionNames.length(),
-					   sectionNames.length() * sizeof(wchar_t),
-					   static_cast<int>(truncated)
-		);
-		redirector.Log(sectionNames);
-
-		if (!sectionNames.empty())
-		{
-			if (sectionNames.length() <= nSize)
-			{
-				CopyToBuffer(lpszReturnBuffer, sectionNames);
-				return sectionNames.length() - 1;
-			}
-			else
-			{
-				redirector.Log(L"[GetPrivateProfileSectionNamesW]: Buffer is not large enough to contain all section names, '%zu' required, only '%u' available.", sectionNames.length(), nSize);
-
-				StringCchCopyNW(lpszReturnBuffer, nSize, L"\0\0", 2);
-				::SetLastError(ERROR_INSUFFICIENT_BUFFER);
-				return nSize - 2;
-			}
-		}
-		else
-		{
-			redirector.Log(L"No sections found", sectionNames.length());
-			StringCchCopyNW(lpszReturnBuffer, nSize, L"\0\0", 2);
-			return 0;
-		}
-	}
-
-	PPR_API(DWORD) GetSectionA(LPCSTR appName, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
-	{
-		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[GetPrivateProfileSectionA] Redirecting to 'GetPrivateProfileSectionW'");
-
-		if (lpReturnedString == nullptr || nSize == 0)
-		{
-			return 0;
-		}
-		if (nSize == 1)
-		{
-			*lpReturnedString = '\0';
-			return 0;
-		}
-
-		auto appNameW = redirector.ConvertFromACP(appName);
-		auto lpFileNameW = redirector.ConvertFromACP(lpFileName);
-
-		KxDynamicStringW lpReturnedStringW;
-		lpReturnedStringW.resize(nSize);
-
-		const DWORD length = GetSectionW(appNameW, lpReturnedStringW.data(), nSize, DataOrNull(lpFileNameW));
-		if (length <= nSize)
-		{
-			KxDynamicStringA result = redirector.ConvertToACP(lpReturnedStringW.data(), length);
-			CopyToBuffer(lpReturnedString, result);
-		}
-		else
-		{
-			StringCchCopyNA(lpReturnedString, nSize, "", 1);
-		}
-		return length;
-	}
-	PPR_API(DWORD) GetSectionW(LPCWSTR appName, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
-	{
-		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[GetPrivateProfileSectionW] Section: '%s', Buffer size: '%u', Path: '%s'", appName, nSize, lpFileName);
-
-		if (lpReturnedString == nullptr || nSize <= 2)
-		{
-			::SetLastError(ERROR_INSUFFICIENT_BUFFER);
-			if (lpReturnedString)
-			{
-				*lpReturnedString = L'\0';
-			}
-			return 0;
-		}
-		if (!lpFileName)
-		{
-			::SetLastError(ERROR_FILE_NOT_FOUND);
-			return 0;
-		}
-
-		ConfigObject& configObject = redirector.GetOrLoadFile(lpFileName);
-		auto lock = configObject.LockShared();
-		const INIWrapper& ini = configObject.GetINI();
+		KX_SCOPEDLOG.Trace(logCategory).Format("Enum all key-value from section '{}' of file '{}'", appName, lpFileName);
 
 		size_t count = 0;
 		bool truncated = false;
-		KxDynamicStringW keyValuePairs;
-		for (KxDynamicStringRefW keyName: ini.GetKeyNames(appName))
+		auto sectionName = INIWrapper::EncodingTo(appName, converter);
+		auto keyValuePairs = INIWrapper::CreateZSSTRZZ([&](std::basic_string<TChar>& buffer, const kxf::String& keyName)
 		{
-			count++;
-			KxDynamicStringRefW value = ini.GetValue(appName, keyName);
-
-			keyValuePairs.append(keyName);
-			keyValuePairs.append(1, L'=');
-			keyValuePairs.append(value);
-			keyValuePairs.append(1, L'\0');
-
-			if (keyValuePairs.length() >= nSize)
+			if (auto value = ini.QueryValue(sectionName, keyName))
 			{
-				truncated = true;
-				break;
+				buffer.append(INIWrapper::EncodingFrom<TChar>(keyName, converter));
+				buffer.append(1, '=');
+				buffer.append(INIWrapper::EncodingFrom<TChar>(*value, converter));
+
+				return kxf::CallbackCommand::Continue;
 			}
-		}
+			return kxf::CallbackCommand::Discard;
+		}, ini.GetKeyNames(sectionName), nSize, &truncated, &count);
 
-		if (count != 0)
-		{
-			keyValuePairs.append(1, L'\0');
-		}
-		else
-		{
-			keyValuePairs.append(2, L'\0');
-		}
-
-		redirector.Log(L"[GetPrivateProfileSectionW] Enumerated '%zu' key-value pairs of '%zu' characters ('%zu' bytes), is truncated: %d",
-					   count,
-					   keyValuePairs.length(),
-					   keyValuePairs.length() * sizeof(wchar_t),
-					   static_cast<int>(truncated)
+		KX_SCOPEDLOG.Trace(logCategory).Format("Enumerated {} key-value pairs of {} characters ({} bytes), is truncated: {}",
+											   count,
+											   keyValuePairs.length(),
+											   keyValuePairs.length() * sizeof(TChar),
+											   truncated
 		);
-		redirector.Log(keyValuePairs);
+		KX_SCOPEDLOG.Trace(logCategory).Format("Key-value pairs: '{}'", keyValuePairs);
 
-		if (!truncated)
+		HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, keyValuePairs.data(), keyValuePairs.length());
+		if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
 		{
-			CopyToBuffer(lpReturnedString, keyValuePairs);
-			return keyValuePairs.length() - 1;
-		}
-		else
-		{
-			redirector.Log(L"[GetPrivateProfileSectionW]: Buffer is not large enough to contain all key-value pairs, '%zu' required, only '%u' available.", keyValuePairs.length(), nSize);
-
-			StringCchCopyNW(lpReturnedString, nSize, L"\0\0", 2);
-			::SetLastError(ERROR_INSUFFICIENT_BUFFER);
+			KX_SCOPEDLOG.Warning(logCategory).Log("STRSAFE_E_INSUFFICIENT_BUFFER");
 			return nSize - 2;
 		}
+		else if (truncated)
+		{
+			return nSize - 2;
+		}
+		return keyValuePairs.length() - 1;
 	}
 
-	PPR_API(BOOL) WriteStringA(LPCSTR appName, LPCSTR keyName, LPCSTR lpString, LPCSTR lpFileName)
+	template<class TChar>
+	BOOL WriteStringT(kxf::StringView logCategory, const TChar* appName, const TChar* keyName, const TChar* lpString, const TChar* lpFileName)
 	{
+		KX_SCOPEDLOG_AUTO;
+		KX_SCOPEDLOG.Trace(logCategory).Format("Section: '{}', Key: '{}', Value: '{}', Path: '{}'", appName, keyName, lpString, lpFileName);
+
 		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[WritePrivateProfileStringA] Redirecting to 'WritePrivateProfileStringW'");
-
-		KxDynamicStringW appNameW = redirector.ConvertFromACP(appName);
-		KxDynamicStringW keyNameW = redirector.ConvertFromACP(keyName);
-		KxDynamicStringW lpStringW = redirector.ConvertFromACP(lpString);
-		KxDynamicStringW lpFileNameW = redirector.ConvertFromACP(lpFileName);
-
-		return WriteStringW(DataOrNull(appNameW), DataOrNull(keyNameW), DataOrNull(lpStringW), DataOrNull(lpFileNameW));
-	}
-	PPR_API(BOOL) WriteStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
-	{
-		Redirector& redirector = Redirector::GetInstance();
-		redirector.Log(L"[WritePrivateProfileStringW] Section: '%s', Key: '%s', Value: '%s', Path: '%s'", appName, keyName, lpString, lpFileName);
-
-		ConfigObject& configObject = Redirector::GetInstance().GetOrLoadFile(lpFileName);
-		auto lock = configObject.LockExclusive();
-		INIWrapper& ini = configObject.GetINI();
-
-		// This function will write value to the in-memory file.
-		const bool nativeWrite = redirector.IsOptionEnabled(RedirectorOption::NativeWrite);
 
 		// When 'NativeWrite' or 'WriteProtected' options are enabled, it will not flush updated file to the disk.
-		auto WriteStringToMemoryFile = [&](LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
+		auto WriteStringToMemoryFile = [&](const TChar* appName, const TChar* keyName, const TChar* lpString, const TChar* lpFileName)
 		{
 			if (!lpFileName)
 			{
@@ -421,16 +316,19 @@ namespace PPR::PrivateProfile
 				return false;
 			}
 
+			kxf::IEncodingConverter& converter = redirector.GetEncodingConverter();
+			ConfigObject& configObject = redirector.GetOrLoadFile(INIWrapper::EncodingTo(lpFileName, converter));
+			auto lock = configObject.LockExclusive();
+			INIWrapper& ini = configObject.GetINI();
+
 			// Delete section
 			if (!keyName)
 			{
-				if (ini.DeleteSection(appName))
+				if (ini.DeleteSection(INIWrapper::EncodingTo(appName, converter)))
 				{
-					redirector.Log(L"[WritePrivateProfileStringW] Section '%s' deleted", appName);
-					if (!nativeWrite)
-					{
-						configObject.OnWrite();
-					}
+					KX_SCOPEDLOG.Trace(logCategory).Format("Section '{}' deleted", appName);
+					configObject.OnWrite();
+
 					return true;
 				}
 				return false;
@@ -439,13 +337,11 @@ namespace PPR::PrivateProfile
 			// Delete value
 			if (!lpString)
 			{
-				if (ini.DeleteKey(appName, keyName))
+				if (ini.DeleteKey(INIWrapper::EncodingTo(appName, converter), INIWrapper::EncodingTo(keyName, converter)))
 				{
-					redirector.Log(L"[WritePrivateProfileStringW] Key '%s' in section '%s' deleted", keyName, appName);
-					if (!nativeWrite)
-					{
-						configObject.OnWrite();
-					}
+					KX_SCOPEDLOG.Trace(logCategory).Format("Key '{}' in section '{}' deleted", keyName, appName);
+					configObject.OnWrite();
+
 					return true;
 				}
 				return false;
@@ -454,23 +350,73 @@ namespace PPR::PrivateProfile
 			// Set value
 			if (ini.SetValue(appName, keyName, lpString))
 			{
-				redirector.Log(L"[WritePrivateProfileStringW] Assigned value '%s' to key '%s' in section '%s'", lpString, keyName, appName);
-				if (!nativeWrite)
-				{
-					configObject.OnWrite();
-				}
+				KX_SCOPEDLOG.Trace(logCategory).Format("Assigned value '{}' to key '{}' in section '{}'", lpString, keyName, appName);
+				configObject.OnWrite();
+
 				return true;
 			}
 			return false;
 		};
-		const bool memoryWriteSuccess = WriteStringToMemoryFile(appName, keyName, lpString, lpFileName);
+		bool memoryWriteSuccess = WriteStringToMemoryFile(appName, keyName, lpString, lpFileName);
 
-		// Call native function or proceed with our own implementation
-		if (nativeWrite)
+		if (redirector.IsOptionEnabled(RedirectorOption::NativeWrite))
 		{
-			redirector.Log(L"[WritePrivateProfileStringW]: Calling native 'WritePrivateProfileStringW'");
-			return redirector.GetFunctionTable().PrivateProfile.WriteStringW(appName, keyName, lpString, lpFileName);
+			if constexpr(std::is_same_v<TChar, char>)
+			{
+				KX_SCOPEDLOG.Trace(logCategory).Format("Calling native 'WritePrivateProfileStringA'");
+				return redirector.GetFunctionTable().PrivateProfile.WriteStringA(appName, keyName, lpString, lpFileName);
+			}
+			else if constexpr(std::is_same_v<TChar, wchar_t>)
+			{
+				KX_SCOPEDLOG.Trace(logCategory).Format("Calling native 'WritePrivateProfileStringW'");
+				return redirector.GetFunctionTable().PrivateProfile.WriteStringW(appName, keyName, lpString, lpFileName);
+			}
 		}
-		return memoryWriteSuccess;
+		return memoryWriteSuccess ? TRUE : FALSE;
+	}
+
+	PPR_API(DWORD) GetStringA(LPCSTR appName, LPCSTR keyName, LPCSTR defaultValue, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
+	{
+		return GetStringT(LogCategory::GetPrivateProfileStringA, appName, keyName, defaultValue, lpReturnedString, nSize, lpFileName);
+	}
+	PPR_API(DWORD) GetStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR defaultValue, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
+	{
+		return GetStringT(LogCategory::GetPrivateProfileStringA, appName, keyName, defaultValue, lpReturnedString, nSize, lpFileName);
+	}
+
+	PPR_API(UINT) GetIntA(LPCSTR appName, LPCSTR keyName, INT defaultValue, LPCSTR lpFileName)
+	{
+		return GetIntT(LogCategory::GetPrivateProfileIntA, appName, keyName, defaultValue, lpFileName);
+	}
+	PPR_API(UINT) GetIntW(LPCWSTR appName, LPCWSTR keyName, INT defaultValue, LPCWSTR lpFileName)
+	{
+		return GetIntT(LogCategory::GetPrivateProfileIntW, appName, keyName, defaultValue, lpFileName);
+	}
+
+	PPR_API(DWORD) GetSectionNamesA(LPSTR lpszReturnBuffer, DWORD nSize, LPCSTR lpFileName)
+	{
+		return GetSectionNamesT(LogCategory::GetPrivateProfileSectionNamesA, lpszReturnBuffer, nSize, lpFileName);
+	}
+	PPR_API(DWORD) GetSectionNamesW(LPWSTR lpszReturnBuffer, DWORD nSize, LPCWSTR lpFileName)
+	{
+		return GetSectionNamesT(LogCategory::GetPrivateProfileSectionNamesW, lpszReturnBuffer, nSize, lpFileName);
+	}
+
+	PPR_API(DWORD) GetSectionA(LPCSTR appName, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
+	{
+		return GetSectionNamesT(LogCategory::GetPrivateProfileSectionA, lpReturnedString, nSize, lpFileName);
+	}
+	PPR_API(DWORD) GetSectionW(LPCWSTR appName, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
+	{
+		return GetSectionNamesT(LogCategory::GetPrivateProfileSectionW, lpReturnedString, nSize, lpFileName);
+	}
+
+	PPR_API(BOOL) WriteStringA(LPCSTR appName, LPCSTR keyName, LPCSTR lpString, LPCSTR lpFileName)
+	{
+		return WriteStringT(LogCategory::WritePrivateProfileStringW, appName, keyName, lpString, lpFileName);
+	}
+	PPR_API(BOOL) WriteStringW(LPCWSTR appName, LPCWSTR keyName, LPCWSTR lpString, LPCWSTR lpFileName)
+	{
+		return WriteStringT(LogCategory::WritePrivateProfileStringW, appName, keyName, lpString, lpFileName);
 	}
 }
