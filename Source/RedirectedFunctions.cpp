@@ -25,58 +25,101 @@ namespace
 	}
 
 	template<class TChar>
+	kxf::String MemoryToHex(const TChar* src, size_t srcSize1, size_t srcSize2 = 0)
+	{
+		kxf::String buffer;
+		if (srcSize1 + srcSize2 != 0)
+		{
+			buffer.reserve(8 + (srcSize1 + srcSize2) * 3);
+
+			auto ptr = reinterpret_cast<const uint8_t*>(src);
+			for (size_t i = 0; i < srcSize1 + srcSize2; i++)
+			{
+				if (i == srcSize1)
+				{
+					buffer += "| ";
+				}
+				buffer.Format("{:02x} ", ptr[i]);
+			}
+			buffer.TrimRight();
+		}
+		return buffer;
+	}
+
+	template<class TChar>
+	HRESULT StringLength(size_t& length, const TChar* src, size_t srcMaxSize) noexcept
+	{
+		length = 0;
+
+		if (src)
+		{
+			if constexpr(std::is_same_v<TChar, char>)
+			{
+				return ::StringCchLengthA(src, srcMaxSize, &length);
+			}
+			else if constexpr(std::is_same_v<TChar, wchar_t>)
+			{
+				return ::StringCchLengthW(src, srcMaxSize, &length);
+			}
+			else
+			{
+				static_assert(false);
+			}
+		}
+		return STRSAFE_E_INVALID_PARAMETER;
+	}
+
+	template<class TChar>
 	HRESULT StringCopyBuffer(TChar* dst, size_t dstSize, const TChar* src, size_t srcSize, size_t* copiedSize = nullptr) noexcept
 	{
+		kxf::Utility::SetIfNotNull(copiedSize, 0);
+
 		if (dst && src)
 		{
-			size_t copySize = std::min(dstSize, srcSize);
-			if (copySize == 0)
-			{
-				kxf::Utility::SetIfNotNull(copiedSize, 0);
-				return STRSAFE_E_INSUFFICIENT_BUFFER;
-			}
-
+			// Zero out the dst buffer first
 			std::memset(dst, 0, dstSize * sizeof(TChar));
-			std::memcpy(dst, src, copySize * sizeof(TChar));
-			kxf::Utility::SetIfNotNull(copiedSize, copySize);
 
+			// See how much we need to copy
+			size_t copySize = std::min(dstSize, srcSize);
 			kxf::Utility::ScopeGuard atExit = [&]()
 			{
 				if (kxf::Log::IsLevelEnabled(kxf::LogLevel::Trace))
 				{
-					kxf::String buffer;
-					buffer.reserve(8 + copySize * 3);
-
-					size_t length = copySize * sizeof(TChar);
-					size_t lengthAdd = 0;
+					// Make the function print a few bytes after the src length if the dst has the space for it
+					size_t padding = 0;
 					if (dstSize > copySize)
 					{
-						lengthAdd++;
+						padding++;
 					}
 					if (dstSize > copySize + 1)
 					{
-						lengthAdd++;
+						padding++;
 					}
 
-					auto ptr = reinterpret_cast<const uint8_t*>(dst);
-					for (size_t i = 0; i < length + lengthAdd; i++)
-					{
-						if (i == length)
-						{
-							buffer += "| ";
-						}
-						buffer.Format("{:02x} ", ptr[i]);
-					}
-
+					auto dstHex = MemoryToHex(dst, copySize * sizeof(TChar), padding);
 					kxf::Log::TraceCategory("StringCopyBuffer", "srcSize: {}, dstSize: {}, copySize: {} ({} bytes), dst contents: [{}]",
 											srcSize,
 											dstSize,
 											copySize,
 											copySize * sizeof(TChar),
-											buffer.TrimRight()
+											dstHex
 					);
 				}
 			};
+
+			// We can have zero characters to copy either because the dst buffer size is zero
+			// or because the src buffer itself is zero sized. In this case we can still return
+			// success. The dst buffer is zeroed out anyway, whatever size it is.
+			if (copySize == 0)
+			{
+				kxf::Utility::SetIfNotNull(copiedSize, 0);
+				return S_OK;
+			}
+
+			// Copy the data to dst
+			std::memcpy(dst, src, copySize * sizeof(TChar));
+			kxf::Utility::SetIfNotNull(copiedSize, copySize);
+
 			if (dstSize > srcSize)
 			{
 				// Null-terminate at the position past copied data
@@ -210,13 +253,15 @@ namespace PPR::PrivateProfile
 		}
 		else if (defaultValue)
 		{
-			auto length = std::char_traits<TChar>::length(defaultValue);
+			size_t length = 0;
+			StringLength(length, defaultValue, nSize);
 
 			size_t copiedSize = 0;
 			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, defaultValue, length, &copiedSize);
 			DWORD result = length;
 			if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
 			{
+				KX_SCOPEDLOG.Trace(logCategory).Log("STRSAFE_E_INSUFFICIENT_BUFFER");
 				result = nSize - 1;
 			}
 
