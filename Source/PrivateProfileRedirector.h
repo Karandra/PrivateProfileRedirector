@@ -43,6 +43,7 @@ namespace PPR
 
 			mutable kxf::ReadWriteLock m_INIMapLock;
 			kxf::Utility::UnorderedMapNoCase<kxf::String, std::unique_ptr<ConfigObject>> m_INIMap;
+			std::atomic<size_t> m_TotalWriteCount = 0;
 
 		private:
 			void InitConfig();
@@ -81,7 +82,8 @@ namespace PPR
 			}
 
 			ConfigObject& GetOrLoadFile(const kxf::String& filePath);
-			size_t SaveChangedFiles(const wchar_t* message) const;
+			size_t SaveChangedFiles(const wchar_t* message);
+			size_t OnFileWrite(ConfigObject& configObject) noexcept;
 			size_t RefreshINI();
 	};
 }

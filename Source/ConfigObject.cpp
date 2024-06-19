@@ -71,6 +71,11 @@ namespace PPR
 		m_ChangesCount++;
 
 		Redirector& instance = Redirector::GetInstance();
+		kxf::Utility::ScopeGuard atExit = [&]()
+		{
+			instance.OnFileWrite(*this);
+		};
+		
 		if (instance.IsOptionEnabled(RedirectorOption::NativeWrite))
 		{
 			kxf::Log::TraceCategory("NativeWrite", "NativeWrite enabled, ignoring this write operation for '{}'", m_Path.GetFullPath());
@@ -87,7 +92,7 @@ namespace PPR
 				}
 				else
 				{
-					kxf::Log::TraceCategory("SaveOnWrite", "{} changes (out of {}) accumulated for '{}'", m_ChangesCount, *bufferSize, m_Path.GetFullPath());
+					kxf::Log::TraceCategory("SaveOnWrite", "Accumulated {} changes (out of {}) for '{}'", m_ChangesCount, *bufferSize, m_Path.GetFullPath());
 					return;
 				}
 			}

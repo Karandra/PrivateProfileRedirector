@@ -306,9 +306,9 @@ namespace PPR
 		KX_SCOPEDLOG.SetSuccess();
 		return *config;
 	}
-	size_t Redirector::SaveChangedFiles(const wchar_t* message) const
+	size_t Redirector::SaveChangedFiles(const wchar_t* message)
 	{
-		KX_SCOPEDLOG_ARGS(message);
+		KX_SCOPEDLOG_ARGS(message, m_TotalWriteCount.load());
 
 		size_t changedCount = 0;
 		if (kxf::ReadLockGuard lock(m_INIMapLock); !m_INIMap.empty())
@@ -332,9 +332,30 @@ namespace PPR
 			}
 			KX_SCOPEDLOG.Info().Format("All changed files saved. Total: {}, Changed: {}", m_INIMap.size(), changedCount);
 		}
+		m_TotalWriteCount = 0;
 
 		KX_SCOPEDLOG.LogReturn(changedCount);
 		return changedCount;
+	}
+	size_t Redirector::OnFileWrite(ConfigObject& configObject) noexcept
+	{
+		auto count = ++m_TotalWriteCount;
+		#if 0
+		if (m_SaveOnWriteBuffer > 0)
+		{
+			if (count >= m_SaveOnWriteBuffer)
+			{
+				kxf::Log::TraceCategory("SaveOnWrite:Total", "Total changes amount {} reached buffer capacity ({}), flushing changes", count, m_SaveOnWriteBuffer);
+				SaveChangedFiles(L"Total file writes");
+			}
+			else
+			{
+				kxf::Log::TraceCategory("SaveOnWrite:Total", "Accumulated {} changes (out of {}) for all files", count, m_SaveOnWriteBuffer);
+			}
+		}
+		#endif
+
+		return count;
 	}
 	size_t Redirector::RefreshINI()
 	{
