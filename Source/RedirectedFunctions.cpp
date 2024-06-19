@@ -260,7 +260,7 @@ namespace PPR::PrivateProfile
 		size_t count = 0;
 		bool truncated = false;
 		auto sectionName = INIWrapper::EncodingTo(appName, converter);
-		auto keyValuePairs = INIWrapper::CreateZSSTRZZ([&](std::basic_string<TChar>& buffer, const kxf::String& keyName)
+		auto keyValuePairs = INIWrapper::CreateZSSTRZZ<TChar>([&](std::basic_string<TChar>& buffer, const kxf::String& keyName)
 		{
 			if (auto value = ini.QueryValue(sectionName, keyName))
 			{
@@ -404,11 +404,11 @@ namespace PPR::PrivateProfile
 
 	PPR_API(DWORD) GetSectionA(LPCSTR appName, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
 	{
-		return GetSectionNamesT(LogCategory::GetPrivateProfileSectionA, lpReturnedString, nSize, lpFileName);
+		return GetSectionT(LogCategory::GetPrivateProfileSectionA, appName, lpReturnedString, nSize, lpFileName);
 	}
 	PPR_API(DWORD) GetSectionW(LPCWSTR appName, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
 	{
-		return GetSectionNamesT(LogCategory::GetPrivateProfileSectionW, lpReturnedString, nSize, lpFileName);
+		return GetSectionT(LogCategory::GetPrivateProfileSectionW, appName, lpReturnedString, nSize, lpFileName);
 	}
 
 	PPR_API(BOOL) WriteStringA(LPCSTR appName, LPCSTR keyName, LPCSTR lpString, LPCSTR lpFileName)
