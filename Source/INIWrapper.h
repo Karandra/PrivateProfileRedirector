@@ -182,9 +182,26 @@ namespace PPR
 				auto value = QueryValue(section, key);
 				return value ? std::move(*value) : std::move(defaultValue);
 			}
-			bool SetValue(const kxf::String& section, const kxf::String& key, const kxf::String& value)
+			bool SetValue(const kxf::String& section, const kxf::String& key, const kxf::String& value, bool* sameData = nullptr)
 			{
-				return m_INI.IniSetValue(section, key, value);
+				if (sameData)
+				{
+					auto oldValue = QueryValue(section, key);
+					if (!oldValue || *oldValue != value)
+					{
+						*sameData = false;
+						return m_INI.IniSetValue(section, key, value);
+					}
+					else
+					{
+						*sameData = true;
+						return true;
+					}
+				}
+				else
+				{
+					return m_INI.IniSetValue(section, key, value);
+				}
 			}
 
 			std::vector<kxf::String> GetSectionNames() const;
