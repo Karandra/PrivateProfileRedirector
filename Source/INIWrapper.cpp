@@ -4,6 +4,7 @@
 #include <kxf/System/Win32Error.h>
 #include <kxf/IO/MemoryStream.h>
 #include <kxf/IO/StreamReaderWriter.h>
+#include <kxf/IO/NativeFileStream.h>
 #include <kxf/Utility/Callback.h>
 
 namespace
@@ -50,14 +51,14 @@ namespace PPR
 		m_INI.ClearNode();
 		m_INI.SetOptions(options);
 
-		auto fileStream = kxf::NativeFileSystem().OpenToRead(path, kxf::IOStreamDisposition::OpenExisting, kxf::IOStreamShare::Read);
-		if (fileStream)
+		kxf::NativeFileStream fileStream;
+		if (fileStream.Open(path, kxf::IOStreamAccess::Read, kxf::IOStreamDisposition::OpenExisting, kxf::IOStreamShare::Read))
 		{
 			kxf::MemoryOutputStream memoryStream;
-			if (fileStream->Read(memoryStream).LastRead() != 0)
+			if (fileStream.Read(memoryStream).LastRead() != 0)
 			{
 				// Release the input stream as fast as possible
-				fileStream = {};
+				fileStream.Close();
 
 				auto& buffer = memoryStream.GetStreamBuffer();
 				buffer.Rewind();
