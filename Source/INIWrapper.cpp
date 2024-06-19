@@ -156,8 +156,8 @@ namespace PPR
 	{
 		KX_SCOPEDLOG_ARGS(path.GetFullPath(), encoding);
 
-		auto fileStream = kxf::NativeFileSystem().OpenToWrite(path, kxf::IOStreamDisposition::CreateAlways, kxf::IOStreamShare::Read);
-		if (!fileStream)
+		kxf::NativeFileStream fileStream;
+		if (!fileStream.Open(path, kxf::IOStreamAccess::Write, kxf::IOStreamDisposition::CreateAlways, kxf::IOStreamShare::Read))
 		{
 			KX_SCOPEDLOG.Error().Format("Can't open file to write: {}", kxf::Win32Error::GetLastError());
 			KX_SCOPEDLOG.LogReturn(false);
@@ -183,10 +183,10 @@ namespace PPR
 				if (addSignature)
 				{
 					KX_SCOPEDLOG.Info() << "Writing BOM";
-					fileStream->Write(BOM_UTF8, std::size(BOM_UTF8));
+					fileStream.Write(BOM_UTF8, std::size(BOM_UTF8));
 				}
 				
-				if (m_INI.Save(*fileStream))
+				if (m_INI.Save(fileStream))
 				{
 					KX_SCOPEDLOG.LogReturn(true);
 					return true;
@@ -201,10 +201,10 @@ namespace PPR
 				if (addSignature)
 				{
 					KX_SCOPEDLOG.Info() << "Writing BOM";
-					fileStream->Write(BOM_UTF16_LE, std::size(BOM_UTF16_LE));
+					fileStream.Write(BOM_UTF16_LE, std::size(BOM_UTF16_LE));
 				}
 
-				kxf::IO::OutputStreamWriter writer(*fileStream);
+				kxf::IO::OutputStreamWriter writer(fileStream);
 				if (writer.WriteStringUTF16(content))
 				{
 					KX_SCOPEDLOG.LogReturn(true);
@@ -220,10 +220,10 @@ namespace PPR
 				if (addSignature)
 				{
 					KX_SCOPEDLOG.Info() << "Writing BOM";
-					fileStream->Write(BOM_UTF32_LE, std::size(BOM_UTF32_LE));
+					fileStream.Write(BOM_UTF32_LE, std::size(BOM_UTF32_LE));
 				}
 
-				kxf::IO::OutputStreamWriter writer(*fileStream);
+				kxf::IO::OutputStreamWriter writer(fileStream);
 				if (writer.WriteStringUTF16(content))
 				{
 					KX_SCOPEDLOG.LogReturn(true);
