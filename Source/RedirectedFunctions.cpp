@@ -25,17 +25,58 @@ namespace
 	}
 
 	template<class TChar>
-	HRESULT StringCopyBuffer(TChar* dst, size_t dstSize, const TChar* src, size_t srcSize) noexcept
+	HRESULT StringCopyBuffer(TChar* dst, size_t dstSize, const TChar* src, size_t srcSize, size_t* copiedSize = nullptr) noexcept
 	{
 		if (dst && src)
 		{
 			size_t copySize = std::min(dstSize, srcSize);
 			if (copySize == 0)
 			{
+				kxf::Utility::SetIfNotNull(copiedSize, 0);
 				return STRSAFE_E_INSUFFICIENT_BUFFER;
 			}
 
+			std::memset(dst, 0, dstSize * sizeof(TChar));
 			std::memcpy(dst, src, copySize * sizeof(TChar));
+			kxf::Utility::SetIfNotNull(copiedSize, copySize);
+
+			kxf::Utility::ScopeGuard atExit = [&]()
+			{
+				if (kxf::Log::IsLevelEnabled(kxf::LogLevel::Trace))
+				{
+					kxf::String buffer;
+					buffer.reserve(8 + copySize * 3);
+
+					size_t length = copySize * sizeof(TChar);
+					size_t lengthAdd = 0;
+					if (dstSize > copySize)
+					{
+						lengthAdd++;
+					}
+					if (dstSize > copySize + 1)
+					{
+						lengthAdd++;
+					}
+
+					auto ptr = reinterpret_cast<const uint8_t*>(dst);
+					for (size_t i = 0; i < length + lengthAdd; i++)
+					{
+						if (i == length)
+						{
+							buffer += "| ";
+						}
+						buffer.Format("{:02x} ", ptr[i]);
+					}
+
+					kxf::Log::TraceCategory("StringCopyBuffer", "srcSize: {}, dstSize: {}, copySize: {} ({} bytes), dst contents: [{}]",
+											srcSize,
+											dstSize,
+											copySize,
+											copySize * sizeof(TChar),
+											buffer.TrimRight()
+					);
+				}
+			};
 			if (dstSize > srcSize)
 			{
 				// Null-terminate at the position past copied data
@@ -99,25 +140,29 @@ namespace PPR::PrivateProfile
 												   sections.length() * sizeof(TChar),
 												   truncated
 			);
-			KX_SCOPEDLOG.Trace(logCategory).Format("Sections: '{}'", sections);
 
-			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, sections.data(), sections.length());
+			size_t copiedSize = 0;
+			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, sections.data(), sections.length(), &copiedSize);
+			DWORD result = sections.length() - 1;
+
 			if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
 			{
 				KX_SCOPEDLOG.Warning(logCategory).Log("STRSAFE_E_INSUFFICIENT_BUFFER");
-				return nSize - 2;
+				result = nSize - 2;
 			}
 			else if (truncated)
 			{
-				return nSize - 2;
+				result = nSize - 2;
 			}
-			return sections.length() - 1;
+			
+			KX_SCOPEDLOG.Trace(logCategory).Format("Result: {}, copied: {}, sections: '{}'", result, copiedSize, sections);
+			return result;
 		}
 
 		// Enum all keys in the section
 		if (!keyName)
 		{
-			KX_SCOPEDLOG.Trace(logCategory).Format("Enum all keys in '{}' section of file '{}'", keyName, lpFileName);
+			KX_SCOPEDLOG.Trace(logCategory).Format("Enum all keys in '{}' section of file '{}'", appName, lpFileName);
 
 			size_t count = 0;
 			bool truncated = false;
@@ -128,54 +173,65 @@ namespace PPR::PrivateProfile
 												   keys.length() * sizeof(TChar),
 												   truncated
 			);
-			KX_SCOPEDLOG.Trace(logCategory).Format("Keys: '{}'", keys);
 
-			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, keys.data(), keys.length());
+			size_t copiedSize = 0;
+			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, keys.data(), keys.length(), &copiedSize);
+			DWORD result = keys.length() - 1;
 			if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
 			{
 				KX_SCOPEDLOG.Warning(logCategory).Log("STRSAFE_E_INSUFFICIENT_BUFFER");
-				return nSize - 2;
+				result = nSize - 2;
 			}
 			else if (truncated)
 			{
-				return nSize - 2;
+				result = nSize - 2;
 			}
-			return keys.length() - 1;
+
+			KX_SCOPEDLOG.Trace(logCategory).Format("Result: {}, copied: {}, keys: '{}'", result, copiedSize, keys);
+			return result;
 		}
 
 		// Get the value
 		if (auto value = ini.QueryValue(INIWrapper::EncodingTo(appName, converter), INIWrapper::EncodingTo(keyName, converter)))
 		{
-			KX_SCOPEDLOG.Trace(logCategory).Format("Value found: '{}'", *value);
-
 			auto valueRef = INIWrapper::EncodingFrom<TChar>(*value, converter);
-			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, valueRef.data(), valueRef.length());
+
+			size_t copiedSize = 0;
+			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, valueRef.data(), valueRef.length(), &copiedSize);
+			DWORD result = valueRef.length();
 			if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
 			{
 				KX_SCOPEDLOG.Trace(logCategory).Log("STRSAFE_E_INSUFFICIENT_BUFFER");
-				return nSize - 1;
+				result = nSize - 1;
 			}
-			return valueRef.length();
+
+			KX_SCOPEDLOG.Trace(logCategory).Format("Value found: '{}', result: {}, copied: {}", *value, result, copiedSize);
+			return result;
 		}
 		else if (defaultValue)
 		{
-			KX_SCOPEDLOG.Trace(logCategory).Format("Couldn't find the requested data, returning default: '{}'", defaultValue);
-
 			auto length = std::char_traits<TChar>::length(defaultValue);
-			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, defaultValue, length);
+
+			size_t copiedSize = 0;
+			HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, defaultValue, length, &copiedSize);
+			DWORD result = length;
 			if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
 			{
-				return nSize - 1;
+				result = nSize - 1;
 			}
-			return length;
+
+			KX_SCOPEDLOG.Trace(logCategory).Format("Couldn't find the requested data, returning default: '{}', result: {}, copied: {}", defaultValue, result, copiedSize);
+			return result;
 		}
 		else
 		{
-			KX_SCOPEDLOG.Trace(logCategory).Format("Couldn't find the requested data, returning empty string", defaultValue);
-
 			TChar c = 0;
-			StringCopyBuffer(lpReturnedString, nSize, &c, 1);
-			return 0;
+			size_t copiedSize = 0;
+			StringCopyBuffer(lpReturnedString, nSize, &c, 1, &copiedSize);
+			DWORD result = 0;
+
+			KX_SCOPEDLOG.Trace(logCategory).Format("Couldn't find the requested data, returning empty string, result: {}, copied: {}", result, copiedSize);
+			return result;
 		}
 	}
 
@@ -279,19 +335,22 @@ namespace PPR::PrivateProfile
 											   keyValuePairs.length() * sizeof(TChar),
 											   truncated
 		);
-		KX_SCOPEDLOG.Trace(logCategory).Format("Key-value pairs: '{}'", keyValuePairs);
 
-		HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, keyValuePairs.data(), keyValuePairs.length());
+		size_t copiedSize = 0;
+		HRESULT hr = StringCopyBuffer(lpReturnedString, nSize, keyValuePairs.data(), keyValuePairs.length(), &copiedSize);
+		DWORD result = keyValuePairs.length() - 1;
 		if (hr == STRSAFE_E_INSUFFICIENT_BUFFER)
 		{
 			KX_SCOPEDLOG.Warning(logCategory).Log("STRSAFE_E_INSUFFICIENT_BUFFER");
-			return nSize - 2;
+			result = nSize - 2;
 		}
 		else if (truncated)
 		{
-			return nSize - 2;
+			result = nSize - 2;
 		}
-		return keyValuePairs.length() - 1;
+
+		KX_SCOPEDLOG.Trace(logCategory).Format("Result: {}, copied: {}, key-value pairs: '{}'", result, copiedSize, keyValuePairs);
+		return result;
 	}
 
 	template<class TChar>
@@ -348,11 +407,18 @@ namespace PPR::PrivateProfile
 			}
 
 			// Set value
-			if (ini.SetValue(appName, keyName, lpString))
+			bool isSameData = false;
+			if (ini.SetValue(appName, keyName, INIWrapper::EncodingTo(lpString, converter), &isSameData))
 			{
-				KX_SCOPEDLOG.Trace(logCategory).Format("Assigned value '{}' to key '{}' in section '{}'", lpString, keyName, appName);
-				configObject.OnWrite();
-
+				if (isSameData)
+				{
+					KX_SCOPEDLOG.Trace(logCategory).Format("Attempt to assign already existing value '{}' to key '{}' in section '{}', write request ignored", lpString, keyName, appName);
+				}
+				else
+				{
+					KX_SCOPEDLOG.Trace(logCategory).Format("Assigned value '{}' to key '{}' in section '{}'", lpString, keyName, appName);
+					configObject.OnWrite();
+				}
 				return true;
 			}
 			return false;
