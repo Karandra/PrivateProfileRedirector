@@ -1,5 +1,13 @@
 *Dates in DD.MM.YYYY*
 
+# Version 0.6.1, 20.06.2024
+- Fixed some cases with INI key names contaning extra whitespaces.
+- Fixed file path normalization for paths contanining dot-segments.
+- Fixed `GetPrivateProfileString` branch when the default value was supposed to be returned. The function was returning the incorrect result.
+- Fixed `GetPrivateProfileSection` function using the wrong implementation causing wrong host process behavior (such as config inconsistency, corrupt config files, vitual issues, etc).
+- Implemented checks to avoid incrementing the write counter if the write request is trying to write exactly the same content as already present in the file.
+- Reduced default `SaveOnWriteBuffer` option value to 64. The high values shouldn't be needed anymore due to write check above.
+
 # Version 0.6, 18.06.2024
 - Updated to the latest xSE binaries, added Fallout 4 NG update support.
 - Expanded possible range for `SaveOnWriteBuffer` option to [2, 4096] and set it to 512 by default.

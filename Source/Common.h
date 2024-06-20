@@ -18,7 +18,7 @@ namespace PPR
 
 	constexpr int VersionMajor = 0;
 	constexpr int VersionMinor = 6;
-	constexpr int VersionPatch = 0;
+	constexpr int VersionPatch = 1;
 
 	constexpr int MakeFullVersion(int major, int minor, int patch) noexcept
 	{
