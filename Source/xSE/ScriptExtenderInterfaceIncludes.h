@@ -24,13 +24,26 @@
 #include <skse64/ObScript.h>
 
 #if xSE_PLATFORM_SKSE64
+
 #pragma comment(lib, "skse64/x64/Release/skse64_1_5_97.lib")
 #pragma comment(lib, "skse64/x64_v143/Release/common_vc14.lib")
 #pragma comment(lib, "skse64/x64/Release/skse64_common.lib")
+
 #elif xSE_PLATFORM_SKSE64AE
+
+#if xSE_PLATFORM_GOG
+
 #pragma comment(lib, "skse64/x64/Release/skse64_1_6_323.lib")
 #pragma comment(lib, "skse64/x64_v143/Release/common_vc14.lib")
 #pragma comment(lib, "skse64/x64/Release/skse64_common.lib")
+
+#else
+
+#pragma comment(lib, "skse64/x64/Release/skse64_1_6_323.lib")
+#pragma comment(lib, "skse64/x64_v143/Release/common_vc14.lib")
+#pragma comment(lib, "skse64/x64/Release/skse64_common.lib")
+
+#endif
 #endif
 
 #elif xSE_PLATFORM_SKSEVR

@@ -122,6 +122,9 @@ bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 	if (instance.OnLoad())
 	{
 		xSE_LOG(L"[{}] {} v{} by {} loaded", xSE_NAME_A, Redirector::GetLibraryName(), Redirector::GetLibraryVersion().ToString(), Redirector::GetLibraryAuthor());
+		#if xSE_PLATFORM_GOG
+		xSE_LOG(L"GOG build loaded");
+		#endif
 		return true;
 	}
 	return false;
@@ -132,7 +135,7 @@ extern "C" __declspec(dllexport) constinit auto SKSEPlugin_Version = []() conste
 {
 	SKSEPluginVersionData versionData = {};
 	versionData.dataVersion = SKSEPluginVersionData::kVersion;
-	versionData.compatibleVersions[0] = CURRENT_RELEASE_RUNTIME;
+	versionData.compatibleVersions[0] = xSE_RUNTIME_VERSION;
 	versionData.versionIndependence = SKSEPluginVersionData::kVersionIndependent_Signatures;
 	versionData.versionIndependenceEx = SKSEPluginVersionData::kVersionIndependentEx_NoStructUse;
 	versionData.pluginVersion = PPR::VersionFull;
@@ -147,7 +150,7 @@ extern "C" __declspec(dllexport) constinit auto F4SEPlugin_Version = []() conste
 {
 	F4SEPluginVersionData versionData = {};
 	versionData.dataVersion = F4SEPluginVersionData::kVersion;
-	versionData.compatibleVersions[0] = CURRENT_RELEASE_RUNTIME;
+	versionData.compatibleVersions[0] = xSE_RUNTIME_VERSION;
 	versionData.addressIndependence = F4SEPluginVersionData::kAddressIndependence_Signatures;
 	versionData.structureIndependence = F4SEPluginVersionData::kStructureIndependence_NoStructs|F4SEPluginVersionData::kStructureIndependence_1_10_980Layout;
 	versionData.pluginVersion = PPR::VersionFull;
