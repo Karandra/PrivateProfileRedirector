@@ -428,6 +428,7 @@
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -458,6 +459,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -488,6 +490,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -518,6 +521,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -548,6 +552,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -578,6 +583,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -608,6 +614,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -638,6 +645,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -668,6 +676,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -698,6 +707,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -728,6 +738,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -758,6 +769,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -788,6 +800,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -821,6 +834,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -854,6 +868,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
@@ -884,6 +899,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <PostBuildEvent>
       <Command>mkdir "$(ProjectDir)Bin\$(Configuration)"
 copy "$(TargetPath)" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)$(TargetExt)"
+copy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).pdb"
 copy "$(ProjectDir)Build\$(TargetName).ini" "$(ProjectDir)Bin\$(Configuration)\$(TargetName).ini"
 copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configuration)\$(TargetName)_preload.txt"</Command>
     </PostBuildEvent>
