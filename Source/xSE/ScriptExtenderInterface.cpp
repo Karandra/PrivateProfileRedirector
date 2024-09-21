@@ -171,8 +171,8 @@ namespace PPR
 {
 	SEInterface& SEInterface::GetInstance() noexcept
 	{
-		static SEInterface ms_Instance;
-		return ms_Instance;
+		static SEInterface instance;
+		return instance;
 	}
 
 	bool SEInterface::OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion)

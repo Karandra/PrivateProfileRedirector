@@ -18,6 +18,9 @@
     <Filter Include="Code\xSE\ConsoleCommandOverrider">
       <UniqueIdentifier>{7193ec96-b0b7-465f-b415-fbe9d1b8575c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\ENB">
+      <UniqueIdentifier>{4f3ae023-419a-4f2e-8873-da8dc2e8e2a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -84,6 +87,15 @@
     <ClInclude Include="Source\xSE\GameEvent.h">
       <Filter>Code\xSE</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ENB\ENBInterface.h">
+      <Filter>Code\ENB</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ENB\ENBAPI.h">
+      <Filter>Code\ENB</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ENB\ENBEvent.h">
+      <Filter>Code\ENB</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\PrivateProfileRedirector.cpp">
@@ -119,6 +131,12 @@
     </ClCompile>
     <ClCompile Include="Source\xSE\ConsoleCommandOverrider\SKSE.cpp">
       <Filter>Code\xSE\ConsoleCommandOverrider</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ENB\ENBInterface.cpp">
+      <Filter>Code\ENB</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ENB\ENBAPI.cpp">
+      <Filter>Code\ENB</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -49,6 +49,8 @@ namespace PPR
 			void OverrideFunctions();
 			void RestoreFunctions();
 
+			void InitExternalInterfaces();
+
 		public:
 			Redirector();
 			~Redirector();

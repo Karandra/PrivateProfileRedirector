@@ -3,6 +3,7 @@
 #include "RedirectedFunctions.h"
 #include "xSE/ScriptExtenderInterfaceIncludes.h"
 #include "xSE/ScriptExtenderInterface.h"
+#include "ENB/ENBInterface.h"
 #include <kxf/Core/EncodingConverter/NativeEncodingConverter.h>
 #include <kxf/Log/ScopedLoggerContext.h>
 #include <kxf/System/ShellOperations.h>
@@ -256,6 +257,24 @@ namespace PPR
 		KX_SCOPEDLOG.SetSuccess();
 	}
 
+	void Redirector::InitExternalInterfaces()
+	{
+		// We don't load xSE here as it'd be called by the xSE loader later if one is installed and is compatible version
+		
+		// ENB
+		{
+			auto& instance = ENBInterface::GetInstance();
+			instance.Bind(ENBEvent::EvtPreSave, [this](ENBEvent& event)
+			{
+				SaveChangedFiles(L"ENB PreSave event");
+			});
+			instance.Bind(ENBEvent::EvtOnExit, [this](ENBEvent& event)
+			{
+				SaveChangedFiles(L"ENB OnExit event");
+			});
+		}
+	}
+
 	Redirector::Redirector()
 	{
 		// Load config
@@ -267,6 +286,9 @@ namespace PPR
 		// Initialize detour
 		FunctionRedirector::Initialize();
 		OverrideFunctions();
+
+		// Initialize any external connection we support
+		InitExternalInterfaces();
 	}
 	Redirector::~Redirector()
 	{
