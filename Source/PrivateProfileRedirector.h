@@ -1,5 +1,6 @@
 #pragma once
-#include "stdafx.h"
+#include "Common.h"
+#include "CommonWinAPI.h"
 #include "INIWrapper.h"
 #include "RedirectorConfig.h"
 #include "FunctionRedirector.h"

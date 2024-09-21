@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "Common.h"
 #include "ScriptExtenderDefines.h"
 #include "IConsoleCommandOverrider.h"
 #include "GameEvent.h"
