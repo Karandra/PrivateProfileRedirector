@@ -13,11 +13,6 @@
 
 namespace PPR
 {
-	class SEInterface;
-}
-
-namespace PPR
-{
 	class Redirector final
 	{
 		friend class RedirectorConfigLoader;
@@ -63,7 +58,6 @@ namespace PPR
 			{
 				return m_Functions;
 			}
-			SEInterface& GetSEInterface() const noexcept;
 			kxf::IEncodingConverter& GetEncodingConverter() const noexcept
 			{
 				return *m_EncodingConverter;

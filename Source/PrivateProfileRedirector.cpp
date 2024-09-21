@@ -278,11 +278,6 @@ namespace PPR
 		KX_SCOPEDLOG.SetSuccess();
 	}
 
-	SEInterface& Redirector::GetSEInterface() const noexcept
-	{
-		return SEInterface::GetInstance();
-	}
-
 	ConfigObject& Redirector::GetOrLoadFile(const kxf::String& filePath)
 	{
 		// Get loaded file
