@@ -909,6 +909,8 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="Source\Common.h" />
     <ClInclude Include="Source\CommonWinAPI.h" />
     <ClInclude Include="Source\ConfigObject.h" />
+    <ClInclude Include="Source\DLLApplication.h" />
+    <ClInclude Include="Source\DLLEvent.h" />
     <ClInclude Include="Source\ENB\ENBAPI.h" />
     <ClInclude Include="Source\ENB\ENBEvent.h" />
     <ClInclude Include="Source\ENB\ENBInterface.h" />
@@ -917,7 +919,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="Source\PrivateProfileRedirector.h" />
     <ClInclude Include="Source\FunctionTable.h" />
     <ClInclude Include="Source\RedirectedFunctions.h" />
-    <ClInclude Include="Source\RedirectorConfig.h" />
+    <ClInclude Include="Source\AppConfigLoader.h" />
     <ClInclude Include="Source\xSE\ConsoleCommandOverrider\F4SE.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SEVR|Win32'">true</ExcludedFromBuild>
@@ -984,14 +986,14 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ConfigObject.cpp" />
-    <ClCompile Include="Source\DLLMain.cpp" />
+    <ClCompile Include="Source\DLLApplication.cpp" />
     <ClCompile Include="Source\ENB\ENBAPI.cpp" />
     <ClCompile Include="Source\ENB\ENBInterface.cpp" />
     <ClCompile Include="Source\FunctionRedirector.cpp" />
     <ClCompile Include="Source\INIWrapper.cpp" />
     <ClCompile Include="Source\PrivateProfileRedirector.cpp" />
     <ClCompile Include="Source\RedirectedFunctions.cpp" />
-    <ClCompile Include="Source\RedirectorConfig.cpp" />
+    <ClCompile Include="Source\AppConfigLoader.cpp" />
     <ClCompile Include="Source\xSE\ConsoleCommandOverrider\F4SE.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SEVR|Win32'">true</ExcludedFromBuild>

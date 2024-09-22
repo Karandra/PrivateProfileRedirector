@@ -12,21 +12,25 @@ xSE_API(bool) xSE_LOADFUNCTION(const xSE_Interface* xSE);
 
 namespace PPR
 {
+	class AppConfigLoader;
+	class DLLApplication;
 	class Redirector;
 }
 
 namespace PPR
 {
-	class SEInterface final: public kxf::EvtHandler
+	class XSEInterface final: public kxf::EvtHandler
 	{
-		using PluginHandle = uint32_t;
+		friend class DLLApplication;
 
+		using PluginHandle = uint32_t;
 		friend bool ::xSE_PRELOADFUNCTION(const xSE_Interface*);
 		friend bool ::xSE_QUERYFUNCTION(const xSE_Interface*, PluginInfo*);
 		friend bool ::xSE_LOADFUNCTION(const xSE_Interface*);
 
 		public:
-			static SEInterface& GetInstance() noexcept;
+			static XSEInterface& GetInstance() noexcept;
+			static Redirector& GetRedirector() noexcept;
 
 		private:
 			const xSE_Interface* m_XSE = nullptr;
@@ -54,8 +58,9 @@ namespace PPR
 			// IEvtHandler
 			bool OnDynamicBind(EventItem& eventItem) override;
 
-		private:
-			SEInterface() noexcept;
+		public:
+			XSEInterface(DLLApplication& app, const AppConfigLoader& config);
+			~XSEInterface();
 
 		public:
 			bool CanUseSEFunctions() const
@@ -81,8 +86,6 @@ namespace PPR
 			}
 	
 		public:
-			Redirector& GetRedirector() const;
-
 			template<class T>
 			requires(std::is_base_of_v<IConsoleCommandOverrider, T>)
 			T* GetConsoleCommandOverrider() const noexcept

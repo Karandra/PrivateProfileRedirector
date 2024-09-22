@@ -10,20 +10,6 @@
 
 namespace
 {
-	namespace LogCategory
-	{
-		KX_DefineLogCategory(GetPrivateProfileStringA);
-		KX_DefineLogCategory(GetPrivateProfileStringW);
-		KX_DefineLogCategory(GetPrivateProfileIntA);
-		KX_DefineLogCategory(GetPrivateProfileIntW);
-		KX_DefineLogCategory(GetPrivateProfileSectionNamesA);
-		KX_DefineLogCategory(GetPrivateProfileSectionNamesW);
-		KX_DefineLogCategory(GetPrivateProfileSectionA);
-		KX_DefineLogCategory(GetPrivateProfileSectionW);
-		KX_DefineLogCategory(WritePrivateProfileStringA);
-		KX_DefineLogCategory(WritePrivateProfileStringW);
-	}
-
 	template<class TChar>
 	kxf::String MemoryToHex(const TChar* src, size_t srcSize1, size_t srcSize2 = 0)
 	{
@@ -142,6 +128,19 @@ namespace
 		}
 		return STRSAFE_E_INVALID_PARAMETER;
 	}
+}
+namespace PPR::LogCategory
+{
+	KX_DefineLogCategory(GetPrivateProfileStringA);
+	KX_DefineLogCategory(GetPrivateProfileStringW);
+	KX_DefineLogCategory(GetPrivateProfileIntA);
+	KX_DefineLogCategory(GetPrivateProfileIntW);
+	KX_DefineLogCategory(GetPrivateProfileSectionNamesA);
+	KX_DefineLogCategory(GetPrivateProfileSectionNamesW);
+	KX_DefineLogCategory(GetPrivateProfileSectionA);
+	KX_DefineLogCategory(GetPrivateProfileSectionW);
+	KX_DefineLogCategory(WritePrivateProfileStringA);
+	KX_DefineLogCategory(WritePrivateProfileStringW);
 }
 
 namespace PPR::PrivateProfile

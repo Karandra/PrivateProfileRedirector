@@ -98,7 +98,7 @@ namespace PPR
 			newCommand.helpText = commandInfo.HelpString.utf8_str();
 			newCommand.execute = [](ParamInfo* paramInfo, void* scriptData, TESObjectREFR* thisObj, TESObjectREFR* containingObj, Script* scriptObj, ScriptLocals* locals, double* result, UInt32* opcodeOffset)
 			{
-				auto& instance = *SEInterface::GetInstance().GetConsoleCommandOverrider<ConsoleCommandOverrider_SKSE>();
+				auto& instance = *XSEInterface::GetInstance().GetConsoleCommandOverrider<ConsoleCommandOverrider_SKSE>();
 				return instance.OnCommand(paramInfo, scriptData, thisObj, containingObj, scriptObj, locals, result, opcodeOffset);
 			};
 

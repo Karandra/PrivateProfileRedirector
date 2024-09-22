@@ -17,7 +17,7 @@ namespace ENBAPI
 
 		if (filePath.IsEmpty())
 		{
-			m_ENBLib.Load("d3d11.dll");
+			bool loaded = m_ENBLib.Load("d3d11.dll") || m_ENBLib.Load("d3d10.dll") || m_ENBLib.Load("d3d9.dll");
 		}
 		else
 		{
@@ -47,7 +47,7 @@ namespace ENBAPI
 		else
 		{
 			m_IsLoaded = true;
-			KX_SCOPEDLOG.Info().Format("ENB API loaded successfully. Version: {}, SDK version: {}", m_ENBGetVersion(), m_ENBGetSDKVersion());
+			KX_SCOPEDLOG.Info().Format("ENB API loaded successfully from '{}'. Version: {}, SDK version: {}", m_ENBLib.GetFilePath().GetFullPath(), m_ENBGetVersion(), m_ENBGetSDKVersion());
 			KX_SCOPEDLOG.SetSuccess();
 
 			return true;
@@ -56,6 +56,8 @@ namespace ENBAPI
 	
 	void ENBLink::BindCallback(kxf::IEvtHandler& evtHandler)
 	{
+		using namespace PPR;
+
 		if (m_IsLoaded && !m_CallbackStore)
 		{
 			m_CallbackStore.SetCallable([&](CallbackType type)
@@ -64,50 +66,63 @@ namespace ENBAPI
 				{
 					case CallbackType::OnInit:
 					{
-						evtHandler.ProcessEvent(PPR::ENBEvent::EvtOnInit);
+						kxf::Log::InfoCategory(LogCategory::ENBInterface, "Callback: OnInit", type);
+						evtHandler.ProcessEvent(ENBEvent::EvtOnInit);
+
 						break;
 					}
 					case CallbackType::OnExit:
 					{
-						evtHandler.ProcessEvent(PPR::ENBEvent::EvtOnExit);
+						kxf::Log::InfoCategory(LogCategory::ENBInterface, "Callback: OnExit", type);
+						evtHandler.ProcessEvent(ENBEvent::EvtOnExit);
+
 						break;
 					}
 
+					// Don't log these two events as they only clog the log file
 					case CallbackType::BeginFrame:
 					{
-						evtHandler.ProcessEvent(PPR::ENBEvent::EvtBeginFrame);
+						evtHandler.ProcessEvent(ENBEvent::EvtBeginFrame);
 						break;
 					}
 					case CallbackType::EndFrame:
 					{
-						evtHandler.ProcessEvent(PPR::ENBEvent::EvtEndFrame);
+						evtHandler.ProcessEvent(ENBEvent::EvtEndFrame);
 						break;
 					}
 
 					case CallbackType::PreSave:
 					{
-						evtHandler.ProcessEvent(PPR::ENBEvent::EvtPreSave);
+						kxf::Log::InfoCategory(LogCategory::ENBInterface, "Callback: PreSave", type);
+						evtHandler.ProcessEvent(ENBEvent::EvtPreSave);
+
 						break;
 					}
 					case CallbackType::PostLoad:
 					{
-						evtHandler.ProcessEvent(PPR::ENBEvent::EvtPostLoad);
+						kxf::Log::InfoCategory(LogCategory::ENBInterface, "Callback: PostLoad", type);
+						evtHandler.ProcessEvent(ENBEvent::EvtPostLoad);
+
 						break;
 					}
 
 					case CallbackType::PreReset:
 					{
-						evtHandler.ProcessEvent(PPR::ENBEvent::EvtPreReset);
+						kxf::Log::InfoCategory(LogCategory::ENBInterface, "Callback: PreReset", type);
+						evtHandler.ProcessEvent(ENBEvent::EvtPreReset);
+
 						break;
 					}
 					case CallbackType::PostReset:
 					{
-						evtHandler.ProcessEvent(PPR::ENBEvent::EvtPostReset);
+						kxf::Log::InfoCategory(LogCategory::ENBInterface, "Callback: PostReset", type);
+						evtHandler.ProcessEvent(ENBEvent::EvtPostReset);
+
 						break;
 					}
 					default:
 					{
-						kxf::Log::WarningCategory("ENB API", "Unknown callback type: {}", type);
+						kxf::Log::WarningCategory(LogCategory::ENBInterface, "Unknown callback: {}", type);
 					}
 				};
 			});

@@ -1,16 +1,9 @@
 #include "stdafx.h"
 #include "ENBInterface.h"
 #include "ENBEvent.h"
-#include "PrivateProfileRedirector.h"
 
 namespace PPR
 {
-	ENBInterface& ENBInterface::GetInstance() noexcept
-	{
-		static ENBInterface instance;
-		return instance;
-	}
-
 	// IEvtHandler
 	bool ENBInterface::OnDynamicBind(EventItem& eventItem)
 	{
@@ -21,9 +14,19 @@ namespace PPR
 		}
 		return EvtHandler::OnDynamicBind(eventItem);
 	}
-
-	Redirector& ENBInterface::GetRedirector() const
+	
+	// ENBInterface
+	ENBInterface::ENBInterface(DLLApplication& app, const AppConfigLoader& config)
 	{
-		return Redirector::GetInstance();
+		KX_SCOPEDLOG_FUNC;
+
+		bool loaded = m_ENBLink.Load();
+
+		KX_SCOPEDLOG.SetSuccess(loaded);
+	}
+	ENBInterface::~ENBInterface()
+	{
+		KX_SCOPEDLOG_FUNC;
+		KX_SCOPEDLOG.SetSuccess();
 	}
 }

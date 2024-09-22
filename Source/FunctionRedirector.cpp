@@ -5,12 +5,9 @@
 #include <detours/detours.h>
 #include <detours/detver.h>
 
-namespace
+namespace PPR::LogCategory
 {
-	namespace LogCategory
-	{
-		KX_DefineLogCategory(Detours);
-	}
+	KX_DefineLogCategory(Detours);
 }
 
 namespace PPR::FunctionRedirector::Private

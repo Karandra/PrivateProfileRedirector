@@ -26,15 +26,14 @@ namespace kxf
 
 namespace PPR
 {
-	class RedirectorConfigLoader final
+	class AppConfigLoader final
 	{
 		private:
 			kxf::INIDocument m_Config;
 			kxf::INIDocumentSection m_General;
-			kxf::FlagSet<RedirectorOption> m_OptionSet;
 
 		public:
-			RedirectorConfigLoader(std::unique_ptr<kxf::IInputStream> stream)
+			AppConfigLoader(std::unique_ptr<kxf::IInputStream> stream)
 			{
 				if (stream && m_Config.Load(*stream))
 				{
@@ -47,15 +46,11 @@ namespace PPR
 			{
 				return m_Config.IsNull();
 			}
-			kxf::FlagSet<RedirectorOption> GetOptions() const noexcept
-			{
-				return m_OptionSet;
-			}
 
 			const kxf::INIDocumentSection& GetGeneral() const noexcept
 			{
 				return m_General;
 			}
-			bool LoadOption(RedirectorOption option, const wchar_t* name, RedirectorOption disableIf = RedirectorOption::None);
+			bool LoadRedirectorOption(kxf::FlagSet<RedirectorOption>& result, RedirectorOption option, const wchar_t* name, RedirectorOption disableIf = RedirectorOption::None) const;
 	};
 }

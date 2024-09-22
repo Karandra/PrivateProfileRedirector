@@ -2,7 +2,7 @@
 #include "Common.h"
 #include "CommonWinAPI.h"
 #include "INIWrapper.h"
-#include "RedirectorConfig.h"
+#include "AppConfigLoader.h"
 #include "FunctionRedirector.h"
 #include "FunctionTable.h"
 #include "ConfigObject.h"
@@ -15,26 +15,16 @@ namespace PPR
 {
 	class Redirector final
 	{
-		friend class RedirectorConfigLoader;
+		friend class DLLApplication;
+		friend class AppConfigLoader;
 
 		public:
-			static bool HasInstance();
 			static Redirector& GetInstance();
-			
-			static kxf::String GetLibraryName();
-			static kxf::String GetLibraryAuthor();
-			static kxf::Version GetLibraryVersion();
-
-			static bool DllMain(HMODULE module, DWORD event);
 
 		private:
-			FunctionTable m_Functions;
-
-			kxf::NativeFileSystem m_PluginFS;
-			kxf::NativeFileSystem m_ConfigFS;
-
 			kxf::FlagSet<RedirectorOption> m_Options;
 			std::unique_ptr<kxf::IEncodingConverter> m_EncodingConverter;
+			FunctionTable m_Functions;
 			int m_SaveOnWriteBuffer = 0;
 
 			mutable kxf::ReadWriteLock m_INIMapLock;
@@ -42,17 +32,14 @@ namespace PPR
 			std::atomic<size_t> m_TotalWriteCount = 0;
 
 		private:
-			void InitConfig();
-			bool OpenLog(kxf::LogLevel logLevel);
+			void LoadConfig(DLLApplication& app, const AppConfigLoader& config);
 
 			void InitFunctions();
 			void OverrideFunctions();
 			void RestoreFunctions();
 
-			void InitExternalInterfaces();
-
 		public:
-			Redirector();
+			Redirector(DLLApplication& app, const AppConfigLoader& config);
 			~Redirector();
 
 		public:

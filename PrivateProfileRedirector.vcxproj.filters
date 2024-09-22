@@ -42,7 +42,7 @@
     <ClInclude Include="Source\xSE\ScriptExtenderDefines.h">
       <Filter>Code\xSE</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RedirectorConfig.h">
+    <ClInclude Include="Source\AppConfigLoader.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Source\ConfigObject.h">
@@ -96,6 +96,12 @@
     <ClInclude Include="Source\ENB\ENBEvent.h">
       <Filter>Code\ENB</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DLLApplication.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DLLEvent.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\PrivateProfileRedirector.cpp">
@@ -108,10 +114,10 @@
     <ClCompile Include="Source\ConfigObject.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DLLMain.cpp">
+    <ClCompile Include="Source\DLLApplication.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RedirectorConfig.cpp">
+    <ClCompile Include="Source\AppConfigLoader.cpp">
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\FunctionRedirector.cpp">
