@@ -29,4 +29,11 @@ namespace PPR
 		KX_SCOPEDLOG_FUNC;
 		KX_SCOPEDLOG.SetSuccess();
 	}
+
+	// AppModule
+	void ENBInterface::OnInit(DLLApplication& app)
+	{
+		KX_SCOPEDLOG_FUNC;
+		KX_SCOPEDLOG.SetSuccess();
+	}
 }

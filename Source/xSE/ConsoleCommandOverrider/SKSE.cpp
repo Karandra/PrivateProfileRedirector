@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SKSE.h"
-#include "PrivateProfileRedirector.h"
 #include "xSE/ScriptExtenderInterface.h"
+#include "Redirector/RedirectorInterface.h"
 
 namespace
 {
@@ -88,6 +88,8 @@ namespace PPR
 
 	bool ConsoleCommandOverrider_SKSE::OverrideCommand(const kxf::String& commandName, const kxf::String& commandHelp)
 	{
+		KX_SCOPEDLOG_ARGS(commandName, commandHelp);
+
 		if (ObScriptCommand* command = FindCommand(commandName))
 		{
 			// Save original command and help string
@@ -105,6 +107,7 @@ namespace PPR
 			SafeWriteBuf(reinterpret_cast<uintptr_t>(command), &newCommand, sizeof(newCommand));
 			xSE_LOG("Command '{}' is overridden successfully", command->longName);
 
+			KX_SCOPEDLOG.SetSuccess();
 			return true;
 		}
 

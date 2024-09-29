@@ -1,8 +1,9 @@
 #include "Common.h"
 #include "CommonWinAPI.h"
-#include "PrivateProfileRedirector.h"
+#include "AppModule.h"
 #include "xSE/ScriptExtenderInterface.h"
 #include "ENB/ENBInterface.h"
+#include "Redirector/RedirectorInterface.h"
 #include <kxf/Application/AttachedApplication.h>
 #include <kxf/Localization/WindowsLocalizationPackage.h>
 
@@ -20,7 +21,7 @@ namespace PPR
 			static void OnProcessAttach();
 
 		private:
-			std::optional<Redirector> m_Redirector;
+			std::optional<RedirectorInterface> m_Redirector;
 			std::optional<XSEInterface> m_XSEInterface;
 			std::optional<ENBInterface> m_ENBInterface;
 
@@ -33,7 +34,26 @@ namespace PPR
 			bool OpenLog(kxf::LogLevel logLevel);
 
 			void LogInformation();
+			void SetupFramework();
 			void SetupInfrastructure();
+
+			template<class T>
+			void CallModuleInit(std::optional<T>& ref)
+			{
+				if (ref)
+				{
+					ref->OnInit(*this);
+				}
+			}
+
+			template<class T>
+			void CallModuleExit(std::optional<T>& ref)
+			{
+				if (ref)
+				{
+					ref->OnExit(*this);
+				}
+			}
 
 		protected:
 			// Application::IPendingEvents
@@ -52,7 +72,7 @@ namespace PPR
 			}
 
 			// DLLApplication
-			Redirector& GetRedirector() noexcept
+			RedirectorInterface& GetRedirector() noexcept
 			{
 				return *m_Redirector;
 			}

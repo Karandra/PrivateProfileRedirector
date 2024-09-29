@@ -1,18 +1,12 @@
 #pragma once
 #include "Common.h"
+#include "AppModule.h"
 #include "ENBAPI.h"
 #include "ENBEvent.h"
-#include <kxf/EventSystem/EvtHandler.h>
 
 namespace PPR
 {
-	class AppConfigLoader;
-	class DLLApplication;
-}
-
-namespace PPR
-{
-	class ENBInterface final: public kxf::EvtHandler
+	class ENBInterface final: public AppModule
 	{
 		private:
 			ENBAPI::ENBLink m_ENBLink;
@@ -26,6 +20,10 @@ namespace PPR
 			~ENBInterface();
 
 		public:
+			// AppModule
+			void OnInit(DLLApplication& app) override;
+
+			// ENBInterface
 			const ENBAPI::ENBLink& GetLink() const
 			{
 				return m_ENBLink;

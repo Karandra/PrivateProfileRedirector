@@ -21,6 +21,9 @@
     <Filter Include="Code\ENB">
       <UniqueIdentifier>{4f3ae023-419a-4f2e-8873-da8dc2e8e2a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Redirector">
+      <UniqueIdentifier>{cf8c209f-49ab-4b4a-8b08-3c867b7013ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -43,24 +46,6 @@
       <Filter>Code\xSE</Filter>
     </ClInclude>
     <ClInclude Include="Source\AppConfigLoader.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ConfigObject.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\FunctionRedirector.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\FunctionTable.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\INIWrapper.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\PrivateProfileRedirector.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\RedirectedFunctions.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Source\xSE\IConsoleCommandOverrider.h">
@@ -102,28 +87,34 @@
     <ClInclude Include="Source\DLLEvent.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Redirector\ConfigObject.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\FunctionRedirector.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\FunctionTable.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\INIWrapper.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\RedirectedFunctions.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\RedirectorInterface.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AppModule.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\PrivateProfileRedirector.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Source\RedirectedFunctions.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ConfigObject.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DLLApplication.cpp">
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\AppConfigLoader.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\FunctionRedirector.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\INIWrapper.cpp">
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\xSE\ScriptExtenderInterface.cpp">
@@ -143,6 +134,21 @@
     </ClCompile>
     <ClCompile Include="Source\ENB\ENBAPI.cpp">
       <Filter>Code\ENB</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\ConfigObject.cpp">
+      <Filter>Code\Redirector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\FunctionRedirector.cpp">
+      <Filter>Code\Redirector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\INIWrapper.cpp">
+      <Filter>Code\Redirector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\RedirectedFunctions.cpp">
+      <Filter>Code\Redirector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\RedirectorInterface.cpp">
+      <Filter>Code\Redirector</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

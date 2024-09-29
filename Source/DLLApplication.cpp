@@ -105,17 +105,21 @@ namespace PPR
 
 		// Open log
 		AppConfigLoader config(m_PluginFS.OpenToRead("PrivateProfileRedirector.ini"));
-		if (auto enableLog = config.GetGeneral().QueryAttributeBool(L"EnableLog"); enableLog == true)
+		if (auto enableLog = config.GetGeneralSection().QueryAttributeBool(L"EnableLog"); enableLog == true)
 		{
 			// Open log with max level, v0.5.x compatibility
 			OpenLog(kxf::LogLevel::Unknown);
 		}
-		else if (auto logLevel = config.GetGeneral().QueryAttributeInt<kxf::LogLevel>(L"LogLevel"))
+		else if (auto logLevel = config.GetGeneralSection().QueryAttributeInt<kxf::LogLevel>(L"LogLevel"))
 		{
 			OpenLog(*logLevel);
 		}
 
-		if (config.IsNull())
+		if (!config.IsNull())
+		{
+			kxf::Log::Info("LogLevel: {} -> {}", kxf::ScopedLoggerGlobalContext::GetInstance().GetLogLevel(), kxf::Log::IsEnabled());
+		}
+		else
 		{
 			kxf::Log::Warning("Failed to load config file, using default options");
 		}
@@ -136,9 +140,6 @@ namespace PPR
 			if (stream)
 			{
 				kxf::ScopedLoggerGlobalContext::Initialize(std::make_shared<kxf::ScopedLoggerSingleFileContext>(std::move(stream)), logLevel);
-
-				kxf::Log::Info("{} v{}", GetDisplayName(), GetVersion().ToString());
-				kxf::Log::Info(L"Script Extender platform build: {} [0x{:08x}]", xSE_NAME_W, static_cast<uint32_t>(xSE_PACKED_VERSION));
 				return true;
 			}
 		}
@@ -148,17 +149,20 @@ namespace PPR
 	void DLLApplication::LogInformation()
 	{
 		kxf::Log::Info("{} v{} by {} loaded", GetDisplayName(), GetVersion().ToString(), GetVendorDisplayName());
-		kxf::Log::Info("Plugin directory: {}, config directory: {}", m_PluginFS.GetLookupDirectory().GetFullPath(), m_ConfigFS.GetLookupDirectory().GetFullPath());
+		kxf::Log::Info(L"Script Extender build: {} [0x{:08x}]", xSE_NAME_W, static_cast<uint32_t>(xSE_PACKED_VERSION));
+		kxf::Log::Info("Plugin directory: '{}', config directory: '{}'", m_PluginFS.GetLookupDirectory().GetFullPath(), m_ConfigFS.GetLookupDirectory().GetFullPath());
 		kxf::Log::Info("Host process command line: '{}'", kxf::RunningSystemProcess::GetCurrentProcess().GetCommandLine());
 	}
-	void DLLApplication::SetupInfrastructure()
+	void DLLApplication::SetupFramework()
 	{
 		// Load required native APIs
 		using kxf::NativeAPISet;
 		auto& nativeAPI = kxf::NativeAPILoader::GetInstance();
 		nativeAPI.LoadLibraries({NativeAPISet::NtDLL});
 		nativeAPI.Initialize();
-
+	}
+	void DLLApplication::SetupInfrastructure()
+	{
 		// Use ENB's EndFrame to process queued events for ENBInterface event handler
 		// This handler is also skipped during general pending events processing.
 		m_ENBInterface->Bind(ENBEvent::EvtEndFrame, [this](ENBEvent& event)
@@ -188,15 +192,22 @@ namespace PPR
 	// ICoreApplication
 	bool DLLApplication::OnInit()
 	{
+		// Load config and setup logging
 		auto config = LoadConfig();
 		KX_SCOPEDLOG_FUNC;
 
+		SetupFramework();
+		LogInformation();
+
+		// Init interfaces
 		m_XSEInterface.emplace(*this, config);
 		m_ENBInterface.emplace(*this, config);
 		m_Redirector.emplace(*this, config);
-		
+
+		CallModuleInit(m_XSEInterface);
+		CallModuleInit(m_ENBInterface);
+		CallModuleInit(m_Redirector);
 		SetupInfrastructure();
-		LogInformation();
 
 		KX_SCOPEDLOG.SetSuccess();
 		return true;
@@ -205,11 +216,11 @@ namespace PPR
 	{
 		KX_SCOPEDLOG_FUNC;
 
-		m_Redirector.reset();
-		m_ENBInterface.reset();
-		m_XSEInterface.reset();
-
+		CallModuleExit(m_Redirector);
+		CallModuleExit(m_ENBInterface);
+		CallModuleExit(m_XSEInterface);
 		CoreApplication::OnExit();
+
 		KX_SCOPEDLOG.SetSuccess();
 	}
 

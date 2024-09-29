@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "RedirectedFunctions.h"
-#include "PrivateProfileRedirector.h"
+#include "RedirectorInterface.h"
 #include <kxf/Log/Categories.h>
 #include <kxf/System/Win32Error.h>
 #include <strsafe.h>
@@ -162,7 +162,7 @@ namespace PPR::PrivateProfile
 			return 0;
 		}
 
-		Redirector& redirector = Redirector::GetInstance();
+		RedirectorInterface& redirector = RedirectorInterface::GetInstance();
 		kxf::IEncodingConverter& converter = redirector.GetEncodingConverter();
 		ConfigObject& configObject = redirector.GetOrLoadFile(INIWrapper::EncodingTo(lpFileName, converter));
 		auto lock = configObject.LockShared();
@@ -296,7 +296,7 @@ namespace PPR::PrivateProfile
 			return defaultValue;
 		}
 
-		Redirector& redirector = Redirector::GetInstance();
+		RedirectorInterface& redirector = RedirectorInterface::GetInstance();
 		kxf::IEncodingConverter& converter = redirector.GetEncodingConverter();
 
 		ConfigObject& configObject = redirector.GetOrLoadFile(INIWrapper::EncodingTo(lpFileName, converter));
@@ -348,7 +348,7 @@ namespace PPR::PrivateProfile
 			return 0;
 		}
 
-		Redirector& redirector = Redirector::GetInstance();
+		RedirectorInterface& redirector = RedirectorInterface::GetInstance();
 		kxf::IEncodingConverter& converter = redirector.GetEncodingConverter();
 
 		ConfigObject& configObject = redirector.GetOrLoadFile(INIWrapper::EncodingTo(lpFileName, converter));
@@ -403,7 +403,7 @@ namespace PPR::PrivateProfile
 		KX_SCOPEDLOG_AUTO;
 		KX_SCOPEDLOG.Trace(logCategory).Format("Section: '{}', Key: '{}', Value: '{}', Path: '{}'", appName, keyName, lpString, lpFileName);
 
-		Redirector& redirector = Redirector::GetInstance();
+		RedirectorInterface& redirector = RedirectorInterface::GetInstance();
 
 		// When 'NativeWrite' or 'WriteProtected' options are enabled, it will not flush updated file to the disk.
 		auto WriteStringToMemoryFile = [&](const TChar* appName, const TChar* keyName, const TChar* lpString, const TChar* lpFileName)

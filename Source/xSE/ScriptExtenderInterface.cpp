@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "ScriptExtenderInterface.h"
-#include "PrivateProfileRedirector.h"
-#include "DLLApplication.h"
 #include "ScriptExtenderInterfaceIncludes.h"
+#include "DLLApplication.h"
+#include "Redirector/RedirectorInterface.h"
 
 #if xSE_PLATFORM_SKSE
 #include "ConsoleCommandOverrider/SKSE.h"
@@ -171,18 +171,28 @@ bool xSE_CAN_USE_SCRIPTEXTENDER() noexcept
 
 namespace PPR
 {
+	// XSEInterface
 	XSEInterface& XSEInterface::GetInstance() noexcept
 	{
 		return PPR::DLLApplication::GetInstance().GetXSEInterface();
 	}
-	Redirector& XSEInterface::GetRedirector() noexcept
+
+	void XSEInterface::LoadConfig(DLLApplication& app, const AppConfigLoader& config)
 	{
-		return PPR::DLLApplication::GetInstance().GetRedirector();
+		KX_SCOPEDLOG_FUNC;
+
+		// Load options
+		config.LoadXSEOption(m_Options, XSEOption::AllowVersionMismatch, L"AllowVersionMismatch");
+
+		// Print options
+		KX_SCOPEDLOG.Info().Format("AllowVersionMismatch: {}", m_Options.Contains(XSEOption::AllowVersionMismatch));
+
+		KX_SCOPEDLOG.SetSuccess();
 	}
 
 	bool XSEInterface::OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion)
 	{
-		m_CanUseSEFunctions = interfaceVersion == compiledVersion || GetRedirector().IsOptionEnabled(RedirectorOption::AllowSEVersionMismatch);
+		m_CanUseSEFunctions = interfaceVersion == compiledVersion || m_Options.Contains(XSEOption::AllowVersionMismatch);
 		return m_CanUseSEFunctions;
 	}
 	bool XSEInterface::OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleform, xSE_MessagingInterface* messaging)
@@ -198,9 +208,8 @@ namespace PPR
 	{
 		if (CanUseSEFunctions())
 		{
-			// Events
-			Bind(ConsoleEvent::EvtCommand, &XSEInterface::OnConsoleCommand, this);
-			Bind(GameEvent::EvtGameSave, &XSEInterface::OnGameSave, this);
+			InitGameMessageDispatcher();
+			InitConsoleCommandOverrider();
 		}
 		return true;
 	}
@@ -218,7 +227,9 @@ namespace PPR
 	}
 	void XSEInterface::InitConsoleCommandOverrider()
 	{
-		if (!m_ConsoleCommandOverrider)
+		KX_SCOPEDLOG_FUNC;
+
+		if (CanUseSEFunctions() && !m_ConsoleCommandOverrider)
 		{
 			#if xSE_PLATFORM_SKSE
 			m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE>(*this);
@@ -233,11 +244,15 @@ namespace PPR
 				m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", kxf::Format("[{}] Reloads INI files content from disk and calls the original 'RefreshINI' afterwards", kxf::StringViewOf(PPR::ProjectName)));
 			}
 		}
+
+		KX_SCOPEDLOG.SetSuccess();
 	}
 	void XSEInterface::InitGameMessageDispatcher()
 	{
+		KX_SCOPEDLOG_FUNC;
+
 		#if xSE_HAS_MESSAGING_INTERFACE
-		if (m_Messaging && !m_GameEventListenerRegistered && GetRedirector().IsOptionEnabled(RedirectorOption::SaveOnGameSave))
+		if (CanUseSEFunctions() && m_Messaging && !m_GameEventListenerRegistered)
 		{
 			auto senderName = xSE_FOLDER_NAME_A;
 			m_GameEventListenerRegistered = m_Messaging->RegisterListener(m_PluginHandle, senderName, [](xSE_MessagingInterface::Message* msg)
@@ -320,36 +335,12 @@ namespace PPR
 			}
 			else
 			{
-				xSE_LOG_WARNING("Failed to register game event listener for sender: '{}'", senderName);
+				xSE_LOG_ERROR("Failed to register game event listener for sender: '{}'", senderName);
 			}
 		}
 		#endif
-	}
 
-	void XSEInterface::OnConsoleCommand(ConsoleEvent& event)
-	{
-		auto commandName = event.GetCommandName();
-		if (commandName == "RefreshINI")
-		{
-			PrintConsole("Executing '{}'", commandName);
-
-			const size_t reloadedCount = Redirector::GetInstance().RefreshINI();
-			PrintConsole("Executing '{}' done, {} files reloaded.", commandName, reloadedCount);
-		}
-		else
-		{
-			PrintConsole("Unknown command '{}'", commandName);
-		}
-
-		// Allow original console command to be called after
-		event.Skip();
-	}
-	void XSEInterface::OnGameSave(GameEvent& event)
-	{
-		auto saveFile = event.GetSaveFile();
-
-		xSE_LOG("Saving game: {}", saveFile);
-		GetRedirector().SaveChangedFiles(L"On game save");
+		KX_SCOPEDLOG.SetSuccess();
 	}
 
 	// IEvtHandler
@@ -371,13 +362,24 @@ namespace PPR
 		return EvtHandler::OnDynamicBind(eventItem);
 	}
 	
+	// XSEInterface
 	XSEInterface::XSEInterface(DLLApplication& app, const AppConfigLoader& config)
 		:m_PluginHandle(kPluginHandle_Invalid)
 	{
 		KX_SCOPEDLOG_FUNC;
+
+		LoadConfig(app, config);
+
 		KX_SCOPEDLOG.SetSuccess();
 	}
 	XSEInterface::~XSEInterface()
+	{
+		KX_SCOPEDLOG_FUNC;
+		KX_SCOPEDLOG.SetSuccess();
+	}
+	
+	// AppModule
+	void XSEInterface::OnInit(DLLApplication& app)
 	{
 		KX_SCOPEDLOG_FUNC;
 		KX_SCOPEDLOG.SetSuccess();

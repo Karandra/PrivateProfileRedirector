@@ -1,6 +1,7 @@
 #pragma once
 #include "Common.h"
 #include "CommonWinAPI.h"
+#include "AppModule.h"
 #include "INIWrapper.h"
 #include "AppConfigLoader.h"
 #include "FunctionRedirector.h"
@@ -13,13 +14,15 @@
 
 namespace PPR
 {
-	class Redirector final
-	{
-		friend class DLLApplication;
-		friend class AppConfigLoader;
+	class DLLApplication;
+}
 
+namespace PPR
+{
+	class RedirectorInterface final: public AppModule
+	{
 		public:
-			static Redirector& GetInstance();
+			static RedirectorInterface& GetInstance();
 
 		private:
 			kxf::FlagSet<RedirectorOption> m_Options;
@@ -34,15 +37,21 @@ namespace PPR
 		private:
 			void LoadConfig(DLLApplication& app, const AppConfigLoader& config);
 
-			void InitFunctions();
+			void SaveFunctionPointers();
 			void OverrideFunctions();
 			void RestoreFunctions();
+			void SetupIntegrations(DLLApplication& app);
 
 		public:
-			Redirector(DLLApplication& app, const AppConfigLoader& config);
-			~Redirector();
+			RedirectorInterface(DLLApplication& app, const AppConfigLoader& config);
+			~RedirectorInterface();
 
 		public:
+			// AppModule
+			void OnInit(DLLApplication& app) override;
+			void OnExit(DLLApplication& app) override;
+			
+			// RedirectorInterface
 			const FunctionTable& GetFunctionTable() const noexcept
 			{
 				return m_Functions;

@@ -8,7 +8,7 @@ namespace PPR
 {
 	class ConfigObject
 	{
-		friend class Redirector;
+		friend class RedirectorInterface;
 
 		public:
 			using Options = INIWrapper::Options;

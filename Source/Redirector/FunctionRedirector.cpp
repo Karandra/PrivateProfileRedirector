@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "FunctionRedirector.h"
-#include "PrivateProfileRedirector.h"
+#include "RedirectorInterface.h"
 #include <kxf/Log/Categories.h>
 #include <detours/detours.h>
 #include <detours/detver.h>
@@ -14,7 +14,7 @@ namespace PPR::FunctionRedirector::Private
 {
 	void LogOperation(uint32_t status, const wchar_t* operation, const FunctionInfo& info)
 	{
-		Redirector& redirector = Redirector::GetInstance();
+		RedirectorInterface& redirector = RedirectorInterface::GetInstance();
 		switch (status)
 		{
 			case NO_ERROR:
@@ -51,7 +51,7 @@ namespace PPR::FunctionRedirector::Private
 	}
 	void LogOperation(uint32_t status, const wchar_t* operation)
 	{
-		Redirector& redirector = Redirector::GetInstance();
+		RedirectorInterface& redirector = RedirectorInterface::GetInstance();
 		switch (status)
 		{
 			case NO_ERROR:

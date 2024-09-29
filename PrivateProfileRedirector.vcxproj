@@ -416,6 +416,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -447,6 +448,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -478,6 +480,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -509,6 +512,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -540,6 +544,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -571,6 +576,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -602,6 +608,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -633,6 +640,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -664,6 +672,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -695,6 +704,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -726,6 +736,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -757,6 +768,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -788,6 +800,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -819,6 +832,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -853,6 +867,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -887,6 +902,7 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -908,18 +924,19 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\Common.h" />
     <ClInclude Include="Source\CommonWinAPI.h" />
-    <ClInclude Include="Source\ConfigObject.h" />
     <ClInclude Include="Source\DLLApplication.h" />
     <ClInclude Include="Source\DLLEvent.h" />
     <ClInclude Include="Source\ENB\ENBAPI.h" />
     <ClInclude Include="Source\ENB\ENBEvent.h" />
     <ClInclude Include="Source\ENB\ENBInterface.h" />
-    <ClInclude Include="Source\FunctionRedirector.h" />
-    <ClInclude Include="Source\INIWrapper.h" />
-    <ClInclude Include="Source\PrivateProfileRedirector.h" />
-    <ClInclude Include="Source\FunctionTable.h" />
-    <ClInclude Include="Source\RedirectedFunctions.h" />
     <ClInclude Include="Source\AppConfigLoader.h" />
+    <ClInclude Include="Source\AppModule.h" />
+    <ClInclude Include="Source\Redirector\ConfigObject.h" />
+    <ClInclude Include="Source\Redirector\FunctionRedirector.h" />
+    <ClInclude Include="Source\Redirector\FunctionTable.h" />
+    <ClInclude Include="Source\Redirector\INIWrapper.h" />
+    <ClInclude Include="Source\Redirector\RedirectedFunctions.h" />
+    <ClInclude Include="Source\Redirector\RedirectorInterface.h" />
     <ClInclude Include="Source\xSE\ConsoleCommandOverrider\F4SE.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SEVR|Win32'">true</ExcludedFromBuild>
@@ -985,15 +1002,15 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\ConfigObject.cpp" />
     <ClCompile Include="Source\DLLApplication.cpp" />
     <ClCompile Include="Source\ENB\ENBAPI.cpp" />
     <ClCompile Include="Source\ENB\ENBInterface.cpp" />
-    <ClCompile Include="Source\FunctionRedirector.cpp" />
-    <ClCompile Include="Source\INIWrapper.cpp" />
-    <ClCompile Include="Source\PrivateProfileRedirector.cpp" />
-    <ClCompile Include="Source\RedirectedFunctions.cpp" />
     <ClCompile Include="Source\AppConfigLoader.cpp" />
+    <ClCompile Include="Source\Redirector\ConfigObject.cpp" />
+    <ClCompile Include="Source\Redirector\FunctionRedirector.cpp" />
+    <ClCompile Include="Source\Redirector\INIWrapper.cpp" />
+    <ClCompile Include="Source\Redirector\RedirectedFunctions.cpp" />
+    <ClCompile Include="Source\Redirector\RedirectorInterface.cpp" />
     <ClCompile Include="Source\xSE\ConsoleCommandOverrider\F4SE.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SE|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='F4SEVR|Win32'">true</ExcludedFromBuild>

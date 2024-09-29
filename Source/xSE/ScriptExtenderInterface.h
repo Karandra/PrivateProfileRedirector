@@ -1,10 +1,11 @@
 #pragma once
 #include "Common.h"
+#include "AppModule.h"
+#include "AppConfigLoader.h"
 #include "ScriptExtenderDefines.h"
 #include "IConsoleCommandOverrider.h"
 #include "GameEvent.h"
 #include "ConsoleEvent.h"
-#include <kxf/EventSystem/EvtHandler.h>
 
 xSE_API(bool) xSE_PRELOADFUNCTION(const xSE_Interface* xSE);
 xSE_API(bool) xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo);
@@ -12,17 +13,8 @@ xSE_API(bool) xSE_LOADFUNCTION(const xSE_Interface* xSE);
 
 namespace PPR
 {
-	class AppConfigLoader;
-	class DLLApplication;
-	class Redirector;
-}
-
-namespace PPR
-{
-	class XSEInterface final: public kxf::EvtHandler
+	class XSEInterface final: public AppModule
 	{
-		friend class DLLApplication;
-
 		using PluginHandle = uint32_t;
 		friend bool ::xSE_PRELOADFUNCTION(const xSE_Interface*);
 		friend bool ::xSE_QUERYFUNCTION(const xSE_Interface*, PluginInfo*);
@@ -30,9 +22,10 @@ namespace PPR
 
 		public:
 			static XSEInterface& GetInstance() noexcept;
-			static Redirector& GetRedirector() noexcept;
 
 		private:
+			kxf::FlagSet<XSEOption> m_Options;
+
 			const xSE_Interface* m_XSE = nullptr;
 			xSE_ScaleformInterface* m_Scaleform = nullptr;
 			xSE_MessagingInterface* m_Messaging = nullptr;
@@ -43,6 +36,8 @@ namespace PPR
 			bool m_GameEventListenerRegistered = false;
 
 		private:
+			void LoadConfig(DLLApplication& app, const AppConfigLoader& config);
+
 			bool OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion);
 			bool OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleform, xSE_MessagingInterface* messaging);
 			bool OnLoad();
@@ -50,9 +45,6 @@ namespace PPR
 			bool DoPrintConsole(const char* string) const;
 			void InitConsoleCommandOverrider();
 			void InitGameMessageDispatcher();
-
-			void OnConsoleCommand(ConsoleEvent& event);
-			void OnGameSave(GameEvent& event);
 
 		protected:
 			// IEvtHandler
@@ -63,6 +55,10 @@ namespace PPR
 			~XSEInterface();
 
 		public:
+			// AppModule
+			void OnInit(DLLApplication& app) override;
+
+			// XSEInterface
 			bool CanUseSEFunctions() const
 			{
 				return m_CanUseSEFunctions;
@@ -85,9 +81,7 @@ namespace PPR
 				return m_Messaging;
 			}
 	
-		public:
-			template<class T>
-			requires(std::is_base_of_v<IConsoleCommandOverrider, T>)
+			template<class T> requires(std::is_base_of_v<IConsoleCommandOverrider, T>)
 			T* GetConsoleCommandOverrider() const noexcept
 			{
 				return static_cast<T*>(m_ConsoleCommandOverrider.get());

@@ -1,20 +1,16 @@
 #include "stdafx.h"
 #include "AppConfigLoader.h"
-#include "PrivateProfileRedirector.h"
 
 namespace PPR
 {
-	bool AppConfigLoader::LoadRedirectorOption(kxf::FlagSet<RedirectorOption>& result, RedirectorOption option, const wchar_t* name, RedirectorOption disableIf) const
+	AppConfigLoader::AppConfigLoader(std::unique_ptr<kxf::IInputStream> stream)
 	{
-		constexpr kxf::FlagSet<RedirectorOption> defaultOptions = RedirectorOption::SaveOnWrite|RedirectorOption::ProcessInlineComments;
-
-		bool value = m_General.GetAttributeBool(name, defaultOptions.Contains(option));
-		if (disableIf != RedirectorOption::None && result.Contains(disableIf))
+		if (stream && m_Config.Load(*stream))
 		{
-			value = false;
+			m_General = m_Config.QueryElement("General");
+			m_Redirector = m_Config.QueryElement("Redirector");
+			m_XSEInterface = m_Config.QueryElement("XSE");
+			m_ENBInterface = m_Config.QueryElement("ENB");
 		}
-
-		result.Mod(option, value);
-		return value;
 	}
 }
