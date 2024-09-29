@@ -177,6 +177,7 @@ namespace PPR
 		return true;
 	}
 
+	// DLLApplication
 	DLLApplication::DLLApplication()
 	{
 		SetName(kxf::StringViewOf(ProjectName));

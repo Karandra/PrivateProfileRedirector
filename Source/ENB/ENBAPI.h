@@ -61,7 +61,7 @@ namespace ENBAPI
 			ENBSetParameter* m_ENBSetParameter = nullptr;
 			bool m_IsLoaded = false;
 			
-			kxf::CFunction<ENBCallback, kxf::FFI::ABI::StdCall> m_CallbackStore;
+			kxf::CFunction<void(CallbackType), kxf::FFI::ABI::StdCall> m_CallbackStore;
 
 		private:
 			template<class T>
