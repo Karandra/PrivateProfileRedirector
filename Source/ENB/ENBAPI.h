@@ -88,7 +88,7 @@ namespace ENBAPI
 			{
 				return !m_IsLoaded;
 			}
-			bool Load(const kxf::String& filePath = {});
+			bool Load(const kxf::FSPath& filePath = {});
 
 			void BindCallback(kxf::IEvtHandler& evtHandler);
 

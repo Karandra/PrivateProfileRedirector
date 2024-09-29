@@ -2,12 +2,13 @@
 #include "ENBAPI.h"
 #include "ENBEvent.h"
 #include <kxf/System/Win32Error.h>
+#include <kxf/FileSystem/NativeFileSystem.h>
 
 namespace ENBAPI
 {
-	bool ENBLink::Load(const kxf::String& filePath)
+	bool ENBLink::Load(const kxf::FSPath& filePath)
 	{
-		KX_SCOPEDLOG_ARGS(filePath, m_IsLoaded);
+		KX_SCOPEDLOG_ARGS(filePath.GetFullPath(), m_IsLoaded);
 
 		if (m_IsLoaded)
 		{
@@ -15,13 +16,21 @@ namespace ENBAPI
 			return false;
 		}
 
-		if (filePath.IsEmpty())
+		if (filePath.IsNull())
 		{
-			bool loaded = m_ENBLib.Load("d3d11.dll") || m_ENBLib.Load("d3d10.dll") || m_ENBLib.Load("d3d9.dll");
+			auto rootPath = kxf::NativeFileSystem::GetExecutingModuleRootDirectory();
+			m_ENBLib.Load(rootPath / "d3d11.dll") || m_ENBLib.Load(rootPath / "d3d10.dll") || m_ENBLib.Load(rootPath / "d3d9.dll");
 		}
 		else
 		{
-			m_ENBLib.Load(filePath);
+			if (filePath.IsAbsolute())
+			{
+				m_ENBLib.Load(filePath);
+			}
+			else
+			{
+				m_ENBLib.Load(kxf::NativeFileSystem::GetExecutingModuleRootDirectory() / filePath);
+			}
 		}
 
 		if (m_ENBLib)
@@ -41,6 +50,15 @@ namespace ENBAPI
 		{
 			m_IsLoaded = false;
 			KX_SCOPEDLOG.Warning().Format("Couldn't load ENB API functions", kxf::Win32Error::GetLastError());
+			KX_SCOPEDLOG.Warning().Format("ENBLib=[{}/'{}'], ENBGetVersion=[{}], ENBGetSDKVersion=[{}], ENBSetCallbackFunction=[{}], ENBGetParameter=[{}], ENBSetParameter=[{}]",
+										  m_ENBLib.GetHandle(),
+										  m_ENBLib ? m_ENBLib.GetFilePath().GetFullPath() : "<null>",
+										  static_cast<void*>(m_ENBGetVersion),
+										  static_cast<void*>(m_ENBGetSDKVersion),
+										  static_cast<void*>(m_ENBSetCallbackFunction),
+										  static_cast<void*>(m_ENBGetParameter),
+										  static_cast<void*>(m_ENBSetParameter)
+			);
 
 			return false;
 		}
