@@ -4,6 +4,7 @@
 - Added ENB integration (see description for details).
 - Refactored integration modules and event processing.
 - Config file options are now placed in sections for their modules instead of everything in the [General] section.
+- Added pdb files into release distribution.
 
 # Version 0.6.1, 20.06.2024
 - Fixed some cases with INI key names contaning extra whitespaces.
