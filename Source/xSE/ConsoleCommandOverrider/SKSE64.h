@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "Common.h"
 #include "xSE\IConsoleCommandOverrider.h"
 #include "xSE\ScriptExtenderInterfaceIncludes.h"
 

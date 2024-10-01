@@ -8,6 +8,7 @@
 #include <kxf/Core/String.h>
 #include <kxf/Core/Version.h>
 #include <kxf/Log/ScopedLogger.h>
+#include <kxf/Log/Categories.h>
 #include <kxf/Utility/Common.h>
 #include <kxf/Utility/ScopeGuard.h>
 
@@ -18,7 +19,7 @@ namespace PPR
 
 	constexpr int VersionMajor = 0;
 	constexpr int VersionMinor = 6;
-	constexpr int VersionPatch = 1;
+	constexpr int VersionPatch = 2;
 
 	constexpr int MakeFullVersion(int major, int minor, int patch) noexcept
 	{
@@ -29,4 +30,10 @@ namespace PPR
 	constexpr int VersionFull = MakeFullVersion(VersionMajor, VersionMinor, VersionPatch);
 
 	using kxf::operator|;
+}
+
+namespace PPR::LogCategory
+{
+	KX_DefineLogCategory(xSEInterface);
+	KX_DefineLogCategory(ENBInterface);
 }

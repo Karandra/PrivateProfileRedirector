@@ -1,7 +1,9 @@
 #pragma once
-#include "stdafx.h"
+#include "Common.h"
+#include "CommonWinAPI.h"
+#include "AppModule.h"
 #include "INIWrapper.h"
-#include "RedirectorConfig.h"
+#include "AppConfigLoader.h"
 #include "FunctionRedirector.h"
 #include "FunctionTable.h"
 #include "ConfigObject.h"
@@ -12,33 +14,20 @@
 
 namespace PPR
 {
-	class SEInterface;
+	class DLLApplication;
 }
 
 namespace PPR
 {
-	class Redirector final
+	class RedirectorInterface final: public AppModule
 	{
-		friend class RedirectorConfigLoader;
-
 		public:
-			static bool HasInstance();
-			static Redirector& GetInstance();
-			
-			static kxf::String GetLibraryName();
-			static kxf::String GetLibraryAuthor();
-			static kxf::Version GetLibraryVersion();
-
-			static bool DllMain(HMODULE module, DWORD event);
+			static RedirectorInterface& GetInstance();
 
 		private:
-			FunctionTable m_Functions;
-
-			kxf::NativeFileSystem m_PluginFS;
-			kxf::NativeFileSystem m_ConfigFS;
-
 			kxf::FlagSet<RedirectorOption> m_Options;
 			std::unique_ptr<kxf::IEncodingConverter> m_EncodingConverter;
+			FunctionTable m_Functions;
 			int m_SaveOnWriteBuffer = 0;
 
 			mutable kxf::ReadWriteLock m_INIMapLock;
@@ -46,23 +35,27 @@ namespace PPR
 			std::atomic<size_t> m_TotalWriteCount = 0;
 
 		private:
-			void InitConfig();
-			bool OpenLog(kxf::LogLevel logLevel);
+			void LoadConfig(DLLApplication& app, const AppConfigLoader& config);
 
-			void InitFunctions();
+			void SaveFunctionPointers();
 			void OverrideFunctions();
 			void RestoreFunctions();
+			void SetupIntegrations(DLLApplication& app);
 
 		public:
-			Redirector();
-			~Redirector();
+			RedirectorInterface(DLLApplication& app, const AppConfigLoader& config);
+			~RedirectorInterface();
 
 		public:
+			// AppModule
+			void OnInit(DLLApplication& app) override;
+			void OnExit(DLLApplication& app) override;
+			
+			// RedirectorInterface
 			const FunctionTable& GetFunctionTable() const noexcept
 			{
 				return m_Functions;
 			}
-			SEInterface& GetSEInterface() const noexcept;
 			kxf::IEncodingConverter& GetEncodingConverter() const noexcept
 			{
 				return *m_EncodingConverter;

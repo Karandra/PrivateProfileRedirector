@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "Common.h"
 #include "ScriptExtenderDefinesBase.h"
 
 bool xSE_CAN_USE_SCRIPTEXTENDER() noexcept;

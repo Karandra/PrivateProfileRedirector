@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "ScriptExtenderInterface.h"
-#include "PrivateProfileRedirector.h"
 #include "ScriptExtenderInterfaceIncludes.h"
+#include "DLLApplication.h"
+#include "Redirector/RedirectorInterface.h"
 
 #if xSE_PLATFORM_SKSE
 #include "ConsoleCommandOverrider/SKSE.h"
@@ -24,7 +25,7 @@ bool xSE_PRELOADFUNCTION(const xSE_Interface* xSE)
 	{
 		xSE_LOG("Preloaded by xSE PluginPreloader");
 	}
-	PPR::Redirector::GetInstance().DllMain(nullptr, DLL_PROCESS_ATTACH);
+	PPR::DLLApplication::OnProcessAttach();
 
 	return true;
 }
@@ -43,7 +44,7 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 
 			PluginInfoData()
 			{
-				Name = Redirector::GetLibraryName().utf8_view();
+				Name = PPR::DLLApplication::GetInstance().GetName().utf8_view();
 				Version = PPR::VersionFull;
 			}
 		};
@@ -60,7 +61,7 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 	// Check SE version
 	const auto interfaceVersion = xSE_INTERFACE_VERSION(xSE);
 	constexpr auto compiledVersion = xSE_PACKED_VERSION;
-	if (!SEInterface::GetInstance().OnCheckVersion(interfaceVersion, compiledVersion))
+	if (!XSEInterface::GetInstance().OnCheckVersion(interfaceVersion, compiledVersion))
 	{
 		xSE_LOG_WARNING("This plugin might be incompatible with this version of {}", xSE_NAME_A);
 		xSE_LOG_WARNING("Script Extender interface version '{}', expected '{}', Script Extender functions will be disabled", interfaceVersion, compiledVersion);
@@ -104,7 +105,7 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 	}
 	#endif
 
-	return SEInterface::GetInstance().OnQuery(pluginHandle, pluginHandle != kPluginHandle_Invalid ? xSE : nullptr, scaleform, messaging);
+	return XSEInterface::GetInstance().OnQuery(pluginHandle, pluginHandle != kPluginHandle_Invalid ? xSE : nullptr, scaleform, messaging);
 }
 bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 {
@@ -118,10 +119,11 @@ bool xSE_LOADFUNCTION(const xSE_Interface* xSE)
 	}
 	#endif
 
-	SEInterface& instance = SEInterface::GetInstance();
+	XSEInterface& instance = XSEInterface::GetInstance();
 	if (instance.OnLoad())
 	{
-		xSE_LOG(L"[{}] {} v{} by {} loaded", xSE_NAME_A, Redirector::GetLibraryName(), Redirector::GetLibraryVersion().ToString(), Redirector::GetLibraryAuthor());
+		auto& app = PPR::DLLApplication::GetInstance();
+		xSE_LOG(L"[{}] {} v{} by {} loaded", xSE_NAME_A, app.GetDisplayName(), app.GetVersion().ToString(), app.GetVendorDisplayName());
 		#if xSE_PLATFORM_GOG
 		xSE_LOG(L"GOG build loaded");
 		#endif
@@ -164,23 +166,36 @@ extern "C" __declspec(dllexport) constinit auto F4SEPlugin_Version = []() conste
 
 bool xSE_CAN_USE_SCRIPTEXTENDER() noexcept
 {
-	return PPR::SEInterface::GetInstance().CanUseSEFunctions();
+	return PPR::XSEInterface::GetInstance().CanUseSEFunctions();
 }
 
 namespace PPR
 {
-	SEInterface& SEInterface::GetInstance() noexcept
+	// XSEInterface
+	XSEInterface& XSEInterface::GetInstance() noexcept
 	{
-		static SEInterface ms_Instance;
-		return ms_Instance;
+		return PPR::DLLApplication::GetInstance().GetXSEInterface();
 	}
 
-	bool SEInterface::OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion)
+	void XSEInterface::LoadConfig(DLLApplication& app, const AppConfigLoader& config)
 	{
-		m_CanUseSEFunctions = interfaceVersion == compiledVersion || GetRedirector().IsOptionEnabled(RedirectorOption::AllowSEVersionMismatch);
+		KX_SCOPEDLOG_FUNC;
+
+		// Load options
+		config.LoadXSEOption(m_Options, XSEOption::AllowVersionMismatch, L"AllowVersionMismatch");
+
+		// Print options
+		KX_SCOPEDLOG.Info().Format("AllowVersionMismatch: {}", m_Options.Contains(XSEOption::AllowVersionMismatch));
+
+		KX_SCOPEDLOG.SetSuccess();
+	}
+
+	bool XSEInterface::OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion)
+	{
+		m_CanUseSEFunctions = interfaceVersion == compiledVersion || m_Options.Contains(XSEOption::AllowVersionMismatch);
 		return m_CanUseSEFunctions;
 	}
-	bool SEInterface::OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleform, xSE_MessagingInterface* messaging)
+	bool XSEInterface::OnQuery(PluginHandle pluginHandle, const xSE_Interface* xSE, xSE_ScaleformInterface* scaleform, xSE_MessagingInterface* messaging)
 	{
 		m_PluginHandle = pluginHandle;
 		m_XSE = xSE;
@@ -189,18 +204,17 @@ namespace PPR
 
 		return true;
 	}
-	bool SEInterface::OnLoad()
+	bool XSEInterface::OnLoad()
 	{
 		if (CanUseSEFunctions())
 		{
-			// Events
-			Bind(ConsoleEvent::EvtCommand, &SEInterface::OnConsoleCommand, this);
-			Bind(GameEvent::EvtGameSave, &SEInterface::OnGameSave, this);
+			InitGameMessageDispatcher();
+			InitConsoleCommandOverrider();
 		}
 		return true;
 	}
 
-	bool SEInterface::DoPrintConsole(const char* string) const
+	bool XSEInterface::DoPrintConsole(const char* string) const
 	{
 		xSE_LOG("Printed to console: '{}'", string);
 
@@ -211,9 +225,11 @@ namespace PPR
 		return false;
 		#endif
 	}
-	void SEInterface::InitConsoleCommandOverrider()
+	void XSEInterface::InitConsoleCommandOverrider()
 	{
-		if (!m_ConsoleCommandOverrider)
+		KX_SCOPEDLOG_FUNC;
+
+		if (CanUseSEFunctions() && !m_ConsoleCommandOverrider)
 		{
 			#if xSE_PLATFORM_SKSE
 			m_ConsoleCommandOverrider = std::make_unique<ConsoleCommandOverrider_SKSE>(*this);
@@ -228,11 +244,15 @@ namespace PPR
 				m_ConsoleCommandOverrider->OverrideCommand("RefreshINI", kxf::Format("[{}] Reloads INI files content from disk and calls the original 'RefreshINI' afterwards", kxf::StringViewOf(PPR::ProjectName)));
 			}
 		}
+
+		KX_SCOPEDLOG.SetSuccess();
 	}
-	void SEInterface::InitGameMessageDispatcher()
+	void XSEInterface::InitGameMessageDispatcher()
 	{
+		KX_SCOPEDLOG_FUNC;
+
 		#if xSE_HAS_MESSAGING_INTERFACE
-		if (m_Messaging && !m_GameEventListenerRegistered && GetRedirector().IsOptionEnabled(RedirectorOption::SaveOnGameSave))
+		if (CanUseSEFunctions() && m_Messaging && !m_GameEventListenerRegistered)
 		{
 			auto senderName = xSE_FOLDER_NAME_A;
 			m_GameEventListenerRegistered = m_Messaging->RegisterListener(m_PluginHandle, senderName, [](xSE_MessagingInterface::Message* msg)
@@ -304,7 +324,7 @@ namespace PPR
 					if (auto eventID = MapEventID(msg->type))
 					{
 						GameEvent event(msg->data, msg->dataLen);
-						SEInterface::GetInstance().ProcessEvent(event, eventID);
+						XSEInterface::GetInstance().ProcessEvent(event, eventID);
 					}
 				}
 			});
@@ -315,40 +335,16 @@ namespace PPR
 			}
 			else
 			{
-				xSE_LOG_WARNING("Failed to register game event listener for sender: '{}'", senderName);
+				xSE_LOG_ERROR("Failed to register game event listener for sender: '{}'", senderName);
 			}
 		}
 		#endif
-	}
 
-	void SEInterface::OnConsoleCommand(ConsoleEvent& event)
-	{
-		auto commandName = event.GetCommandName();
-		if (commandName == "RefreshINI")
-		{
-			PrintConsole("Executing '{}'", commandName);
-
-			const size_t reloadedCount = Redirector::GetInstance().RefreshINI();
-			PrintConsole("Executing '{}' done, {} files reloaded.", commandName, reloadedCount);
-		}
-		else
-		{
-			PrintConsole("Unknown command '{}'", commandName);
-		}
-
-		// Allow original console command to be called after
-		event.Skip();
-	}
-	void SEInterface::OnGameSave(GameEvent& event)
-	{
-		auto saveFile = event.GetSaveFile();
-
-		xSE_LOG("Saving game: {}", saveFile);
-		GetRedirector().SaveChangedFiles(L"On game save");
+		KX_SCOPEDLOG.SetSuccess();
 	}
 
 	// IEvtHandler
-	bool SEInterface::OnDynamicBind(EventItem& eventItem)
+	bool XSEInterface::OnDynamicBind(EventItem& eventItem)
 	{
 		if (CanUseSEFunctions())
 		{
@@ -366,13 +362,26 @@ namespace PPR
 		return EvtHandler::OnDynamicBind(eventItem);
 	}
 	
-	SEInterface::SEInterface() noexcept
+	// XSEInterface
+	XSEInterface::XSEInterface(DLLApplication& app, const AppConfigLoader& config)
 		:m_PluginHandle(kPluginHandle_Invalid)
 	{
-	}
+		KX_SCOPEDLOG_FUNC;
 
-	Redirector& SEInterface::GetRedirector() const
+		LoadConfig(app, config);
+
+		KX_SCOPEDLOG.SetSuccess();
+	}
+	XSEInterface::~XSEInterface()
 	{
-		return Redirector::GetInstance();
+		KX_SCOPEDLOG_FUNC;
+		KX_SCOPEDLOG.SetSuccess();
+	}
+	
+	// AppModule
+	void XSEInterface::OnInit(DLLApplication& app)
+	{
+		KX_SCOPEDLOG_FUNC;
+		KX_SCOPEDLOG.SetSuccess();
 	}
 }

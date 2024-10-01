@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "Common.h"
 
 #define PPR_API(retType) __declspec(noinline) retType WINAPI
 

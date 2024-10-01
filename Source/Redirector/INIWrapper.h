@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "Common.h"
 #include <kxf/Serialization/INI.h>
 #include <kxf/Core/IEncodingConverter.h>
 

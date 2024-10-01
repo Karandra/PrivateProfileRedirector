@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "Common.h"
 #include <kxf/Threading/ReadWriteLock.h>
 #include <kxf/Threading/LockGuard.h>
 #include "INIWrapper.h"
@@ -8,7 +8,7 @@ namespace PPR
 {
 	class ConfigObject
 	{
-		friend class Redirector;
+		friend class RedirectorInterface;
 
 		public:
 			using Options = INIWrapper::Options;

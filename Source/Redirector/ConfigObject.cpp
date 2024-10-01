@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "ConfigObject.h"
-#include "PrivateProfileRedirector.h"
+#include "RedirectorInterface.h"
 #include <kxf/System/Win32Error.h>
 
 namespace PPR
 {
 	bool ConfigObject::LoadFile()
 	{
-		Redirector& instance = Redirector::GetInstance();
+		RedirectorInterface& instance = RedirectorInterface::GetInstance();
 
 		// Set loading options
 		kxf::FlagSet<kxf::INIDocumentOption> options;
@@ -33,7 +33,7 @@ namespace PPR
 	}
 	bool ConfigObject::SaveFile()
 	{
-		Redirector& instance = Redirector::GetInstance();
+		RedirectorInterface& instance = RedirectorInterface::GetInstance();
 		if (instance.IsOptionEnabled(RedirectorOption::WriteProtected))
 		{
 			kxf::Log::TraceCategory("WriteProtected", "Attempt to write data to '{}'", m_Path.GetFullPath());
@@ -70,7 +70,7 @@ namespace PPR
 	{
 		m_ChangesCount++;
 
-		Redirector& instance = Redirector::GetInstance();
+		RedirectorInterface& instance = RedirectorInterface::GetInstance();
 		kxf::Utility::ScopeGuard atExit = [&]()
 		{
 			instance.OnFileWrite(*this);

@@ -18,6 +18,12 @@
     <Filter Include="Code\xSE\ConsoleCommandOverrider">
       <UniqueIdentifier>{7193ec96-b0b7-465f-b415-fbe9d1b8575c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\ENB">
+      <UniqueIdentifier>{4f3ae023-419a-4f2e-8873-da8dc2e8e2a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Redirector">
+      <UniqueIdentifier>{cf8c209f-49ab-4b4a-8b08-3c867b7013ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -39,25 +45,7 @@
     <ClInclude Include="Source\xSE\ScriptExtenderDefines.h">
       <Filter>Code\xSE</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RedirectorConfig.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ConfigObject.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\FunctionRedirector.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\FunctionTable.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\INIWrapper.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\PrivateProfileRedirector.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\RedirectedFunctions.h">
+    <ClInclude Include="Source\AppConfigLoader.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Source\xSE\IConsoleCommandOverrider.h">
@@ -84,28 +72,49 @@
     <ClInclude Include="Source\xSE\GameEvent.h">
       <Filter>Code\xSE</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ENB\ENBInterface.h">
+      <Filter>Code\ENB</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ENB\ENBAPI.h">
+      <Filter>Code\ENB</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ENB\ENBEvent.h">
+      <Filter>Code\ENB</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DLLApplication.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DLLEvent.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\ConfigObject.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\FunctionRedirector.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\FunctionTable.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\INIWrapper.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\RedirectedFunctions.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Redirector\RedirectorInterface.h">
+      <Filter>Code\Redirector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AppModule.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\PrivateProfileRedirector.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Source\RedirectedFunctions.cpp">
+    <ClCompile Include="Source\DLLApplication.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ConfigObject.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DLLMain.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\RedirectorConfig.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\FunctionRedirector.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\INIWrapper.cpp">
+    <ClCompile Include="Source\AppConfigLoader.cpp">
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\xSE\ScriptExtenderInterface.cpp">
@@ -119,6 +128,27 @@
     </ClCompile>
     <ClCompile Include="Source\xSE\ConsoleCommandOverrider\SKSE.cpp">
       <Filter>Code\xSE\ConsoleCommandOverrider</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ENB\ENBInterface.cpp">
+      <Filter>Code\ENB</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ENB\ENBAPI.cpp">
+      <Filter>Code\ENB</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\ConfigObject.cpp">
+      <Filter>Code\Redirector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\FunctionRedirector.cpp">
+      <Filter>Code\Redirector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\INIWrapper.cpp">
+      <Filter>Code\Redirector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\RedirectedFunctions.cpp">
+      <Filter>Code\Redirector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Redirector\RedirectorInterface.cpp">
+      <Filter>Code\Redirector</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
