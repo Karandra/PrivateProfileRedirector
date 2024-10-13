@@ -54,97 +54,45 @@ namespace PPR
 		KX_SCOPEDLOG.SetSuccess();
 	}
 
-	void RedirectorInterface::SaveFunctionPointers()
+	void RedirectorInterface::InitHooks()
 	{
 		KX_SCOPEDLOG_FUNC;
 
-		// PrivateProfile
-		m_Functions.PrivateProfile.GetStringA = ::GetPrivateProfileStringA;
-		m_Functions.PrivateProfile.GetStringW = ::GetPrivateProfileStringW;
+		auto& controller = kxf::CFunctionHookController::GetInstance();
+		if (auto transaction = controller.NewTransaction())
+		{
+			m_UntypedHooks.reserve(16);
 
-		m_Functions.PrivateProfile.GetIntA = ::GetPrivateProfileIntA;
-		m_Functions.PrivateProfile.GetIntW = ::GetPrivateProfileIntW;
+			transaction.AttachFunction(m_UntypedHooks.emplace_back(), &::GetPrivateProfileStringA, &PrivateProfile::GetStringA, "GetPrivateProfileStringA");
+			transaction.AttachFunction(m_UntypedHooks.emplace_back(), &::GetPrivateProfileStringW, &PrivateProfile::GetStringW, "GetPrivateProfileStringW");
+			transaction.AttachFunction(m_UntypedHooks.emplace_back(), &::GetPrivateProfileIntA, &PrivateProfile::GetIntA, "GetPrivateProfileIntA");
+			transaction.AttachFunction(m_UntypedHooks.emplace_back(), &::GetPrivateProfileIntW, &PrivateProfile::GetIntW, "GetPrivateProfileIntW");
+			transaction.AttachFunction(m_UntypedHooks.emplace_back(), &::GetPrivateProfileSectionNamesA, &PrivateProfile::GetSectionNamesA, "GetPrivateProfileSectionNamesA");
+			transaction.AttachFunction(m_UntypedHooks.emplace_back(), &::GetPrivateProfileSectionNamesW, &PrivateProfile::GetSectionNamesW, "GetPrivateProfileSectionNamesW");
+			transaction.AttachFunction(m_UntypedHooks.emplace_back(), &::GetPrivateProfileSectionA, &PrivateProfile::GetSectionA, "GetPrivateProfileSectionA");
+			transaction.AttachFunction(m_UntypedHooks.emplace_back(), &::GetPrivateProfileSectionW, &PrivateProfile::GetSectionW, "GetPrivateProfileSectionW");
+			transaction.AttachFunction(m_WriteStringA, &::WritePrivateProfileStringA, &PrivateProfile::WriteStringA, "WritePrivateProfileStringA");
+			transaction.AttachFunction(m_WriteStringW, &::WritePrivateProfileStringW, &PrivateProfile::WriteStringW, "WritePrivateProfileStringW");
 
-		m_Functions.PrivateProfile.GetSectionNamesA = ::GetPrivateProfileSectionNamesA;
-		m_Functions.PrivateProfile.GetSectionNamesW = ::GetPrivateProfileSectionNamesW;
-
-		m_Functions.PrivateProfile.GetSectionA = ::GetPrivateProfileSectionA;
-		m_Functions.PrivateProfile.GetSectionW = ::GetPrivateProfileSectionW;
-
-		m_Functions.PrivateProfile.WriteStringA = ::WritePrivateProfileStringA;
-		m_Functions.PrivateProfile.WriteStringW = ::WritePrivateProfileStringW;
-
-		KX_SCOPEDLOG.SetSuccess();
+			KX_SCOPEDLOG.SetSuccess(transaction.Commit());
+		}
 	}
-	void RedirectorInterface::OverrideFunctions()
+	void RedirectorInterface::RestoreHooks()
 	{
 		KX_SCOPEDLOG_FUNC;
-		#define AttachFunctionN(name)	FunctionRedirector::AttachFunction(&m_Functions.PrivateProfile.##name, &PrivateProfile::##name, L#name)
 
-		// 1
-		FunctionRedirector::PerformTransaction([this]()
+		auto& controller = kxf::CFunctionHookController::GetInstance();
+		if (auto transaction = controller.NewTransaction())
 		{
-			AttachFunctionN(GetStringA);
-			AttachFunctionN(GetStringW);
+			for (auto& hook: m_UntypedHooks)
+			{
+				transaction.DetachHook(hook);
+			}
+			transaction.DetachHook(m_WriteStringA);
+			transaction.DetachHook(m_WriteStringW);
 
-			AttachFunctionN(GetIntA);
-			AttachFunctionN(GetIntW);
-		});
-
-		// 2
-		FunctionRedirector::PerformTransaction([this]()
-		{
-			AttachFunctionN(WriteStringA);
-			AttachFunctionN(WriteStringW);
-
-			AttachFunctionN(GetSectionNamesA);
-			AttachFunctionN(GetSectionNamesW);
-		});
-
-		// 3
-		FunctionRedirector::PerformTransaction([this]()
-		{
-			AttachFunctionN(GetSectionA);
-			AttachFunctionN(GetSectionW);
-		});
-
-		#undef AttachFunctionN
-		KX_SCOPEDLOG.SetSuccess();
-	}
-	void RedirectorInterface::RestoreFunctions()
-	{
-		KX_SCOPEDLOG_FUNC;
-		#define DetachFunctionN(name)	FunctionRedirector::DetachFunction(&m_Functions.PrivateProfile.##name, &PrivateProfile::##name, L#name)
-
-		// 1
-		FunctionRedirector::PerformTransaction([this]()
-		{
-			DetachFunctionN(GetStringA);
-			DetachFunctionN(GetStringW);
-
-			DetachFunctionN(GetIntA);
-			DetachFunctionN(GetIntW);
-		});
-
-		// 2
-		FunctionRedirector::PerformTransaction([this]()
-		{
-			DetachFunctionN(WriteStringA);
-			DetachFunctionN(WriteStringW);
-
-			DetachFunctionN(GetSectionNamesA);
-			DetachFunctionN(GetSectionNamesW);
-		});
-
-		// 3
-		FunctionRedirector::PerformTransaction([this]()
-		{
-			DetachFunctionN(GetSectionA);
-			DetachFunctionN(GetSectionW);
-		});
-
-		#undef DetachFunctionN
-		KX_SCOPEDLOG.SetSuccess();
+			KX_SCOPEDLOG.SetSuccess(transaction.Commit());
+		}
 	}
 	void RedirectorInterface::SetupIntegrations(DLLApplication& app)
 	{
@@ -251,12 +199,7 @@ namespace PPR
 	{
 		KX_SCOPEDLOG_FUNC;
 
-		// Initialize detour
-		FunctionRedirector::Initialize();
-		SaveFunctionPointers();
-		OverrideFunctions();
-
-		// Integrations
+		InitHooks();
 		SetupIntegrations(app);
 
 		KX_SCOPEDLOG.SetSuccess();
@@ -265,8 +208,7 @@ namespace PPR
 	{
 		KX_SCOPEDLOG_FUNC;
 
-		RestoreFunctions();
-		FunctionRedirector::Uninitialize();
+		RestoreHooks();
 
 		KX_SCOPEDLOG.SetSuccess();
 	}

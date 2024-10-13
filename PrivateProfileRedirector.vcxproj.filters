@@ -90,12 +90,6 @@
     <ClInclude Include="Source\Redirector\ConfigObject.h">
       <Filter>Code\Redirector</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Redirector\FunctionRedirector.h">
-      <Filter>Code\Redirector</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Redirector\FunctionTable.h">
-      <Filter>Code\Redirector</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Redirector\INIWrapper.h">
       <Filter>Code\Redirector</Filter>
     </ClInclude>
@@ -136,9 +130,6 @@
       <Filter>Code\ENB</Filter>
     </ClCompile>
     <ClCompile Include="Source\Redirector\ConfigObject.cpp">
-      <Filter>Code\Redirector</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Redirector\FunctionRedirector.cpp">
       <Filter>Code\Redirector</Filter>
     </ClCompile>
     <ClCompile Include="Source\Redirector\INIWrapper.cpp">

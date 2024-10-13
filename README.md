@@ -68,4 +68,4 @@ Mod Organizer 1 is Not compatible, MO1 uses those same functions this plugin hoo
 To build this project from sources you'll need:
 - Visual Studio 2022.
 - The source code for all supported xSE projects you want to build it for (NVSE is preset and builds, but isn't supported). Look at the project inlude paths to see where the build system is expecting to find the files.
-- [KxFramework](https://github.com/Karandra/KxFramework) and [Microsoft Detours](https://github.com/microsoft/Detours). Both can be installed through VCPkg.
+- [KxFramework](https://github.com/Karandra/KxFramework) and [Microsoft Detours](https://github.com/microsoft/Detours) (included with KxFramework). Both can be installed through VCPkg.

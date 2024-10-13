@@ -932,8 +932,6 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClInclude Include="Source\AppConfigLoader.h" />
     <ClInclude Include="Source\AppModule.h" />
     <ClInclude Include="Source\Redirector\ConfigObject.h" />
-    <ClInclude Include="Source\Redirector\FunctionRedirector.h" />
-    <ClInclude Include="Source\Redirector\FunctionTable.h" />
     <ClInclude Include="Source\Redirector\INIWrapper.h" />
     <ClInclude Include="Source\Redirector\RedirectedFunctions.h" />
     <ClInclude Include="Source\Redirector\RedirectorInterface.h" />
@@ -1007,7 +1005,6 @@ copy "$(ProjectDir)Build\$(TargetName)_preload.txt" "$(ProjectDir)Bin\$(Configur
     <ClCompile Include="Source\ENB\ENBInterface.cpp" />
     <ClCompile Include="Source\AppConfigLoader.cpp" />
     <ClCompile Include="Source\Redirector\ConfigObject.cpp" />
-    <ClCompile Include="Source\Redirector\FunctionRedirector.cpp" />
     <ClCompile Include="Source\Redirector\INIWrapper.cpp" />
     <ClCompile Include="Source\Redirector\RedirectedFunctions.cpp" />
     <ClCompile Include="Source\Redirector\RedirectorInterface.cpp" />

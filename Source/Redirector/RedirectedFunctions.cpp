@@ -465,7 +465,11 @@ namespace PPR::PrivateProfile
 				}
 				return true;
 			}
-			return false;
+			else
+			{
+				KX_SCOPEDLOG.Trace(logCategory).Format("Write operation discarded for value '{}' to key '{}' in section '{}'", lpString, keyName, appName);
+				return false;
+			}
 		};
 		bool memoryWriteSuccess = WriteStringToMemoryFile(appName, keyName, lpString, lpFileName);
 
@@ -474,12 +478,12 @@ namespace PPR::PrivateProfile
 			if constexpr(std::is_same_v<TChar, char>)
 			{
 				KX_SCOPEDLOG.Trace(logCategory).Format("Calling native 'WritePrivateProfileStringA'");
-				return redirector.GetFunctionTable().PrivateProfile.WriteStringA(appName, keyName, lpString, lpFileName);
+				return redirector.GetWriteStringA().InvokeTarget(appName, keyName, lpString, lpFileName);
 			}
 			else if constexpr(std::is_same_v<TChar, wchar_t>)
 			{
 				KX_SCOPEDLOG.Trace(logCategory).Format("Calling native 'WritePrivateProfileStringW'");
-				return redirector.GetFunctionTable().PrivateProfile.WriteStringW(appName, keyName, lpString, lpFileName);
+				return redirector.GetWriteStringW().InvokeTarget(appName, keyName, lpString, lpFileName);
 			}
 		}
 		return memoryWriteSuccess ? TRUE : FALSE;

@@ -4,12 +4,11 @@
 #include "AppModule.h"
 #include "INIWrapper.h"
 #include "AppConfigLoader.h"
-#include "FunctionRedirector.h"
-#include "FunctionTable.h"
 #include "ConfigObject.h"
 #include <kxf/Core/IEncodingConverter.h>
 #include <kxf/FileSystem/NativeFileSystem.h>
 #include <kxf/Threading/ReadWriteLock.h>
+#include <kxf/System/CFunctionHook.h>
 #include <kxf/Utility/String.h>
 
 namespace PPR
@@ -27,19 +26,21 @@ namespace PPR
 		private:
 			kxf::FlagSet<RedirectorOption> m_Options;
 			std::unique_ptr<kxf::IEncodingConverter> m_EncodingConverter;
-			FunctionTable m_Functions;
 			int m_SaveOnWriteBuffer = 0;
 
 			mutable kxf::ReadWriteLock m_INIMapLock;
 			kxf::Utility::UnorderedMapNoCase<kxf::String, std::unique_ptr<ConfigObject>> m_INIMap;
 			std::atomic<size_t> m_TotalWriteCount = 0;
 
+			std::vector<kxf::CFunctionHook> m_UntypedHooks;
+			kxf::CFunctionTypedHook<decltype(::WritePrivateProfileStringA)> m_WriteStringA;
+			kxf::CFunctionTypedHook<decltype(::WritePrivateProfileStringW)> m_WriteStringW;
+
 		private:
 			void LoadConfig(DLLApplication& app, const AppConfigLoader& config);
 
-			void SaveFunctionPointers();
-			void OverrideFunctions();
-			void RestoreFunctions();
+			void InitHooks();
+			void RestoreHooks();
 			void SetupIntegrations(DLLApplication& app);
 
 		public:
@@ -52,15 +53,19 @@ namespace PPR
 			void OnExit(DLLApplication& app) override;
 			
 			// RedirectorInterface
-			const FunctionTable& GetFunctionTable() const noexcept
+			auto& GetWriteStringA() noexcept
 			{
-				return m_Functions;
+				return m_WriteStringA;
 			}
+			auto& GetWriteStringW() noexcept
+			{
+				return m_WriteStringW;
+			}
+
 			kxf::IEncodingConverter& GetEncodingConverter() const noexcept
 			{
 				return *m_EncodingConverter;
 			}
-
 			std::optional<size_t> GetSaveOnWriteBuffer() const noexcept
 			{
 				if (m_SaveOnWriteBuffer > 0)
