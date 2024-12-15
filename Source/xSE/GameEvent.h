@@ -33,10 +33,15 @@ namespace PPR
 		public:
 			kxf::String GetSaveFile() const
 			{
+				if (!m_Data || m_Length == 0)
+				{
+					return {};
+				}
+
 				auto id = GetEventID();
 				if (id == EvtGameSave || id == EvtGameLoad || id == EvtDeleteSavedGame)
 				{
-					return kxf::String::FromEncoding(std::basic_string_view(reinterpret_cast<const char*>(m_Data), m_Length), kxf::EncodingConverter_WhateverWorks);
+					return kxf::EncodingConverter_WhateverWorks.ToWideChar(std::basic_string_view(reinterpret_cast<const char*>(m_Data), m_Length));
 				}
 				return {};
 			}

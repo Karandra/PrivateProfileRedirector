@@ -34,7 +34,7 @@ namespace PPR
 				}
 				else if constexpr(std::is_same_v<TChar, wchar_t>)
 				{
-					return str.wc_view();
+					return str.view();
 				}
 				else
 				{

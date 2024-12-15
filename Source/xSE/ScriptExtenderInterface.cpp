@@ -3,6 +3,7 @@
 #include "ScriptExtenderInterfaceIncludes.h"
 #include "DLLApplication.h"
 #include "Redirector/RedirectorInterface.h"
+#include <kxf/Core/IEncodingConverter.h>
 
 #if xSE_PLATFORM_SKSE
 #include "ConsoleCommandOverrider/SKSE.h"
@@ -44,7 +45,7 @@ bool xSE_QUERYFUNCTION(const xSE_Interface* xSE, PluginInfo* pluginInfo)
 
 			PluginInfoData()
 			{
-				Name = PPR::DLLApplication::GetInstance().GetName().utf8_view();
+				Name = PPR::DLLApplication::GetInstance().GetName().utf8_str().str();
 				Version = PPR::VersionFull;
 			}
 		};
