@@ -43,13 +43,13 @@ namespace ENBAPI
 		}
 		else
 		{
-			KX_SCOPEDLOG.Error().Format("Couldn't load ENB library", kxf::Win32Error::GetLastError());
+			KX_SCOPEDLOG.Error().Format("Couldn't load ENB library: {}", kxf::Win32Error::GetLastError());
 		}
 
 		if (m_ENBLib.IsNull() || !m_ENBGetVersion || !m_ENBGetSDKVersion || !m_ENBSetCallbackFunction || !m_ENBGetParameter || !m_ENBSetParameter)
 		{
 			m_IsLoaded = false;
-			KX_SCOPEDLOG.Warning().Format("Couldn't load ENB API functions", kxf::Win32Error::GetLastError());
+			KX_SCOPEDLOG.Warning().Format("Couldn't load ENB API functions: {}", kxf::Win32Error::GetLastError());
 			KX_SCOPEDLOG.Warning().Format("ENBLib=[{}/'{}'], ENBGetVersion=[{}], ENBGetSDKVersion=[{}], ENBSetCallbackFunction=[{}], ENBGetParameter=[{}], ENBSetParameter=[{}]",
 										  m_ENBLib.GetHandle(),
 										  m_ENBLib ? m_ENBLib.GetFilePath().GetFullPath() : "<null>",
