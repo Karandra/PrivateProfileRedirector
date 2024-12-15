@@ -2,8 +2,6 @@
 #include "Common.h"
 #include "ScriptExtenderDefinesBase.h"
 
-bool xSE_CAN_USE_SCRIPTEXTENDER() noexcept;
-
 //////////////////////////////////////////////////////////////////////////
 // xSE_Interface
 //////////////////////////////////////////////////////////////////////////
@@ -80,89 +78,54 @@ using xSE_MessagingInterface = void;
 
 #endif
 
+bool xSE_CAN_USE_XSE() noexcept;
+void xSE_FORWARD_LOG_TO_XSE(kxf::LogLevel logLevel, kxf::StringView logString);
+
 template<class TFormat, class... Args>
-void xSE_LOG_LEVEL(kxf::LogLevel logLevel, const TFormat& format, Args&&... arg)
+void xSE_LOG_AT_LEVEL(kxf::LogLevel logLevel, const TFormat& format, Args&&... arg)
 {
 	kxf::ScopedLoggerAutoScope scope;
 
 	kxf::ScopedMessageLogger message(scope, logLevel);
 	message.Format(format, std::forward<Args>(arg)...);
 
-	#if xSE_HAS_SE_LOG
-	if (xSE_CAN_USE_SCRIPTEXTENDER())
-	{
-		auto utf8 = kxf::String::ToUTF8(message.ToString());
-		switch (logLevel)
-		{
-			case kxf::LogLevel::Critical:
-			{
-				::_FATALERROR("[%s] %s", xSE_NAME_A, utf8.c_str());
-				break;
-			}
-			case kxf::LogLevel::Error:
-			{
-				::_ERROR("[%s] %s", xSE_NAME_A, utf8.c_str());
-				break;
-			}
-			case kxf::LogLevel::Warning:
-			{
-				::_WARNING("[%s] %s", xSE_NAME_A, utf8.c_str());
-				break;
-			}
-			case kxf::LogLevel::Debug:
-			{
-				::_DMESSAGE("[%s] %s", xSE_NAME_A, utf8.c_str());
-				break;
-			}
-			case kxf::LogLevel::Trace:
-			{
-				::_VMESSAGE("[%s] %s", xSE_NAME_A, utf8.c_str());
-				break;
-			}
-			default:
-			{
-				::_MESSAGE("[%s] %s", xSE_NAME_A, utf8.c_str());
-				break;
-			}
-		};
-	}
-	#endif
+	xSE_FORWARD_LOG_TO_XSE(logLevel, message.ToString());
 }
 
 template<class TFormat, class... Args>
 void xSE_LOG(const TFormat& format, Args&&... arg)
 {
-	xSE_LOG_LEVEL(kxf::LogLevel::Information, format, std::forward<Args>(arg)...);
+	xSE_LOG_AT_LEVEL(kxf::LogLevel::Information, format, std::forward<Args>(arg)...);
 }
 
 template<class TFormat, class... Args>
 void xSE_LOG_CRITICAL(const TFormat& format, Args&&... arg)
 {
-	xSE_LOG_LEVEL(kxf::LogLevel::Critical, format, std::forward<Args>(arg)...);
+	xSE_LOG_AT_LEVEL(kxf::LogLevel::Critical, format, std::forward<Args>(arg)...);
 }
 
 template<class TFormat, class... Args>
 void xSE_LOG_ERROR(const TFormat& format, Args&&... arg)
 {
-	xSE_LOG_LEVEL(kxf::LogLevel::Error, format, std::forward<Args>(arg)...);
+	xSE_LOG_AT_LEVEL(kxf::LogLevel::Error, format, std::forward<Args>(arg)...);
 }
 
 template<class TFormat, class... Args>
 void xSE_LOG_WARNING(const TFormat& format, Args&&... arg)
 {
-	xSE_LOG_LEVEL(kxf::LogLevel::Warning, format, std::forward<Args>(arg)...);
+	xSE_LOG_AT_LEVEL(kxf::LogLevel::Warning, format, std::forward<Args>(arg)...);
 }
 
 template<class TFormat, class... Args>
 void xSE_LOG_DEBUG(const TFormat& format, Args&&... arg)
 {
-	xSE_LOG_LEVEL(kxf::LogLevel::Debug, format, std::forward<Args>(arg)...);
+	xSE_LOG_AT_LEVEL(kxf::LogLevel::Debug, format, std::forward<Args>(arg)...);
 }
 
 template<class TFormat, class... Args>
 void xSE_LOG_TRACE(const TFormat& format, Args&&... arg)
 {
-	xSE_LOG_LEVEL(kxf::LogLevel::Trace, format, std::forward<Args>(arg)...);
+	xSE_LOG_AT_LEVEL(kxf::LogLevel::Trace, format, std::forward<Args>(arg)...);
 }
 
 //////////////////////////////////////////////////////////////////////////

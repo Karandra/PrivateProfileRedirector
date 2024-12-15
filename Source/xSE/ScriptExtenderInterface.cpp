@@ -165,9 +165,53 @@ extern "C" __declspec(dllexport) constinit auto F4SEPlugin_Version = []() conste
 }();
 #endif
 
-bool xSE_CAN_USE_SCRIPTEXTENDER() noexcept
+bool xSE_CAN_USE_XSE() noexcept
 {
 	return PPR::XSEInterface::GetInstance().CanUseSEFunctions();
+}
+void xSE_FORWARD_LOG_TO_XSE(kxf::LogLevel logLevel, kxf::StringView logString)
+{
+	#if xSE_HAS_SE_LOG
+	if (!xSE_CAN_USE_XSE())
+	{
+		return;
+	}
+
+	auto utf8 = kxf::EncodingConverter_UTF8.ToMultiByte(logString);
+	switch (logLevel)
+	{
+		case kxf::LogLevel::Critical:
+		{
+			::_FATALERROR("[%s] %s", xSE_NAME_A, utf8.c_str());
+			break;
+		}
+		case kxf::LogLevel::Error:
+		{
+			::_ERROR("[%s] %s", xSE_NAME_A, utf8.c_str());
+			break;
+		}
+		case kxf::LogLevel::Warning:
+		{
+			::_WARNING("[%s] %s", xSE_NAME_A, utf8.c_str());
+			break;
+		}
+		case kxf::LogLevel::Debug:
+		{
+			::_DMESSAGE("[%s] %s", xSE_NAME_A, utf8.c_str());
+			break;
+		}
+		case kxf::LogLevel::Trace:
+		{
+			::_VMESSAGE("[%s] %s", xSE_NAME_A, utf8.c_str());
+			break;
+		}
+		default:
+		{
+			::_MESSAGE("[%s] %s", xSE_NAME_A, utf8.c_str());
+			break;
+		}
+	};
+	#endif
 }
 
 namespace PPR
