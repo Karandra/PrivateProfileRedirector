@@ -19,12 +19,12 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD event, void* lpReserved)
 	{
 		case DLL_THREAD_ATTACH:
 		{
-			kxf::Log::Info("DllMain({}, DLL_THREAD_ATTACH, {})", static_cast<void*>(module), lpReserved);
+			kxf::Log::Trace("DllMain({}, DLL_THREAD_ATTACH, {})", static_cast<void*>(module), lpReserved);
 			break;
 		}
 		case DLL_THREAD_DETACH:
 		{
-			kxf::Log::Info("DllMain({}, DLL_THREAD_DETACH, {})", static_cast<void*>(module), lpReserved);
+			kxf::Log::Trace("DllMain({}, DLL_THREAD_DETACH, {})", static_cast<void*>(module), lpReserved);
 			break;
 		}
 		case DLL_PROCESS_ATTACH:
@@ -39,7 +39,7 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD event, void* lpReserved)
 		}
 		default:
 		{
-			kxf::Log::Info("DllMain({}, Unk={}, {})", static_cast<void*>(module), event, lpReserved);
+			kxf::Log::Warning("DllMain({}, Unk={}, {})", static_cast<void*>(module), event, lpReserved);
 			return FALSE;
 		}
 	};
