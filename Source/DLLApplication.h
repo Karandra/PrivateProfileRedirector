@@ -18,7 +18,7 @@ namespace PPR
 	{
 		public:
 			static DLLApplication& GetInstance() noexcept;
-			static void OnProcessAttach();
+			static void InvokeOnProcessAttach();
 
 		private:
 			std::optional<RedirectorInterface> m_Redirector;

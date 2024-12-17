@@ -26,7 +26,7 @@ bool xSE_PRELOADFUNCTION(const xSE_Interface* xSE)
 	{
 		xSE_LOG("Preloaded by xSE PluginPreloader");
 	}
-	PPR::DLLApplication::OnProcessAttach();
+	PPR::DLLApplication::InvokeOnProcessAttach();
 
 	return true;
 }

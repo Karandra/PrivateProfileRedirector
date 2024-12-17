@@ -92,7 +92,7 @@ namespace PPR
 	{
 		return *g_Instance;
 	}
-	void DLLApplication::OnProcessAttach()
+	void DLLApplication::InvokeOnProcessAttach()
 	{
 		auto currentModule = kxf::DynamicLibrary::GetCurrentModule();
 		DllMain(static_cast<HMODULE>(currentModule.GetHandle()), DLL_PROCESS_ATTACH, nullptr);
