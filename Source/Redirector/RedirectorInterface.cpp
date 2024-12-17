@@ -229,10 +229,16 @@ namespace PPR
 		KX_SCOPEDLOG_ARGS(filePath);
 		kxf::WriteLockGuard lock(m_INIMapLock);
 
-		auto& config = m_INIMap.insert_or_assign(filePath, std::make_unique<ConfigObject>(filePath)).first->second;
+		if (filePath.IsEmpty())
+		{
+			KX_SCOPEDLOG.Warning().Format("The requested file is an empty string, an empty config object will be used for it");
+		}
+
+		auto result = m_INIMap.insert_or_assign(filePath, std::make_unique<ConfigObject>(filePath));
+		auto& config = result.first->second;
 		config->LoadFile();
 
-		KX_SCOPEDLOG.Info().Format("Attempt to access file: '{}' -> file object initialized. Exist on disk: {}", filePath, config->IsExistOnDisk());
+		KX_SCOPEDLOG.Info().Format("Attempt to access file: '{}' -> file object {}. Exist on disk: {}", filePath, result.second ? "initialized" : "overwritten", config->IsExistOnDisk());
 		
 		KX_SCOPEDLOG.SetSuccess();
 		return *config;
