@@ -35,7 +35,7 @@ This integration **is not** required for the mod to function and the mod doesn't
 ### ENB
 Redirector also supports integration with [ENB](http://www.enbdev.com) graphical modification. This integration is used to bind to events of saving configuration in ENB's on-screen menu. This helps to avoid the loss of changes if you, say, edited ENB parameters, saved them there and closed the game, but, due to game crash on exit (happens way too often) and/or Redirector's options nothing else triggered save operation.
 
-Due to ENB's quite limited and inconsistent API only save config event is implemented properly (handled with  `PostLoad` event). The other event, `PreReset`, assumed to be called before config load, is not triggered anywhere, but is implemented to refresh data from disk (same as `RefreshINI` from XSE integration).
+Due to ENB's quite limited and inconsistent API only save config event is implemented properly (handled with `PostLoad` event). The other event, `PreReset`, assumed to be called before config load, is not triggered anywhere, but is implemented to refresh data from disk (same as `RefreshINI` from XSE integration) in case it does get called in other ENB builds.
 
 # Download, requirements and configuration
 - [Skyrim LE](https://www.nexusmods.com/skyrim/mods/92725)
@@ -53,19 +53,19 @@ Redirector itself doesn't need Script Extender to function. The only thing that 
 Plugin can be configured in its own INI file, each parameter is described inside this file.
 
 # Q&A
-**Q:** Do I really need this?  
+**Q:** Do I really need this?
 **A:** It depends. If your game starts from shortcut to main menu in split second then no. If it takes longer, this plugin can help. How much time you will save depends on your setup.
 
-**Q:** Will this work with MO/NMM/Vortex/[Kortex](https://nexusmods.com/skyrim/mods/90868) (yeah, I had to mention it) or any other mod manager?  
-**A:** It was tested with MO2 and Kortex and no problems was found. Vortex and NMM have not been tested yet but are expected to work just fine. I can't say anything about compatibility with other mod managers.
+**Q:** Will this work with MO/NMM/Vortex/[Kortex](https://nexusmods.com/skyrim/mods/90868) (yeah, I had to mention it) or any other mod manager?
+**A:** It was tested with MO2 and Kortex and no problems was found. Vortex and NMM have not been tested yet, but are expected to work just fine. I can't say anything about compatibility with other mod managers.
 
-Mod Organizer 1 is Not compatible, MO1 uses those same functions this plugin hooks to inject the BSA list into the INI settings and a bunch of other stuff. This plugin interferes with that making MO1 not work correctly. MO1 already has some optimizations in place for this problem so this mod is not really needed that much for MO1 users. 
+Mod Organizer 1 is **not compatible**, MO1 uses those same functions this plugin hooks to inject the BSA list into the INI settings and a bunch of other stuff. This plugin interferes with that making MO1 not work correctly. MO1 already has some optimizations in place for this problem so this mod is not really needed that much for MO1 users.
 
-**Q:** I installed it and game crashes at startup.  
+**Q:** I installed it and game crashes at startup.
 **A:** Enable log in config file and reproduce your crash. Go to `Documents\My Games\<Game>\<xSE>` or `Data\<xSE>\Plugins`, look for `PrivateProfileRedirector.log` file, zip it if the file is too large, upload it somewhere and post a link to it in your issue report.
 
 # Building
 To build this project from sources you'll need:
 - Visual Studio 2022.
 - The source code for all supported xSE projects you want to build it for (NVSE is preset and builds, but isn't supported). Look at the project inlude paths to see where the build system is expecting to find the files.
-- [KxFramework](https://github.com/Karandra/KxFramework) and [Microsoft Detours](https://github.com/microsoft/Detours) (included with KxFramework). Both can be installed through VCPkg.
+- The framework - [kxf-framework](https://github.com/Karandra/kxf-framework) It can be installed through VCPkg. Though, at the time of writing, the kxf-framework VCPkg package is unavailable so you'd have to build it yourself. You also likely need to use its develop branch to build this properly.

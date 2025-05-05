@@ -1,7 +1,5 @@
 #pragma once
 #define KXF_STATIC_LIBRARY 1
-#define _CRT_SECURE_NO_WARNINGS 1
-#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS 1
 
 #include <kxf/pch.hpp>
 #include <kxf/Core/FlagSet.h>
@@ -19,7 +17,7 @@ namespace PPR
 
 	constexpr int VersionMajor = 0;
 	constexpr int VersionMinor = 6;
-	constexpr int VersionPatch = 2;
+	constexpr int VersionPatch = 3;
 
 	constexpr int MakeFullVersion(int major, int minor, int patch) noexcept
 	{
@@ -34,6 +32,6 @@ namespace PPR
 
 namespace PPR::LogCategory
 {
-	KX_DefineLogCategory(xSEInterface);
-	KX_DefineLogCategory(ENBInterface);
+	kxf_DefineLogCategory(xSEInterface);
+	kxf_DefineLogCategory(ENBInterface);
 }

@@ -46,7 +46,7 @@ namespace PPR
 
 	bool INIWrapper::Load(const kxf::FSPath& path, kxf::FlagSet<kxf::INIDocumentOption> options)
 	{
-		KX_SCOPEDLOG_ARGS(path.GetFullPath(), options);
+		KXF_SCOPEDLOG_ARGS(path.GetFullPath(), options);
 
 		m_INI.ClearNode();
 		m_INI.SetOptions(options);
@@ -84,60 +84,60 @@ namespace PPR
 
 				if (TestAndSkipBOM(buffer, BOM_UTF8))
 				{
-					KX_SCOPEDLOG.Info() << "UTF-8 BOM detected";
+					KXF_SCOPEDLOG.Info() << "UTF-8 BOM detected";
 
 					m_Options.Add(Options::WithBOM);
 					if (LoadUTF8())
 					{
-						KX_SCOPEDLOG.LogReturn(true);
+						KXF_SCOPEDLOG.LogReturn(true);
 						return true;
 					}
 				}
 				else if (TestAndSkipBOM(buffer, BOM_UTF32_LE))
 				{
-					KX_SCOPEDLOG.Info() << "UTF-32LE BOM detected";
+					KXF_SCOPEDLOG.Info() << "UTF-32LE BOM detected";
 
 					m_Options.Add(Options::WithBOM);
 					if (LoadUTF32LE())
 					{
-						KX_SCOPEDLOG.LogReturn(true);
+						KXF_SCOPEDLOG.LogReturn(true);
 						return true;
 					}
 				}
 				else if (TestAndSkipBOM(buffer, BOM_UTF32_BE))
 				{
-					KX_SCOPEDLOG.Info() << "UTF-32BE BOM detected";
+					KXF_SCOPEDLOG.Info() << "UTF-32BE BOM detected";
 
 					m_Options.Add(Options::WithBOM);
 					m_Encoding = Encoding::UTF32BE;
 
-					KX_SCOPEDLOG.Error() << "Unsupported encoding";
+					KXF_SCOPEDLOG.Error() << "Unsupported encoding";
 				}
 				else if (TestAndSkipBOM(buffer, BOM_UTF16_LE))
 				{
-					KX_SCOPEDLOG.Info() << "UTF-16LE BOM detected";
+					KXF_SCOPEDLOG.Info() << "UTF-16LE BOM detected";
 
 					if (LoadUTF16LE())
 					{
-						KX_SCOPEDLOG.LogReturn(true);
+						KXF_SCOPEDLOG.LogReturn(true);
 						return true;
 					}
 				}
 				else if (TestAndSkipBOM(buffer, BOM_UTF16_BE))
 				{
-					KX_SCOPEDLOG.Info() << "UTF-16BE BOM detected";
+					KXF_SCOPEDLOG.Info() << "UTF-16BE BOM detected";
 
 					m_Options.Add(Options::WithBOM);
 					m_Encoding = Encoding::UTF16BE;
 
-					KX_SCOPEDLOG.Error() << "Unsupported encoding";
+					KXF_SCOPEDLOG.Error() << "Unsupported encoding";
 				}
 				else
 				{
-					KX_SCOPEDLOG.Info() << "No known BOM detected, trying to load as UTF-8";
+					KXF_SCOPEDLOG.Info() << "No known BOM detected, trying to load as UTF-8";
 					if (LoadUTF8())
 					{
-						KX_SCOPEDLOG.LogReturn(true);
+						KXF_SCOPEDLOG.LogReturn(true);
 						return true;
 					}
 				}
@@ -145,23 +145,23 @@ namespace PPR
 		}
 		else
 		{
-			KX_SCOPEDLOG.Error().Format("Can't open file to read: {}", kxf::Win32Error::GetLastError());
+			KXF_SCOPEDLOG.Error().Format("Can't open file to read: {}", kxf::Win32Error::GetLastError());
 		}
 
-		KX_SCOPEDLOG.LogReturn(false);
-		KX_SCOPEDLOG.SetFail();
+		KXF_SCOPEDLOG.LogReturn(false);
+		KXF_SCOPEDLOG.SetFail();
 		return false;
 	}
 	bool INIWrapper::Save(const kxf::FSPath& path, Encoding encoding)
 	{
-		KX_SCOPEDLOG_ARGS(path.GetFullPath(), encoding);
+		KXF_SCOPEDLOG_ARGS(path.GetFullPath(), encoding);
 
 		kxf::NativeFileStream fileStream;
 		if (!fileStream.Open(path, kxf::IOStreamAccess::Write, kxf::IOStreamDisposition::CreateAlways, kxf::IOStreamShare::Read))
 		{
-			KX_SCOPEDLOG.Error().Format("Can't open file to write: {}", kxf::Win32Error::GetLastError());
-			KX_SCOPEDLOG.LogReturn(false);
-			KX_SCOPEDLOG.SetFail();
+			KXF_SCOPEDLOG.Error().Format("Can't open file to write: {}", kxf::Win32Error::GetLastError());
+			KXF_SCOPEDLOG.LogReturn(false);
+			KXF_SCOPEDLOG.SetFail();
 
 			return false;
 		}
@@ -178,63 +178,63 @@ namespace PPR
 			case Encoding::Auto:
 			case Encoding::UTF8:
 			{
-				KX_SCOPEDLOG.Info() << "Saving as UTF-8";
+				KXF_SCOPEDLOG.Info() << "Saving as UTF-8";
 
 				if (addSignature)
 				{
-					KX_SCOPEDLOG.Info() << "Writing BOM";
+					KXF_SCOPEDLOG.Info() << "Writing BOM";
 					fileStream.Write(BOM_UTF8, std::size(BOM_UTF8));
 				}
 				
 				if (m_INI.Save(fileStream))
 				{
-					KX_SCOPEDLOG.LogReturn(true);
+					KXF_SCOPEDLOG.LogReturn(true);
 					return true;
 				}
 				break;
 			}
 			case Encoding::UTF16LE:
 			{
-				KX_SCOPEDLOG.Info() << "Saving as UTF-16LE";
+				KXF_SCOPEDLOG.Info() << "Saving as UTF-16LE";
 
 				auto content = m_INI.Save();
 				if (addSignature)
 				{
-					KX_SCOPEDLOG.Info() << "Writing BOM";
+					KXF_SCOPEDLOG.Info() << "Writing BOM";
 					fileStream.Write(BOM_UTF16_LE, std::size(BOM_UTF16_LE));
 				}
 
 				kxf::IO::OutputStreamWriter writer(fileStream);
 				if (writer.WriteStringUTF16(content))
 				{
-					KX_SCOPEDLOG.LogReturn(true);
+					KXF_SCOPEDLOG.LogReturn(true);
 					return true;
 				}
 				break;
 			}
 			case Encoding::UTF32LE:
 			{
-				KX_SCOPEDLOG.Info() << "Saving as UTF-32LE";
+				KXF_SCOPEDLOG.Info() << "Saving as UTF-32LE";
 
 				auto content = m_INI.Save();
 				if (addSignature)
 				{
-					KX_SCOPEDLOG.Info() << "Writing BOM";
+					KXF_SCOPEDLOG.Info() << "Writing BOM";
 					fileStream.Write(BOM_UTF32_LE, std::size(BOM_UTF32_LE));
 				}
 
 				kxf::IO::OutputStreamWriter writer(fileStream);
 				if (writer.WriteStringUTF16(content))
 				{
-					KX_SCOPEDLOG.LogReturn(true);
+					KXF_SCOPEDLOG.LogReturn(true);
 					return true;
 				}
 				break;
 			}
 		};
 
-		KX_SCOPEDLOG.LogReturn(false);
-		KX_SCOPEDLOG.SetFail();
+		KXF_SCOPEDLOG.LogReturn(false);
+		KXF_SCOPEDLOG.SetFail();
 		return false;
 	}
 

@@ -11,4 +11,5 @@
 #undef WritePrivateProfileString
 
 #include <kxf/pch.hpp>
-#include <kxf/System/UndefWindows.h>
+#include <kxf/Win32/LinkLibs-GUI.h>
+#include <kxf/Win32/UndefMacros.h>

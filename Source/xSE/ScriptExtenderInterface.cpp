@@ -224,15 +224,15 @@ namespace PPR
 
 	void XSEInterface::LoadConfig(DLLApplication& app, const AppConfigLoader& config)
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		// Load options
 		config.LoadXSEOption(m_Options, XSEOption::AllowVersionMismatch, L"AllowVersionMismatch");
 
 		// Print options
-		KX_SCOPEDLOG.Info().Format("AllowVersionMismatch: {}", m_Options.Contains(XSEOption::AllowVersionMismatch));
+		KXF_SCOPEDLOG.Info().Format("AllowVersionMismatch: {}", m_Options.Contains(XSEOption::AllowVersionMismatch));
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 
 	bool XSEInterface::OnCheckVersion(uint32_t interfaceVersion, uint32_t compiledVersion)
@@ -272,7 +272,7 @@ namespace PPR
 	}
 	void XSEInterface::InitConsoleCommandOverrider()
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		if (CanUseSEFunctions() && !m_ConsoleCommandOverrider)
 		{
@@ -290,11 +290,11 @@ namespace PPR
 			}
 		}
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 	void XSEInterface::InitGameMessageDispatcher()
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		#if xSE_HAS_MESSAGING_INTERFACE
 		if (CanUseSEFunctions() && m_Messaging && !m_GameEventListenerRegistered)
@@ -385,7 +385,7 @@ namespace PPR
 		}
 		#endif
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 
 	// IEvtHandler
@@ -411,22 +411,22 @@ namespace PPR
 	XSEInterface::XSEInterface(DLLApplication& app, const AppConfigLoader& config)
 		:m_PluginHandle(kPluginHandle_Invalid)
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		LoadConfig(app, config);
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 	XSEInterface::~XSEInterface()
 	{
-		KX_SCOPEDLOG_FUNC;
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 	
 	// AppModule
 	void XSEInterface::OnInit(DLLApplication& app)
 	{
-		KX_SCOPEDLOG_FUNC;
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 }

@@ -7,7 +7,7 @@ namespace PPR
 	class ConsoleEvent: public kxf::BasicEvent
 	{
 		public:
-			KxEVENT_MEMBER(ConsoleEvent, Command);
+			kxf_EVENT_MEMBER(ConsoleEvent, Command);
 
 		private:
 			kxf::String m_CommandName;

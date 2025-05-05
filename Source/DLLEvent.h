@@ -7,11 +7,11 @@ namespace PPR
 	class DLLEvent: public kxf::BasicEvent
 	{
 		public:
-			KxEVENT_MEMBER(DLLEvent, ProcessAttach);
-			KxEVENT_MEMBER(DLLEvent, ProcessDetach);
+			kxf_EVENT_MEMBER(DLLEvent, ProcessAttach);
+			kxf_EVENT_MEMBER(DLLEvent, ProcessDetach);
 
-			KxEVENT_MEMBER(DLLEvent, ThreadAttach);
-			KxEVENT_MEMBER(DLLEvent, ThreadDetach);
+			kxf_EVENT_MEMBER(DLLEvent, ThreadAttach);
+			kxf_EVENT_MEMBER(DLLEvent, ThreadDetach);
 
 		public:
 			DLLEvent() = default;

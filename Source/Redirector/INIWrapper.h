@@ -232,5 +232,5 @@ namespace PPR
 
 namespace kxf
 {
-	KxFlagSet_Declare(PPR::INIWrapper::Options);
+	kxf_FlagSet_Declare(PPR::INIWrapper::Options);
 }

@@ -3,7 +3,7 @@
 
 namespace PPR
 {
-	AppConfigLoader::AppConfigLoader(std::unique_ptr<kxf::IInputStream> stream)
+	AppConfigLoader::AppConfigLoader(std::shared_ptr<kxf::IInputStream> stream)
 	{
 		if (stream && m_Config.Load(*stream))
 		{

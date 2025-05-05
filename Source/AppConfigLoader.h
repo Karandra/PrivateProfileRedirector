@@ -30,9 +30,9 @@ namespace PPR
 
 namespace kxf
 {
-	KxFlagSet_Declare(PPR::RedirectorOption);
-	KxFlagSet_Declare(PPR::XSEOption);
-	KxFlagSet_Declare(PPR::ENBOption);
+	kxf_FlagSet_Declare(PPR::RedirectorOption);
+	kxf_FlagSet_Declare(PPR::XSEOption);
+	kxf_FlagSet_Declare(PPR::ENBOption);
 }
 
 namespace PPR
@@ -61,7 +61,7 @@ namespace PPR
 			}
 
 		public:
-			AppConfigLoader(std::unique_ptr<kxf::IInputStream> stream);
+			AppConfigLoader(std::shared_ptr<kxf::IInputStream> stream);
 			
 		public:
 			bool IsNull() const

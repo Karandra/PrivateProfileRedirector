@@ -8,11 +8,11 @@ namespace ENBAPI
 {
 	bool ENBLink::Load(const kxf::FSPath& filePath)
 	{
-		KX_SCOPEDLOG_ARGS(filePath.GetFullPath(), m_IsLoaded);
+		KXF_SCOPEDLOG_ARGS(filePath.GetFullPath(), m_IsLoaded);
 
 		if (m_IsLoaded)
 		{
-			KX_SCOPEDLOG.Warning().Log("Already loaded");
+			KXF_SCOPEDLOG.Warning().Log("Already loaded");
 			return false;
 		}
 
@@ -43,14 +43,14 @@ namespace ENBAPI
 		}
 		else
 		{
-			KX_SCOPEDLOG.Error().Format("Couldn't load ENB library: {}", kxf::Win32Error::GetLastError());
+			KXF_SCOPEDLOG.Error().Format("Couldn't load ENB library: {}", kxf::Win32Error::GetLastError());
 		}
 
 		if (m_ENBLib.IsNull() || !m_ENBGetVersion || !m_ENBGetSDKVersion || !m_ENBSetCallbackFunction || !m_ENBGetParameter || !m_ENBSetParameter)
 		{
 			m_IsLoaded = false;
-			KX_SCOPEDLOG.Warning().Format("Couldn't load ENB API functions: {}", kxf::Win32Error::GetLastError());
-			KX_SCOPEDLOG.Warning().Format("ENBLib=[{}/'{}'], ENBGetVersion=[{}], ENBGetSDKVersion=[{}], ENBSetCallbackFunction=[{}], ENBGetParameter=[{}], ENBSetParameter=[{}]",
+			KXF_SCOPEDLOG.Warning().Format("Couldn't load ENB API functions: {}", kxf::Win32Error::GetLastError());
+			KXF_SCOPEDLOG.Warning().Format("ENBLib=[{}/'{}'], ENBGetVersion=[{}], ENBGetSDKVersion=[{}], ENBSetCallbackFunction=[{}], ENBGetParameter=[{}], ENBSetParameter=[{}]",
 										  m_ENBLib.GetHandle(),
 										  m_ENBLib ? m_ENBLib.GetFilePath().GetFullPath() : "<null>",
 										  static_cast<void*>(m_ENBGetVersion),
@@ -65,8 +65,8 @@ namespace ENBAPI
 		else
 		{
 			m_IsLoaded = true;
-			KX_SCOPEDLOG.Info().Format("ENB API loaded successfully from '{}'. Version: {}, SDK version: {}", m_ENBLib.GetFilePath().GetFullPath(), m_ENBGetVersion(), m_ENBGetSDKVersion());
-			KX_SCOPEDLOG.SetSuccess();
+			KXF_SCOPEDLOG.Info().Format("ENB API loaded successfully from '{}'. Version: {}, SDK version: {}", m_ENBLib.GetFilePath().GetFullPath(), m_ENBGetVersion(), m_ENBGetSDKVersion());
+			KXF_SCOPEDLOG.SetSuccess();
 
 			return true;
 		}

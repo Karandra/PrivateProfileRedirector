@@ -8,16 +8,16 @@ namespace PPR
 	class GameEvent: public kxf::BasicEvent
 	{
 		public:
-			KxEVENT_MEMBER(GameEvent, PluginsLoaded);
-			KxEVENT_MEMBER(GameEvent, InputLoaded);
-			KxEVENT_MEMBER(GameEvent, DataLoaded);
+			kxf_EVENT_MEMBER(GameEvent, PluginsLoaded);
+			kxf_EVENT_MEMBER(GameEvent, InputLoaded);
+			kxf_EVENT_MEMBER(GameEvent, DataLoaded);
 
-			KxEVENT_MEMBER(GameEvent, NewGame);
-			KxEVENT_MEMBER(GameEvent, GameSave);
-			KxEVENT_MEMBER(GameEvent, GameSaved);
-			KxEVENT_MEMBER(GameEvent, GameLoad);
-			KxEVENT_MEMBER(GameEvent, GameLoaded);
-			KxEVENT_MEMBER(GameEvent, DeleteSavedGame);
+			kxf_EVENT_MEMBER(GameEvent, NewGame);
+			kxf_EVENT_MEMBER(GameEvent, GameSave);
+			kxf_EVENT_MEMBER(GameEvent, GameSaved);
+			kxf_EVENT_MEMBER(GameEvent, GameLoad);
+			kxf_EVENT_MEMBER(GameEvent, GameLoaded);
+			kxf_EVENT_MEMBER(GameEvent, DeleteSavedGame);
 
 		private:
 			const void* m_Data = nullptr;

@@ -51,7 +51,7 @@ namespace PPR
 
 	bool ConsoleCommandOverrider_F4SE::OverrideCommand(const kxf::String& commandName, const kxf::String& commandHelp)
 	{
-		KX_SCOPEDLOG_ARGS(commandName, commandHelp);
+		KXF_SCOPEDLOG_ARGS(commandName, commandHelp);
 
 		if (ObScriptCommand* command = FindCommand(commandName))
 		{
@@ -70,7 +70,7 @@ namespace PPR
 			SafeWriteBuf(reinterpret_cast<uintptr_t>(command), &newCommand, sizeof(newCommand));
 			xSE_LOG("Command '{}' is overridden successfully", command->longName);
 
-			KX_SCOPEDLOG.SetSuccess();
+			KXF_SCOPEDLOG.SetSuccess();
 			return true;
 		}
 

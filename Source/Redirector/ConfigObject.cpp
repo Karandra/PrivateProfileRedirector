@@ -25,7 +25,7 @@ namespace PPR
 		else
 		{
 			auto lastError = kxf::Win32Error::GetLastError();
-			m_ExistOnDisk = kxf::NativeFileSystem().FileExist(m_Path);
+			m_ExistOnDisk = !kxf::NativeFileSystem().GetItem(m_Path).IsNull();
 			kxf::Log::Error("Failed to load file '{}', Exist on disk: {}, {}", m_Path.GetFullPath(), m_ExistOnDisk, lastError);
 
 			return false;
@@ -59,7 +59,7 @@ namespace PPR
 		else
 		{
 			auto lastError = kxf::Win32Error::GetLastError();
-			m_ExistOnDisk = kxf::NativeFileSystem().FileExist(m_Path);
+			m_ExistOnDisk = !kxf::NativeFileSystem().GetItem(m_Path).IsNull();
 			kxf::Log::Error("Failed to save file '{}', Exist on disk: {}, {}", m_Path.GetFullPath(), m_ExistOnDisk, lastError);
 
 			return false;

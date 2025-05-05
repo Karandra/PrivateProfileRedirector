@@ -18,22 +18,22 @@ namespace PPR
 	// ENBInterface
 	ENBInterface::ENBInterface(DLLApplication& app, const AppConfigLoader& config)
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		bool loaded = m_ENBLink.Load();
 
-		KX_SCOPEDLOG.SetSuccess(loaded);
+		KXF_SCOPEDLOG.SetSuccess(loaded);
 	}
 	ENBInterface::~ENBInterface()
 	{
-		KX_SCOPEDLOG_FUNC;
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 
 	// AppModule
 	void ENBInterface::OnInit(DLLApplication& app)
 	{
-		KX_SCOPEDLOG_FUNC;
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 }

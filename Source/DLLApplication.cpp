@@ -194,7 +194,7 @@ namespace PPR
 	{
 		// Load config and setup logging
 		auto config = LoadConfig();
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		SetupFramework();
 		LogInformation();
@@ -209,19 +209,19 @@ namespace PPR
 		CallModuleInit(m_Redirector);
 		SetupInfrastructure();
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 		return true;
 	}
 	void DLLApplication::OnExit()
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		CallModuleExit(m_Redirector);
 		CallModuleExit(m_ENBInterface);
 		CallModuleExit(m_XSEInterface);
 		CoreApplication::OnExit();
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 
 	// DLLApplication

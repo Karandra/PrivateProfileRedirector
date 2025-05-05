@@ -29,7 +29,7 @@ namespace PPR
 			int m_SaveOnWriteBuffer = 0;
 
 			mutable kxf::ReadWriteLock m_INIMapLock;
-			kxf::Utility::UnorderedMapNoCase<kxf::String, std::unique_ptr<ConfigObject>> m_INIMap;
+			kxf::Utility::UnorderedMapIC<kxf::String, std::unique_ptr<ConfigObject>> m_INIMap;
 			std::atomic<size_t> m_TotalWriteCount = 0;
 
 			std::vector<kxf::CFunctionHook> m_UntypedHooks;

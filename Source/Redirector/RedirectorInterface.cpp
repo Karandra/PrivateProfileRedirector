@@ -20,7 +20,7 @@ namespace PPR
 
 	void RedirectorInterface::LoadConfig(DLLApplication& app, const AppConfigLoader& config)
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		// Load options
 		config.LoadRedirectorOption(m_Options, RedirectorOption::WriteProtected, L"WriteProtected");
@@ -40,23 +40,23 @@ namespace PPR
 		auto encodingConverter = std::make_unique<kxf::NativeEncodingConverter>(config.GetRedirectorSection().GetAttributeInt(L"CodePage", CP_ACP));
 
 		// Print options
-		KX_SCOPEDLOG.Info().Format("WriteProtected: {}", m_Options.Contains(RedirectorOption::WriteProtected));
-		KX_SCOPEDLOG.Info().Format("NativeWrite: {}", m_Options.Contains(RedirectorOption::NativeWrite));
-		KX_SCOPEDLOG.Info().Format("SaveOnWrite: {}", m_Options.Contains(RedirectorOption::SaveOnWrite));
-		KX_SCOPEDLOG.Info().Format("SaveOnThreadDetach: {}", m_Options.Contains(RedirectorOption::SaveOnThreadDetach));
-		KX_SCOPEDLOG.Info().Format("SaveOnProcessDetach: {}", m_Options.Contains(RedirectorOption::SaveOnProcessDetach));
-		KX_SCOPEDLOG.Info().Format("SaveOnGameSave: {}", m_Options.Contains(RedirectorOption::SaveOnGameSave));
-		KX_SCOPEDLOG.Info().Format("ProcessInlineComments: {}", m_Options.Contains(RedirectorOption::ProcessInlineComments));
-		KX_SCOPEDLOG.Info().Format("SaveOnWriteBuffer: {}", m_SaveOnWriteBuffer);
-		KX_SCOPEDLOG.Info().Format("CodePage: '{}'/{}", encodingConverter->GetEncodingName(), encodingConverter->GetCodePage());
+		KXF_SCOPEDLOG.Info().Format("WriteProtected: {}", m_Options.Contains(RedirectorOption::WriteProtected));
+		KXF_SCOPEDLOG.Info().Format("NativeWrite: {}", m_Options.Contains(RedirectorOption::NativeWrite));
+		KXF_SCOPEDLOG.Info().Format("SaveOnWrite: {}", m_Options.Contains(RedirectorOption::SaveOnWrite));
+		KXF_SCOPEDLOG.Info().Format("SaveOnThreadDetach: {}", m_Options.Contains(RedirectorOption::SaveOnThreadDetach));
+		KXF_SCOPEDLOG.Info().Format("SaveOnProcessDetach: {}", m_Options.Contains(RedirectorOption::SaveOnProcessDetach));
+		KXF_SCOPEDLOG.Info().Format("SaveOnGameSave: {}", m_Options.Contains(RedirectorOption::SaveOnGameSave));
+		KXF_SCOPEDLOG.Info().Format("ProcessInlineComments: {}", m_Options.Contains(RedirectorOption::ProcessInlineComments));
+		KXF_SCOPEDLOG.Info().Format("SaveOnWriteBuffer: {}", m_SaveOnWriteBuffer);
+		KXF_SCOPEDLOG.Info().Format("CodePage: '{}'/{}", encodingConverter->GetEncodingName(), encodingConverter->GetCodePage());
 		m_EncodingConverter = std::move(encodingConverter);
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 
 	void RedirectorInterface::InitHooks()
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		auto& controller = kxf::CFunctionHookController::GetInstance();
 		if (auto transaction = controller.NewTransaction())
@@ -74,12 +74,12 @@ namespace PPR
 			transaction.AttachFunction(m_WriteStringA, &::WritePrivateProfileStringA, &PrivateProfile::WriteStringA, "WritePrivateProfileStringA");
 			transaction.AttachFunction(m_WriteStringW, &::WritePrivateProfileStringW, &PrivateProfile::WriteStringW, "WritePrivateProfileStringW");
 
-			KX_SCOPEDLOG.SetSuccess(transaction.Commit());
+			KXF_SCOPEDLOG.SetSuccess(transaction.Commit());
 		}
 	}
 	void RedirectorInterface::RestoreHooks()
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		auto& controller = kxf::CFunctionHookController::GetInstance();
 		if (auto transaction = controller.NewTransaction())
@@ -91,7 +91,7 @@ namespace PPR
 			transaction.DetachHook(m_WriteStringA);
 			transaction.DetachHook(m_WriteStringW);
 
-			KX_SCOPEDLOG.SetSuccess(transaction.Commit());
+			KXF_SCOPEDLOG.SetSuccess(transaction.Commit());
 		}
 	}
 	void RedirectorInterface::SetupIntegrations(DLLApplication& app)
@@ -182,35 +182,35 @@ namespace PPR
 
 	RedirectorInterface::RedirectorInterface(DLLApplication& app, const AppConfigLoader& config)
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		LoadConfig(app, config);
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 	RedirectorInterface::~RedirectorInterface()
 	{
-		KX_SCOPEDLOG_FUNC;
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 
 	// AppModule
 	void RedirectorInterface::OnInit(DLLApplication& app)
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		InitHooks();
 		SetupIntegrations(app);
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 	void RedirectorInterface::OnExit(DLLApplication& app)
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		RestoreHooks();
 
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 	}
 
 	// RedirectorInterface
@@ -226,26 +226,26 @@ namespace PPR
 		}
 
 		// Load the file
-		KX_SCOPEDLOG_ARGS(filePath);
+		KXF_SCOPEDLOG_ARGS(filePath);
 		kxf::WriteLockGuard lock(m_INIMapLock);
 
 		if (filePath.IsEmpty())
 		{
-			KX_SCOPEDLOG.Warning().Format("The requested file is an empty string, an empty config object will be used for it");
+			KXF_SCOPEDLOG.Warning().Format("The requested file is an empty string, an empty config object will be used for it");
 		}
 
 		auto result = m_INIMap.insert_or_assign(filePath, std::make_unique<ConfigObject>(filePath));
 		auto& config = result.first->second;
 		config->LoadFile();
 
-		KX_SCOPEDLOG.Info().Format("Attempt to access file: '{}' -> file object {}. Exist on disk: {}", filePath, result.second ? "initialized" : "overwritten", config->IsExistOnDisk());
+		KXF_SCOPEDLOG.Info().Format("Attempt to access file: '{}' -> file object {}. Exist on disk: {}", filePath, result.second ? "initialized" : "overwritten", config->IsExistOnDisk());
 		
-		KX_SCOPEDLOG.SetSuccess();
+		KXF_SCOPEDLOG.SetSuccess();
 		return *config;
 	}
 	size_t RedirectorInterface::SaveChangedFiles(const wchar_t* message)
 	{
-		KX_SCOPEDLOG_ARGS(message, m_TotalWriteCount.load());
+		KXF_SCOPEDLOG_ARGS(message, m_TotalWriteCount.load());
 
 		size_t changedCount = 0;
 		if (kxf::ReadLockGuard lock(m_INIMapLock); !m_INIMap.empty())
@@ -259,19 +259,19 @@ namespace PPR
 					if (config->SaveFile())
 					{
 						changedCount++;
-						KX_SCOPEDLOG.Info().Format("File saved: '{}', is empty: {}", path, config->IsEmpty());
+						KXF_SCOPEDLOG.Info().Format("File saved: '{}', is empty: {}", path, config->IsEmpty());
 					}
 				}
 				else
 				{
-					KX_SCOPEDLOG.Info().Format("No changes: '{}', is empty: {}", path, config->IsEmpty());
+					KXF_SCOPEDLOG.Info().Format("No changes: '{}', is empty: {}", path, config->IsEmpty());
 				}
 			}
-			KX_SCOPEDLOG.Info().Format("All changed files saved. Total: {}, Changed: {}", m_INIMap.size(), changedCount);
+			KXF_SCOPEDLOG.Info().Format("All changed files saved. Total: {}, Changed: {}", m_INIMap.size(), changedCount);
 		}
 		m_TotalWriteCount = 0;
 
-		KX_SCOPEDLOG.LogReturn(changedCount);
+		KXF_SCOPEDLOG.LogReturn(changedCount);
 		return changedCount;
 	}
 	size_t RedirectorInterface::OnFileWrite(ConfigObject& configObject) noexcept
@@ -296,23 +296,23 @@ namespace PPR
 	}
 	size_t RedirectorInterface::RefreshINI()
 	{
-		KX_SCOPEDLOG_FUNC;
+		KXF_SCOPEDLOG_FUNC;
 
 		size_t count = 0;
 		if (kxf::WriteLockGuard lock(m_INIMapLock); !m_INIMap.empty())
 		{
 			for (const auto& [path, config]: m_INIMap)
 			{
-				KX_SCOPEDLOG.Info().Format(L"Reloading '{}'", path);
+				KXF_SCOPEDLOG.Info().Format(L"Reloading '{}'", path);
 
 				auto lock = config->LockExclusive();
 				config->LoadFile();
 				count++;
 			}
-			KX_SCOPEDLOG.Info().Format(L"Executing 'RefreshINI' done, {} files reloaded", count);
+			KXF_SCOPEDLOG.Info().Format(L"Executing 'RefreshINI' done, {} files reloaded", count);
 		}
 
-		KX_SCOPEDLOG.LogReturn(count);
+		KXF_SCOPEDLOG.LogReturn(count);
 		return count;
 	}
 }
